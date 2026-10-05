@@ -1,0 +1,13 @@
+# Godot 4+ specific ignores
+.godot/
+/android/
+
+# .NET build outputs
+[Bb]in/
+[Oo]bj/
+.mono/
+
+# IDE-generated files
+.vs/
+*.user
+*.suo

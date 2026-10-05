@@ -1,0 +1,39 @@
+[gd_scene format=3 uid="uid://tmrc5w5exf4g"]
+
+[ext_resource type="Texture2D" uid="uid://7fgnkedt57cm" path="res://assets/Placeholders/Background Placeholder.jpeg" id="1_014kd"]
+[ext_resource type="Script" uid="uid://cw3jrvb3fqhrs" path="res://scripts/Level1.cs" id="1_bswci"]
+[ext_resource type="PackedScene" uid="uid://yp32p7bxnjnp" path="res://scenes/Tools/seed_packet.tscn" id="3_rus8k"]
+[ext_resource type="PackedScene" uid="uid://fys18pqclg0w" path="res://scenes/Tools/hoe.tscn" id="4_5xbjy"]
+[ext_resource type="PackedScene" uid="uid://cwiete4g80ocy" path="res://scenes/Tools/trowel.tscn" id="5_pa8r4"]
+[ext_resource type="PackedScene" uid="uid://b6xvialk6lpmf" path="res://scenes/Tools/watering_pail.tscn" id="6_15mv3"]
+[ext_resource type="PackedScene" uid="uid://ej42hf5kiacn" path="res://scenes/Tools/harvesting_bag.tscn" id="7_e3sih"]
+[ext_resource type="PackedScene" uid="uid://bstu756of0aw3" path="res://scenes/Tools/fertilizer.tscn" id="8_15mv3"]
+
+[node name="Level1" type="Node2D" unique_id=188599525]
+script = ExtResource("1_bswci")
+
+[node name="Background" type="Sprite2D" parent="." unique_id=1595799557]
+scale = Vector2(7.7837844, 4.3783784)
+texture = ExtResource("1_014kd")
+centered = false
+
+[node name="Camera" type="Camera2D" parent="." unique_id=1576560844]
+anchor_mode = 0
+
+[node name="SeedPacket" parent="." unique_id=1733304180 instance=ExtResource("3_rus8k")]
+position = Vector2(1661, -252)
+
+[node name="Hoe" parent="." unique_id=456393973 instance=ExtResource("4_5xbjy")]
+position = Vector2(523, -263)
+
+[node name="Trowel" parent="." unique_id=901388622 instance=ExtResource("5_pa8r4")]
+position = Vector2(2637, -264)
+
+[node name="WateringPail" parent="." unique_id=611365202 instance=ExtResource("6_15mv3")]
+position = Vector2(3618, -251)
+
+[node name="HarvestingBag" parent="." unique_id=838321060 instance=ExtResource("7_e3sih")]
+position = Vector2(-465, -264)
+
+[node name="Fertilizer" parent="." unique_id=499623456 instance=ExtResource("8_15mv3")]
+position = Vector2(766, -261)

@@ -1,0 +1,25 @@
+[gd_scene format=3 uid="uid://dvr2i3kiholpi"]
+
+[ext_resource type="Texture2D" uid="uid://7fgnkedt57cm" path="res://assets/Placeholders/Background Placeholder.jpeg" id="1_sa3yf"]
+[ext_resource type="Script" uid="uid://dhemnavt3n3ii" path="res://scripts/PlayButton.cs" id="2_s4lrb"]
+
+[node name="TitleScreen" type="Node2D" unique_id=475059401]
+
+[node name="Camera" type="Camera2D" parent="." unique_id=1669018157]
+anchor_mode = 0
+
+[node name="Background" type="Sprite2D" parent="." unique_id=123173198]
+scale = Vector2(7.777027, 4.371622)
+texture = ExtResource("1_sa3yf")
+centered = false
+
+[node name="PlayButton" type="Button" parent="." unique_id=372315821]
+offset_left = 462.0
+offset_top = 295.0
+offset_right = 693.0
+offset_bottom = 350.0
+action_mode = 0
+text = "Play
+"
+script = ExtResource("2_s4lrb")
+metadata/_edit_use_anchors_ = true

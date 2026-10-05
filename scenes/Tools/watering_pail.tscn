@@ -1,0 +1,20 @@
+[gd_scene format=3 uid="uid://b6xvialk6lpmf"]
+
+[ext_resource type="Script" uid="uid://ckjvi8wbaw2hd" path="res://scripts/Tools/WateringPail.cs" id="1_snuo7"]
+[ext_resource type="Texture2D" uid="uid://bxxwvbbja0ob5" path="res://assets/Placeholders/WateringPail Placeholder.png" id="2_ry2o5"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_4ujno"]
+radius = 101.0
+height = 202.0
+
+[node name="WateringPail" type="Area2D" unique_id=1733304180]
+script = ExtResource("1_snuo7")
+
+[node name="Sprite" type="Sprite2D" parent="." unique_id=567985806]
+position = Vector2(541.99994, 355.99997)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("2_ry2o5")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=247367164]
+position = Vector2(540, 351)
+shape = SubResource("CapsuleShape2D_4ujno")
