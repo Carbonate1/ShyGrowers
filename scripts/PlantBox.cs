@@ -200,6 +200,26 @@ public partial class PlantBox : Area2D
 		return ToLocal(plotShape.GlobalPosition);
 	}
 
+	public List<Plant> GetAdjacentPlants(int plotIdx, int plotCount)
+	{
+		List<Plant> adjPlants = new List<Plant>();
+
+		foreach (PlantPlacement placement in placements)
+		{
+			if (placement.FirstPlot + placement.PlotCount == plotIdx ||
+				placement.FirstPlot == plotIdx + plotCount)
+			{
+				adjPlants.Add(placement.Plant);
+			}
+		}
+
+		if (adjPlants.Count == 0)
+		{
+			adjPlants = null;
+		}
+		return adjPlants;
+	}
+
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
