@@ -56,7 +56,7 @@ public partial class Level1 : Node2D
 		for (int i = 0; i < boxViews.Length; i++)
 		{
 			PlantBox boxViewInstance = boxViewScene.Instantiate<PlantBox>();
-			boxViewInstance.InitializeBoxIdx(i);
+			boxViewInstance.Initialize(newBoxIdx: i, season: PlantBox.Season.Any);
 			boxViewInstance.Position = new Vector2(i * BOX_DISTANCE, 0);
 			boxViews[i] = boxViewInstance;
 			boxViewInstance.PlantClicked += OnPlantClicked;
