@@ -174,7 +174,10 @@ public partial class Level1 : Node2D
 		return false;
 	}
 
-	private void OnEmptyPlotClicked(PlantBox plantBox, int plotIdx, MouseButton button)
+	private void OnEmptyPlotClicked(
+		PlantBox plantBox, 
+		int plotIdx, 
+		MouseButton button)
 	{
 		if (plantMenuLayer is not null)
 		{

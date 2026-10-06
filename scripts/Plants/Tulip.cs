@@ -16,7 +16,10 @@ public partial class Tulip : Plant
 		OutOfViewTimeMultiplier: OUT_OF_VIEW_TIME_MULTIPLIER
 	);
 
-	public Tulip() : base(PLANT_DATA, plantSize: 1, growingSeason: PlantBox.Season.Spring)
+	public Tulip() : base(
+		plantData: PLANT_DATA, 
+		plantSize: 1, 
+		growingSeason: PlantBox.Season.Spring)
 	{
 		SetStageTimerDuration(GROWTH_TIME);
 	}
