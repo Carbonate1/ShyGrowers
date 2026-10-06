@@ -20,7 +20,7 @@ public partial class Level1 : Node2D
 	private int currentPlantBoxIdx;
 	private CanvasLayer plantMenuLayer;
 	private PlantBox pendingPlantBox;
-	private int pendingPlotIndex;
+	private int pendingPlotIdx;
 
 	public PlantBox CurrentPlantBox => boxViews[currentPlantBoxIdx];
 	public ToolItem LeftHandItem => GetHandItem(MouseButton.Left);
@@ -91,9 +91,9 @@ public partial class Level1 : Node2D
 		}
 	}
 
-	private void SelectPlantBox(int index)
+	private void SelectPlantBox(int idx)
 	{
-		currentPlantBoxIdx = (index + boxViews.Length) % boxViews.Length;
+		currentPlantBoxIdx = (idx + boxViews.Length) % boxViews.Length;
 		UpdatePlayerOrientation();
 		CurrentPlantBoxChanged?.Invoke(CurrentPlantBox);
 
@@ -174,7 +174,7 @@ public partial class Level1 : Node2D
 		return false;
 	}
 
-	private void OnEmptyPlotClicked(PlantBox plantBox, int plotIndex, MouseButton button)
+	private void OnEmptyPlotClicked(PlantBox plantBox, int plotIdx, MouseButton button)
 	{
 		if (plantMenuLayer is not null)
 		{
@@ -184,7 +184,7 @@ public partial class Level1 : Node2D
 		ToolItem item = GetHandItem(button);
 		if (item is SeedPacket)
 		{
-			item.UseOnEmptyPlot(plantBox, plotIndex);
+			item.UseOnEmptyPlot(plantBox, plotIdx);
 		}
 	}
 
@@ -196,7 +196,7 @@ public partial class Level1 : Node2D
 		}
 
 		pendingPlantBox = plantBox;
-		pendingPlotIndex = plotIndex;
+		pendingPlotIdx = plotIdx;
 		plantMenuLayer = new CanvasLayer { Layer = 10 };
 		var backdrop = new ColorRect
 		{
@@ -259,7 +259,7 @@ public partial class Level1 : Node2D
 		}
 
 		Plant plant = plantScene.Instantiate<Plant>();
-		if (!pendingPlantBox.TryPlant(plant, pendingPlotIndex))
+		if (!pendingPlantBox.TryPlant(plant, pendingPlotIdx))
 		{
 			plant.Free();
 			GD.PushWarning($"There is not enough room to plant {option.DisplayName} in this plot.");
@@ -267,7 +267,7 @@ public partial class Level1 : Node2D
 		}
 
 		pendingPlantBox.AddChild(plant);
-		plant.Position = pendingPlantBox.GetPlantPosition(pendingPlotIndex, plant.plantSize);
+		plant.Position = pendingPlantBox.GetPlantPosition(pendingPlotIdx, plant.plantSize);
 		ClosePlantMenu();
 	}
 
@@ -296,30 +296,30 @@ public partial class Level1 : Node2D
 
 	private void EquipHand(ToolItem item, MouseButton button)
 	{
-		int handIndex = GetHandIndex(button);
-		int otherHandIndex = 1 - handIndex;
-		if (item is not null && item == handItems[otherHandIndex])
+		int handIdx = GetHandIdx(button);
+		int otherHandIdx = 1 - handIdx;
+		if (item is not null && item == handItems[otherHandIdx])
 		{
 			throw new InvalidOperationException("An item cannot be held in both hands.");
 		}
 
-		ToolItem previousItem = handItems[handIndex];
+		ToolItem previousItem = handItems[handIdx];
 		if (previousItem == item)
 		{
 			return;
 		}
 
 		previousItem?.SetHeld(false);
-		handItems[handIndex] = item;
+		handItems[handIdx] = item;
 		item?.SetHeld(true);
 	}
 
 	private ToolItem GetHandItem(MouseButton button)
 	{
-		return handItems[GetHandIndex(button)];
+		return handItems[GetHandIdx(button)];
 	}
 
-	private static int GetHandIndex(MouseButton button)
+	private static int GetHandIdx(MouseButton button)
 	{
 		switch (button)
 		{
