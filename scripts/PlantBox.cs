@@ -4,7 +4,19 @@ using System.Collections.Generic;
 
 public partial class PlantBox : Area2D
 {
+	public enum Season
+	{
+		Winter,
+		Spring,
+		Summer,
+		Fall,
+		Any
+	};
+
+
 	public const int PLOT_COUNT = 6;
+
+	public Season season;
 
 	private sealed record PlantPlacement(Plant Plant, int FirstPlot, int PlotCount);
 	private readonly List<PlantPlacement> placements = new();
@@ -16,7 +28,13 @@ public partial class PlantBox : Area2D
 	public event Action<Plant, MouseButton> PlantClicked;
 	public event Action<PlantBox, int, MouseButton> EmptyPlotClicked;
 
-	public void InitializeBoxIdx(int newBoxIdx)
+	public void Initialize(int newBoxIdx, Season season)
+	{
+		InitializeBoxIdx(newBoxIdx);
+		InitializeSeason(season);
+	}
+
+	private void InitializeBoxIdx(int newBoxIdx)
 	{
 		ArgumentOutOfRangeException.ThrowIfNegative(newBoxIdx);
 		if (boxIdx != -1)
@@ -25,6 +43,11 @@ public partial class PlantBox : Area2D
 		}
 
 		boxIdx = newBoxIdx;
+	}
+
+	private void InitializeSeason(Season season)
+	{
+		this.season = season;
 	}
 
 	public Plant GetPlantAtPlot(int plotIdx)

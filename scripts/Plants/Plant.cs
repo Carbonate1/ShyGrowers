@@ -33,6 +33,46 @@ public abstract partial class Plant : Node2D
 		Harvested
 	}
 
+	// Member variables
+
+	// Private
+	private readonly PlantData plantData;
+	private State plantState;
+	private Area2D stageArea;
+	private readonly Dictionary<State, CollisionShape2D> stageShapes = new();
+	private readonly Dictionary<State, Sprite2D> stageSprites = new();
+	private double configuredStageDuration;
+	private int owningPlantBoxIdx = PLANT_BOX_IDX_PLACEHOLDER;
+	private int playerOrientationIdx = PLANT_BOX_IDX_PLACEHOLDER;
+
+	// Protected
+	protected Timer stageTimer;
+	protected bool decayStarted;
+	protected int saleValue; // TODO: Set this up to reflected optimal value * customer willingness * time spent decaying
+
+	// Public
+	public Care careNeeded;
+	public int plantSize; // Indicates how many plots this plant occupies in a PlantBox
+	public PlantBox.Season growingSeason;
+
+	// Properties
+	protected State currentState
+	{
+		get => plantState;
+		set
+		{
+			plantState = value;
+			UpdateGrowthStage();
+		}
+	}
+
+	public bool IsHarvestable => currentState == State.Harvestable;
+	public string PlantTypeName => GetType().Name;
+
+	// Events
+	public event Action<Plant, Care> careCompleted;
+	public event Action<Plant, MouseButton> clicked;
+
 	protected State NextState()
 	{
 		return currentState switch
@@ -50,38 +90,10 @@ public abstract partial class Plant : Node2D
 		};
 	}
 
-	private readonly PlantData plantData;
-	private State plantState;
-	private Area2D stageArea;
-	private readonly Dictionary<State, CollisionShape2D> stageShapes = new();
-	private readonly Dictionary<State, Sprite2D> stageSprites = new();
-	private double configuredStageDuration;
-
-	protected State currentState
-	{
-		get => plantState;
-		set
-		{
-			plantState = value;
-			UpdateGrowthStage();
-		}
-	}
-
-	public Care careNeeded;
-	protected Timer stageTimer;
-	protected bool decayStarted;
-	private int owningPlantBoxIdx = PLANT_BOX_IDX_PLACEHOLDER;
-	private int playerOrientationIdx = PLANT_BOX_IDX_PLACEHOLDER;
-	protected int saleValue; // TODO: Set this up to reflected optimal value * customer willingness * time spent decaying
-
-	public int plantSize; // Indicates how many plots this plant occupies in a PlantBox
-	public bool IsHarvestable => currentState == State.Harvestable;
-	public string PlantTypeName => GetType().Name;
-
-	public event Action<Plant, Care> careCompleted;
-	public event Action<Plant, MouseButton> clicked;
-
-	protected Plant(PlantData plantData, int plantSize)
+	protected Plant(
+		PlantData plantData,
+		int plantSize,
+		PlantBox.Season growingSeason)
 	{
 		ArgumentNullException.ThrowIfNull(plantData);
 		ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(plantData.OutOfViewTimeMultiplier, 0);
@@ -92,6 +104,7 @@ public abstract partial class Plant : Node2D
 		ArgumentOutOfRangeException.ThrowIfLessThan(plantSize, 1);
 		ArgumentOutOfRangeException.ThrowIfGreaterThan(plantSize, PlantBox.PLOT_COUNT);
 
+		this.growingSeason = growingSeason;
 		this.plantData = plantData;
 		this.plantSize = plantSize;
 		currentState = State.Planted;

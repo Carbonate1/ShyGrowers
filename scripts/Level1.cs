@@ -191,7 +191,46 @@ public partial class Level1 : Node2D
 		}
 	}
 
-	private void ShowPlantMenu(PlantBox plantBox, int plotIndex)
+	private bool IsPlantableHere(
+		Plant option,
+		PlantBox plantBox,
+		int plotIdx)
+	{
+		if (plotIdx < 0 || plotIdx + option.plantSize > PlantBox.PLOT_COUNT)
+		{
+			return false;
+		}
+
+		for (int occupiedPlotIdx = plotIdx; occupiedPlotIdx < plotIdx + option.plantSize; occupiedPlotIdx++)
+		{
+			if (plantBox.GetPlantAtPlot(occupiedPlotIdx) is not null)
+			{
+				return false;
+			}
+		}
+
+		// If the plant's season matches with the plantBox's sesason || an adjacent plant allows for this plant to grow, return true
+		if (plantBox.season == PlantBox.Season.Any ||
+			option.growingSeason == plantBox.season)
+		{
+			return true;
+		}
+
+		List<Plant> adjPlants = plantBox.GetAdjacentPlants(plotIdx, option.plantSize);
+		if (adjPlants is null)
+		{
+			return false;
+		}
+
+		foreach (Plant plant in adjPlants)
+		{
+			// TODO: Create a member of Plant for adjacency bonuses; specifically for allowing other seasonal plants
+		}
+
+		return true;
+	}
+
+	private void ShowPlantMenu(PlantBox plantBox, int plotIdx)
 	{
 		if (plantMenuLayer is not null)
 		{
@@ -234,6 +273,9 @@ public partial class Level1 : Node2D
 		{
 			var button = new Button { Text = option.DisplayName };
 			button.Pressed += () => SelectPlant(option);
+			Plant plant = LoadPlant(option);
+			button.Disabled = !IsPlantableHere(plant, pendingPlantBox, pendingPlotIdx);
+			plant.Free();
 			options.AddChild(button);
 		}
 
