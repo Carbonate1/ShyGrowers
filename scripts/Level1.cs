@@ -255,13 +255,8 @@ public partial class Level1 : Node2D
 
 	private void SelectPlant(PlantOption option)
 	{
-		PackedScene plantScene = GD.Load<PackedScene>(option.ScenePath);
-		if (plantScene is null)
-		{
-			throw new InvalidOperationException($"Could not load plant scene at '{option.ScenePath}'.");
-		}
+		Plant plant = LoadPlant(option);
 
-		Plant plant = plantScene.Instantiate<Plant>();
 		if (!pendingPlantBox.TryPlant(plant, pendingPlotIdx))
 		{
 			plant.Free();
@@ -272,6 +267,17 @@ public partial class Level1 : Node2D
 		pendingPlantBox.AddChild(plant);
 		plant.Position = pendingPlantBox.GetPlantPosition(pendingPlotIdx, plant.plantSize);
 		ClosePlantMenu();
+	}
+
+	private static Plant LoadPlant(PlantOption option)
+	{
+		PackedScene plantScene = GD.Load<PackedScene>(option.ScenePath);
+		if (plantScene is null)
+		{
+			throw new InvalidOperationException($"Could not load plant scene at '{option.ScenePath}'.");
+		}
+
+		return plantScene.Instantiate<Plant>();
 	}
 
 	private void ClosePlantMenu()
