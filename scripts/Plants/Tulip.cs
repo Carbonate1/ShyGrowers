@@ -8,16 +8,15 @@ public partial class Tulip : Plant
 	const int HARVESTABLE_TIME = 10; // in seconds
 	const int DECAY_TIME = 5; // in seconds
 	const double OUT_OF_VIEW_TIME_MULTIPLIER = 2.0;
+	static readonly PlantData PLANT_DATA = new(
+		GrowthTime: GROWTH_TIME,
+		OptimalSaleValue: OPTIMAL_SALE_VALUE,
+		HarvestableTime: HARVESTABLE_TIME,
+		DecayTime: DECAY_TIME,
+		OutOfViewTimeMultiplier: OUT_OF_VIEW_TIME_MULTIPLIER
+	);
 
-	public Tulip() : base(
-		new PlantData(
-			GrowthTime: GROWTH_TIME,
-			OptimalSaleValue: OPTIMAL_SALE_VALUE,
-			HarvestableTime: HARVESTABLE_TIME,
-			DecayTime: DECAY_TIME,
-			OutOfViewTimeMultiplier: OUT_OF_VIEW_TIME_MULTIPLIER
-		),
-		plantSize: 1)
+	public Tulip() : base(PLANT_DATA, plantSize: 1, growingSeason: PlantBox.Season.Spring)
 	{
 		SetStageTimerDuration(GROWTH_TIME);
 	}
