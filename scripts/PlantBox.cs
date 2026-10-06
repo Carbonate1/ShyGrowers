@@ -106,22 +106,6 @@ public partial class PlantBox : Area2D
 		return true;
 	}
 
-	public bool CareForPlant(Plant plant, Care care)
-	{
-		ArgumentNullException.ThrowIfNull(plant);
-
-		foreach (PlantPlacement placement in placements)
-		{
-			if (placement.Plant == plant)
-			{
-				plant.careNeeded = care;
-				return true;
-			}
-		}
-
-		return false;
-	}
-
 	private static void ValidatePlotIdx(int plotIdx)
 	{
 		ArgumentOutOfRangeException.ThrowIfNegative(plotIdx);
