@@ -27,6 +27,7 @@ public partial class Level1 : Node2D
 	private Camera2D camera;
 	private int currentPlantBoxIdx;
 	private int pendingPlotIdx;
+	private bool showingInventory;
 
 	// Properties
 	public PlantBox CurrentPlantBox => boxViews[currentPlantBoxIdx];
@@ -72,6 +73,7 @@ public partial class Level1 : Node2D
 		currentPlantBoxIdx = 0;
 		UpdatePlayerOrientation();
 		CurrentPlantBoxChanged?.Invoke(CurrentPlantBox);
+		showingInventory = false;
 	}
 
 	public override void _UnhandledInput(InputEvent @event)
@@ -86,13 +88,17 @@ public partial class Level1 : Node2D
 			return;
 		}
 
-		if (keyEvent.Keycode == Key.A)
+		switch (keyEvent.Keycode)
 		{
-			SelectPlantBox(currentPlantBoxIdx - 1);
-		}
-		else if (keyEvent.Keycode == Key.D)
-		{
-			SelectPlantBox(currentPlantBoxIdx + 1);
+			case Key.A:
+				SelectPlantBox(currentPlantBoxIdx - 1);
+				break;
+			case Key.D:
+				SelectPlantBox(currentPlantBoxIdx + 1);
+				break;
+			case Key.Q:
+				ToggleInventory();
+				break;
 		}
 	}
 
@@ -289,6 +295,30 @@ public partial class Level1 : Node2D
 		menu.AddChild(options);
 		backdrop.AddChild(menu);
 		AddChild(plantMenuLayer);
+	}
+
+	private void ToggleInventory()
+	{
+		if (showingInventory)
+		{
+			HideInventory();
+			showingInventory = false;
+		}
+		else
+		{
+			ShowInventory();
+			showingInventory = true;
+		}
+	}
+
+	private void ShowInventory()
+	{
+		
+	}
+
+	private void HideInventory()
+	{
+		
 	}
 
 	private void OnPlantMenuBackdropInput(InputEvent @event)

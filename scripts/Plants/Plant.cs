@@ -47,7 +47,7 @@ public abstract partial class Plant : Node2D
 	// Protected
 	protected Timer stageTimer;
 	protected bool decayStarted;
-	protected int saleValue; // TODO: Set this up to reflected optimal value * customer willingness * time spent decaying
+	protected float saleValue; // TODO: Set this up to reflected optimal value * customer willingness * time spent decaying
 
 	// Public
 	public Care careNeeded;
@@ -72,6 +72,9 @@ public abstract partial class Plant : Node2D
 								currentState == State.Growing2 || 
 								currentState == State.Harvestable;
 	public string PlantTypeName => GetType().Name;
+	public Texture2D HarvestableTexture => stageSprites[State.Harvestable].Texture;
+	public float GetSaleValue => saleValue;
+	
 
 	// Events
 	public event Action<Plant, Care> careCompleted;
