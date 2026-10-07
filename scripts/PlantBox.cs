@@ -96,6 +96,7 @@ public partial class PlantBox : Area2D
 		plant.SetPlayerOrientationIdx(playerOrientationIdx);
 		plant.clicked += OnPlantClicked;
 		placements.Add(new PlantPlacement(plant, requestedPlotIdx, plant.plantSize));
+		plant.SetOwningPlantBox(this);
 		return true;
 	}
 
