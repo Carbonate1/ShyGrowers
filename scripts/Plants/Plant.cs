@@ -5,7 +5,7 @@ using System.Collections.Generic;
 public sealed record PlantData(
 	int GrowthTime, // Time between each growth stage
 	int OptimalSaleValue, // Value of the plant when sold at its optimal time
-	int HarvestableTime, // Time before the plant decays after reaching its optimal sale value
+	int HarvestableTime, // Time before the plant decays after reaching its harvestable stage
 	int DecayTime,	// Time before the plant dies after reaching its decay stage
 	double OutOfViewTimeMultiplier
 );
@@ -13,15 +13,13 @@ public sealed record PlantData(
 public enum Care
 {
 	None,
-	Water,
-	Fertilizer,
-	Weed
+	Watering,
+	Fertilizing,
+	Weeding
 }
 
 public abstract partial class Plant : Node2D
 {
-	protected const int PLANT_BOX_IDX_PLACEHOLDER = -1;
-
 	public enum State
 	{
 		Planted,
@@ -42,8 +40,8 @@ public abstract partial class Plant : Node2D
 	private readonly Dictionary<State, CollisionShape2D> stageShapes = new();
 	private readonly Dictionary<State, Sprite2D> stageSprites = new();
 	private double configuredStageDuration;
-	private int owningPlantBoxIdx = PLANT_BOX_IDX_PLACEHOLDER;
-	private int playerOrientationIdx = PLANT_BOX_IDX_PLACEHOLDER;
+	private int owningPlantBoxIdx = -1;
+	private int playerOrientationIdx = -1;
 
 	// Protected
 	protected Timer stageTimer;
@@ -53,7 +51,8 @@ public abstract partial class Plant : Node2D
 	// Public
 	public Care careNeeded;
 	public int plantSize; // Indicates how many plots this plant occupies in a PlantBox
-	public PlantBox.Season growingSeason;
+	public Season growingSeason;
+	public AdjacencyBonus adjBonus;
 
 	// Properties
 	protected State currentState
@@ -93,7 +92,8 @@ public abstract partial class Plant : Node2D
 	protected Plant(
 		PlantData plantData,
 		int plantSize,
-		PlantBox.Season growingSeason)
+		Season growingSeason,
+		AdjacencyBonus adjBonus)
 	{
 		ArgumentNullException.ThrowIfNull(plantData);
 		ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(plantData.OutOfViewTimeMultiplier, 0);
@@ -107,6 +107,7 @@ public abstract partial class Plant : Node2D
 		this.growingSeason = growingSeason;
 		this.plantData = plantData;
 		this.plantSize = plantSize;
+		this.adjBonus = adjBonus;
 		currentState = State.Planted;
 		careNeeded = Care.None;
 		decayStarted = false;

@@ -4,7 +4,7 @@ public partial class Fertilizer : ToolItem
 {
 	public override ToolUseResult UseOnPlant(Plant plant)
 	{
-		return plant.CompleteCare(Care.Fertilizer)
+		return plant.CompleteCare(Care.Fertilizing)
 			? ToolUseResult.CareCompleted
 			: ToolUseResult.NoEffect;
 	}
