@@ -1,0 +1,162 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://assets/models/living_room.glb" id="1_room"]
+[ext_resource type="PackedScene" path="res://scenes/Furniture/table.tscn" id="2_table"]
+[ext_resource type="Environment" path="res://assets/environment/living_room_environment.tres" id="3_environment"]
+[ext_resource type="Material" path="res://assets/materials/window_glass.tres" id="4_glass"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_floor"]
+size = Vector3(6.3, 0.2, 5.3)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_side_wall"]
+size = Vector3(0.2, 2.8, 5.3)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_end_wall"]
+size = Vector3(6.3, 2.8, 0.2)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_tv_bench"]
+size = Vector3(0.65, 0.47, 3.19)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_tall_shelf"]
+size = Vector3(0.65, 2.6, 1.2)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_bookshelf"]
+size = Vector3(0.9, 2, 0.3)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_sofa_seat"]
+size = Vector3(1, 0.42, 2.45)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_sofa_back"]
+size = Vector3(0.3, 0.7, 2.45)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_coffee_table"]
+size = Vector3(0.83, 0.46, 0.87)
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_side_table"]
+height = 0.5
+radius = 0.32
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_lamp_base"]
+height = 0.05
+radius = 0.25
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_lamp_pole"]
+height = 2.3
+radius = 0.03
+
+[node name="LivingRoom" type="Node3D"]
+
+[node name="Model" parent="." instance=ExtResource("1_room")]
+
+[node name="PLACE TO PLACE THE TABLE" parent="Model"]
+visible = false
+
+[node name="WindowGlass" parent="Model"]
+material_override = ExtResource("4_glass")
+cast_shadow = 0
+
+[node name="Collision" type="StaticBody3D" parent="."]
+input_ray_pickable = false
+
+[node name="Floor" type="CollisionShape3D" parent="Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, 0)
+shape = SubResource("BoxShape3D_floor")
+
+[node name="Ceiling" type="CollisionShape3D" parent="Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.9, 0)
+shape = SubResource("BoxShape3D_floor")
+
+[node name="LeftWall" type="CollisionShape3D" parent="Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.1, 1.4, 0)
+shape = SubResource("BoxShape3D_side_wall")
+
+[node name="RightWall" type="CollisionShape3D" parent="Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.1, 1.4, 0)
+shape = SubResource("BoxShape3D_side_wall")
+
+[node name="BackWall" type="CollisionShape3D" parent="Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4, -2.6)
+shape = SubResource("BoxShape3D_end_wall")
+
+[node name="FrontWall" type="CollisionShape3D" parent="Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4, 2.6)
+shape = SubResource("BoxShape3D_end_wall")
+
+[node name="TvBench" type="CollisionShape3D" parent="Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.675, 0.235, -0.295)
+shape = SubResource("BoxShape3D_tv_bench")
+
+[node name="TallShelf" type="CollisionShape3D" parent="Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.675, 1.3, 1.9)
+shape = SubResource("BoxShape3D_tall_shelf")
+
+[node name="Bookshelf" type="CollisionShape3D" parent="Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.55, 1, -2.32)
+shape = SubResource("BoxShape3D_bookshelf")
+
+[node name="SofaSeat" type="CollisionShape3D" parent="Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.5, 0.21, -0.06)
+shape = SubResource("BoxShape3D_sofa_seat")
+
+[node name="SofaBack" type="CollisionShape3D" parent="Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.85, 0.35, -0.06)
+shape = SubResource("BoxShape3D_sofa_back")
+
+[node name="CoffeeTable" type="CollisionShape3D" parent="Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.383, 0.23, -0.26)
+shape = SubResource("BoxShape3D_coffee_table")
+
+[node name="SideTable" type="CollisionShape3D" parent="Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.44, 0.25, -1.8)
+shape = SubResource("CylinderShape3D_side_table")
+
+[node name="LampBase" type="CollisionShape3D" parent="Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.39, 0.025, 1.75)
+shape = SubResource("CylinderShape3D_lamp_base")
+
+[node name="LampPole" type="CollisionShape3D" parent="Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.39, 1.15, 1.75)
+shape = SubResource("CylinderShape3D_lamp_pole")
+
+[node name="FloorSplash" type="GPUParticlesCollisionBox3D" parent="."]
+position = Vector3(0, -0.1, 0)
+size = Vector3(6.3, 0.2, 5.3)
+
+[node name="Table" parent="." instance=ExtResource("2_table")]
+position = Vector3(0.419, 0, 2.17)
+rotation_degrees = Vector3(0, 180, 0)
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = ExtResource("3_environment")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+rotation_degrees = Vector3(-26.7, -160.4, 0)
+light_color = Color(1, 0.72, 0.47, 1)
+light_energy = 2.6
+light_angular_distance = 1.5
+light_volumetric_fog_energy = 2.0
+shadow_enabled = true
+shadow_blur = 1.5
+directional_shadow_max_distance = 14.0
+
+[node name="CeilingLamp" type="OmniLight3D" parent="."]
+position = Vector3(-0.543, 1.8, 0.088)
+light_color = Color(1, 0.78, 0.55, 1)
+light_energy = 1.3
+shadow_enabled = true
+omni_range = 5.0
+omni_attenuation = 1.2
+
+[node name="FloorLamp" type="OmniLight3D" parent="."]
+position = Vector3(-2.39, 2.1, 1.75)
+light_color = Color(1, 0.74, 0.5, 1)
+shadow_enabled = true
+omni_range = 3.5
+
+[node name="ReflectionProbe" type="ReflectionProbe" parent="."]
+position = Vector3(0, 1.4, 0)
+size = Vector3(6.3, 2.8, 5.3)
+box_projection = true
+interior = true
+
+[editable path="Model"]

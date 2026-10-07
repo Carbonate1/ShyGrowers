@@ -1,0 +1,33 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/Items/ItemPickup.cs" id="1_pickup"]
+[ext_resource type="Resource" path="res://resources/items/fertilizer.tres" id="2_item"]
+[ext_resource type="PhysicsMaterial" path="res://resources/physics/item_physics.tres" id="3_physics"]
+[ext_resource type="PackedScene" path="res://assets/models/items/fertilizer.glb" id="4_model"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_body"]
+size = Vector3(0.29, 0.3, 0.18)
+
+[node name="Fertilizer" type="RigidBody3D" node_paths=PackedStringArray("Grip", "Stow") groups=["pickups"]]
+collision_layer = 2
+collision_mask = 3
+mass = 2.0
+physics_material_override = ExtResource("3_physics")
+continuous_cd = true
+script = ExtResource("1_pickup")
+Item = ExtResource("2_item")
+Grip = NodePath("Grip")
+Stow = NodePath("Stow")
+
+[node name="Model" parent="." instance=ExtResource("4_model")]
+transform = Transform3D(0.44, 0, 0, 0, 0.44, 0, 0, 0, 0.44, -0.1098, 0.0054, -0.0048)
+
+[node name="Shape" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.15, 0)
+shape = SubResource("BoxShape3D_body")
+
+[node name="Grip" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.15, 0)
+
+[node name="Stow" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, 0, 0, 0)

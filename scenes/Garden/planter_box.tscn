@@ -1,0 +1,85 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/Garden/PlanterBox.cs" id="1_box"]
+[ext_resource type="Script" path="res://scripts/Garden/Plot.cs" id="2_plot"]
+[ext_resource type="PackedScene" path="res://assets/models/planter_box.glb" id="3_model"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_plot"]
+size = Vector3(0.17, 0.42, 0.3)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_box"]
+size = Vector3(1.16, 0.21, 0.35)
+
+[node name="PlanterBox" type="Node3D" node_paths=PackedStringArray("Watcher")]
+script = ExtResource("1_box")
+Watcher = NodePath("Watcher")
+
+[node name="Model" parent="." instance=ExtResource("3_model")]
+position = Vector3(0, 0.135, 0)
+rotation_degrees = Vector3(0, 90, 0)
+scale = Vector3(0.09, 0.09, 0.09)
+
+[node name="Collision" type="StaticBody3D" parent="."]
+input_ray_pickable = false
+
+[node name="Shape" type="CollisionShape3D" parent="Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.105, 0)
+shape = SubResource("BoxShape3D_box")
+
+[node name="Soil" type="GPUParticlesCollisionBox3D" parent="."]
+position = Vector3(0, 0.11, 0)
+size = Vector3(1.12, 0.2, 0.32)
+
+[node name="Watcher" type="VisibleOnScreenNotifier3D" parent="."]
+aabb = AABB(-0.52, 0.1, -0.15, 1.04, 0.5, 0.3)
+
+[node name="Plots" type="Node3D" parent="."]
+position = Vector3(0, 0.21, 0)
+
+[node name="Plot1" type="Area3D" parent="Plots" groups=["plots"]]
+position = Vector3(-0.45, 0, 0)
+script = ExtResource("2_plot")
+
+[node name="Shape" type="CollisionShape3D" parent="Plots/Plot1"]
+position = Vector3(0, 0.2, 0)
+shape = SubResource("BoxShape3D_plot")
+
+[node name="Plot2" type="Area3D" parent="Plots" groups=["plots"]]
+position = Vector3(-0.27, 0, 0)
+script = ExtResource("2_plot")
+
+[node name="Shape" type="CollisionShape3D" parent="Plots/Plot2"]
+position = Vector3(0, 0.2, 0)
+shape = SubResource("BoxShape3D_plot")
+
+[node name="Plot3" type="Area3D" parent="Plots" groups=["plots"]]
+position = Vector3(-0.09, 0, 0)
+script = ExtResource("2_plot")
+
+[node name="Shape" type="CollisionShape3D" parent="Plots/Plot3"]
+position = Vector3(0, 0.2, 0)
+shape = SubResource("BoxShape3D_plot")
+
+[node name="Plot4" type="Area3D" parent="Plots" groups=["plots"]]
+position = Vector3(0.09, 0, 0)
+script = ExtResource("2_plot")
+
+[node name="Shape" type="CollisionShape3D" parent="Plots/Plot4"]
+position = Vector3(0, 0.2, 0)
+shape = SubResource("BoxShape3D_plot")
+
+[node name="Plot5" type="Area3D" parent="Plots" groups=["plots"]]
+position = Vector3(0.27, 0, 0)
+script = ExtResource("2_plot")
+
+[node name="Shape" type="CollisionShape3D" parent="Plots/Plot5"]
+position = Vector3(0, 0.2, 0)
+shape = SubResource("BoxShape3D_plot")
+
+[node name="Plot6" type="Area3D" parent="Plots" groups=["plots"]]
+position = Vector3(0.45, 0, 0)
+script = ExtResource("2_plot")
+
+[node name="Shape" type="CollisionShape3D" parent="Plots/Plot6"]
+position = Vector3(0, 0.2, 0)
+shape = SubResource("BoxShape3D_plot")

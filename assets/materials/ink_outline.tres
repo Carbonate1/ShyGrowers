@@ -1,0 +1,13 @@
+[gd_resource type="ShaderMaterial" format=3]
+
+[ext_resource type="Shader" path="res://assets/shaders/ink_outline.gdshader" id="1_ink"]
+
+[resource]
+render_priority = -10
+shader = ExtResource("1_ink")
+shader_parameter/ink_color = Color(0.2, 0.12, 0.09, 1)
+shader_parameter/ink_strength = 0.55
+shader_parameter/thickness = 1.2
+shader_parameter/depth_threshold = 0.04
+shader_parameter/normal_threshold = 0.55
+shader_parameter/fade_distance = 8.0

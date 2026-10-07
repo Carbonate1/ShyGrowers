@@ -1,0 +1,91 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/Plants/Plant.cs" id="1_plant"]
+[ext_resource type="Resource" path="res://resources/items/rose.tres" id="2_produce"]
+[ext_resource type="FontFile" path="res://assets/fonts/KiwiSoda.ttf" id="3_font"]
+[ext_resource type="Texture2D" path="res://assets/plants/rose/SummerPlantStages_V1.png" id="4_stages"]
+
+[node name="Rose" type="Node3D" node_paths=PackedStringArray("Stages", "NeedLabel")]
+script = ExtResource("1_plant")
+GrowthTime = 12.0
+HarvestableTime = 10.0
+DecayTime = 5.0
+Produce = ExtResource("2_produce")
+Stages = NodePath("Stages")
+NeedLabel = NodePath("NeedLabel")
+
+[node name="Stages" type="Node3D" parent="."]
+
+[node name="Planted" type="Sprite3D" parent="Stages"]
+offset = Vector2(0, 32)
+pixel_size = 0.0055
+shaded = true
+alpha_cut = 1
+texture_filter = 0
+texture = ExtResource("4_stages")
+hframes = 6
+
+[node name="Growing1" type="Sprite3D" parent="Stages"]
+visible = false
+offset = Vector2(0, 32)
+pixel_size = 0.0055
+shaded = true
+alpha_cut = 1
+texture_filter = 0
+texture = ExtResource("4_stages")
+hframes = 6
+frame = 1
+
+[node name="Growing2" type="Sprite3D" parent="Stages"]
+visible = false
+offset = Vector2(0, 32)
+pixel_size = 0.0055
+shaded = true
+alpha_cut = 1
+texture_filter = 0
+texture = ExtResource("4_stages")
+hframes = 6
+frame = 2
+
+[node name="Harvestable" type="Sprite3D" parent="Stages"]
+visible = false
+offset = Vector2(0, 32)
+pixel_size = 0.0055
+shaded = true
+alpha_cut = 1
+texture_filter = 0
+texture = ExtResource("4_stages")
+hframes = 6
+frame = 3
+
+[node name="Decaying" type="Sprite3D" parent="Stages"]
+visible = false
+offset = Vector2(0, 32)
+pixel_size = 0.0055
+shaded = true
+alpha_cut = 1
+texture_filter = 0
+texture = ExtResource("4_stages")
+hframes = 6
+frame = 4
+
+[node name="Dead" type="Sprite3D" parent="Stages"]
+visible = false
+offset = Vector2(0, 32)
+pixel_size = 0.0055
+shaded = true
+alpha_cut = 1
+texture_filter = 0
+texture = ExtResource("4_stages")
+hframes = 6
+frame = 5
+
+[node name="NeedLabel" type="Label3D" parent="."]
+position = Vector3(0, 0.42, 0.02)
+pixel_size = 0.0009
+billboard = 1
+modulate = Color(1, 0.97, 0.9, 1)
+outline_modulate = Color(0.3, 0.18, 0.12, 1)
+font = ExtResource("3_font")
+font_size = 44
+outline_size = 12

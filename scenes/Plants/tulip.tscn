@@ -1,99 +1,85 @@
 [gd_scene format=3 uid="uid://hu6oo0rp7kjb"]
 
-[ext_resource type="PackedScene" uid="uid://cac7c18w0xwel" path="res://scenes/Plants/plant.tscn" id="1_vkbxu"]
-[ext_resource type="Script" uid="uid://b7iaemweu6bfo" path="res://scripts/Plants/Tulip.cs" id="2_wqs80"]
-[ext_resource type="Texture2D" uid="uid://mtcky8gde0xo" path="res://assets/plants/tulip/tulipPlanted.png" id="3_dih2n"]
-[ext_resource type="Texture2D" uid="uid://b0injjww3sasx" path="res://assets/plants/tulip/tulipGrowing1.png" id="4_s412t"]
-[ext_resource type="Texture2D" uid="uid://cg6xhklurd1uj" path="res://assets/plants/tulip/tulipGrowing2.png" id="5_fedo7"]
-[ext_resource type="Texture2D" uid="uid://bmcmsxpw2glyt" path="res://assets/plants/tulip/tulipHarvestable.png" id="6_u8btn"]
-[ext_resource type="Texture2D" uid="uid://esd7qoivm836" path="res://assets/plants/tulip/tulipDecaying.png" id="7_op8mg"]
-[ext_resource type="Texture2D" uid="uid://b510lgrexjqsm" path="res://assets/plants/tulip/tulipDead.png" id="8_77xtm"]
+[ext_resource type="Script" path="res://scripts/Plants/Plant.cs" id="1_plant"]
+[ext_resource type="Resource" path="res://resources/items/tulip.tres" id="2_produce"]
+[ext_resource type="FontFile" path="res://assets/fonts/KiwiSoda.ttf" id="3_font"]
+[ext_resource type="Texture2D" path="res://assets/plants/tulip/tulipPlanted.png" id="4_planted"]
+[ext_resource type="Texture2D" path="res://assets/plants/tulip/tulipGrowing1.png" id="5_growing1"]
+[ext_resource type="Texture2D" path="res://assets/plants/tulip/tulipGrowing2.png" id="6_growing2"]
+[ext_resource type="Texture2D" path="res://assets/plants/tulip/tulipHarvestable.png" id="7_harvestable"]
+[ext_resource type="Texture2D" path="res://assets/plants/tulip/tulipDecaying.png" id="8_decaying"]
+[ext_resource type="Texture2D" path="res://assets/plants/tulip/tulipDead.png" id="9_dead"]
 
-[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_odjdt"]
-radius = 3.0
-height = 12.0
+[node name="Tulip" type="Node3D" node_paths=PackedStringArray("Stages", "NeedLabel")]
+script = ExtResource("1_plant")
+GrowthTime = 10.0
+HarvestableTime = 10.0
+DecayTime = 5.0
+Produce = ExtResource("2_produce")
+Stages = NodePath("Stages")
+NeedLabel = NodePath("NeedLabel")
 
-[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_fedo7"]
-radius = 7.0
-height = 24.0
+[node name="Stages" type="Node3D" parent="."]
 
-[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_yfy8x"]
-height = 40.0
+[node name="Planted" type="Sprite3D" parent="Stages"]
+offset = Vector2(0, 32)
+pixel_size = 0.0055
+shaded = true
+alpha_cut = 1
+texture_filter = 0
+texture = ExtResource("4_planted")
 
-[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_s412t"]
-height = 60.0
-
-[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_dih2n"]
-height = 48.0
-
-[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_u8btn"]
-radius = 5.0
-height = 32.0
-
-[node name="Tulip" unique_id=1201429473 instance=ExtResource("1_vkbxu")]
-script = ExtResource("2_wqs80")
-
-[node name="Planted" parent="Area" parent_id_path=PackedInt32Array(1131689092) index="0" unique_id=1933278537]
-position = Vector2(0, -25)
-shape = SubResource("CapsuleShape2D_odjdt")
-
-[node name="Sprite" parent="Area/Planted" index="0" unique_id=1140955989]
-position = Vector2(0, -27)
-texture = ExtResource("3_dih2n")
-
-[node name="Growing1" parent="Area" parent_id_path=PackedInt32Array(1131689092) index="1" unique_id=894819675]
+[node name="Growing1" type="Sprite3D" parent="Stages"]
 visible = false
-position = Vector2(0, -50.000004)
-shape = SubResource("CapsuleShape2D_fedo7")
+offset = Vector2(0, 32)
+pixel_size = 0.0055
+shaded = true
+alpha_cut = 1
+texture_filter = 0
+texture = ExtResource("5_growing1")
 
-[node name="Sprite" parent="Area/Growing1" index="0" unique_id=814602072]
-position = Vector2(0.79999995, -22)
-texture = ExtResource("4_s412t")
-
-[node name="Growing2" parent="Area" parent_id_path=PackedInt32Array(1131689092) index="2" unique_id=2030408548]
+[node name="Growing2" type="Sprite3D" parent="Stages"]
 visible = false
-position = Vector2(0, -89.99999)
-shape = SubResource("CapsuleShape2D_yfy8x")
+offset = Vector2(0, 32)
+pixel_size = 0.0055
+shaded = true
+alpha_cut = 1
+texture_filter = 0
+texture = ExtResource("6_growing2")
 
-[node name="Sprite" parent="Area/Growing2" index="0" unique_id=996435064]
-position = Vector2(0, -14)
-texture = ExtResource("5_fedo7")
-
-[node name="Harvestable" parent="Area" parent_id_path=PackedInt32Array(1131689092) index="3" unique_id=1191277669]
+[node name="Harvestable" type="Sprite3D" parent="Stages"]
 visible = false
-position = Vector2(2.3841858e-07, -150)
-shape = SubResource("CapsuleShape2D_s412t")
+offset = Vector2(0, 32)
+pixel_size = 0.0055
+shaded = true
+alpha_cut = 1
+texture_filter = 0
+texture = ExtResource("7_harvestable")
 
-[node name="Sprite" parent="Area/Harvestable" index="0" unique_id=221700432]
-position = Vector2(0, -2)
-texture = ExtResource("6_u8btn")
-
-[node name="Decaying" parent="Area" parent_id_path=PackedInt32Array(1131689092) index="4" unique_id=834899122]
+[node name="Decaying" type="Sprite3D" parent="Stages"]
 visible = false
-position = Vector2(0, -118.99999)
-shape = SubResource("CapsuleShape2D_dih2n")
+offset = Vector2(0, 32)
+pixel_size = 0.0055
+shaded = true
+alpha_cut = 1
+texture_filter = 0
+texture = ExtResource("8_decaying")
 
-[node name="Sprite" parent="Area/Decaying" index="0" unique_id=784439435]
-position = Vector2(0, -8)
-texture = ExtResource("7_op8mg")
-
-[node name="Dead" parent="Area" parent_id_path=PackedInt32Array(1131689092) index="5" unique_id=199234740]
+[node name="Dead" type="Sprite3D" parent="Stages"]
 visible = false
-position = Vector2(0, -74.99999)
-shape = SubResource("CapsuleShape2D_u8btn")
+offset = Vector2(0, 32)
+pixel_size = 0.0055
+shaded = true
+alpha_cut = 1
+texture_filter = 0
+texture = ExtResource("9_dead")
 
-[node name="Sprite" parent="Area/Dead" index="0" unique_id=253318359]
-position = Vector2(0, -17)
-texture = ExtResource("8_77xtm")
-
-[node name="RemainingTimeLabel" parent="." index="1" unique_id=681527503]
-size_flags_horizontal = 4
-text = "Test"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="CareNeededLabel" parent="." index="2" unique_id=111883796]
-offset_left = 2.0
-offset_top = 19.0
-offset_right = 42.0
-offset_bottom = 42.0
+[node name="NeedLabel" type="Label3D" parent="."]
+position = Vector3(0, 0.42, 0.02)
+pixel_size = 0.0009
+billboard = 1
+modulate = Color(1, 0.97, 0.9, 1)
+outline_modulate = Color(0.3, 0.18, 0.12, 1)
+font = ExtResource("3_font")
+font_size = 44
+outline_size = 12

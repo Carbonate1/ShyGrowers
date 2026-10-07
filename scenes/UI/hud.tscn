@@ -1,0 +1,248 @@
+[gd_scene format=3 uid="uid://r3twssaspxvv"]
+
+[ext_resource type="Script" uid="uid://bc2esb41bo3bi" path="res://scripts/UI/Hud.cs" id="1_hud"]
+[ext_resource type="PackedScene" path="res://scenes/UI/item_slot.tscn" id="2_slot"]
+[ext_resource type="Script" path="res://scripts/UI/SeedCounter.cs" id="3_seed_counter"]
+[ext_resource type="Resource" path="res://resources/items/marigold_seeds.tres" id="4_marigold_seeds"]
+[ext_resource type="Resource" path="res://resources/items/tulip_seeds.tres" id="5_tulip_seeds"]
+[ext_resource type="Resource" path="res://resources/items/rose_seeds.tres" id="6_rose_seeds"]
+[ext_resource type="Resource" path="res://resources/items/frostbloom_seeds.tres" id="7_frostbloom_seeds"]
+[ext_resource type="Script" path="res://scripts/UI/SceneButton.cs" id="8_scene_button"]
+
+[node name="Hud" type="CanvasLayer" unique_id=1122126769 node_paths=PackedStringArray("LeftHand", "RightHand", "ViewName", "DrawerPanel", "DrawerSlots", "Harvested", "SeedCounters", "EndScreen", "EndScore")]
+script = ExtResource("1_hud")
+LeftHand = NodePath("Screen/Hands/Left/Slot")
+RightHand = NodePath("Screen/Hands/Right/Slot")
+ViewName = NodePath("Screen/ViewName")
+DrawerPanel = NodePath("Screen/DrawerPanel")
+DrawerSlots = NodePath("Screen/DrawerPanel/Layout/Slots")
+Harvested = NodePath("Screen/Tally/Harvested")
+SeedCounters = NodePath("Screen/Tally/Seeds")
+EndScreen = NodePath("Screen/EndScreen")
+EndScore = NodePath("Screen/EndScreen/Center/Panel/Layout/Score")
+
+[node name="Screen" type="Control" parent="." unique_id=352424036]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="ViewName" type="Label" parent="Screen" unique_id=1650160333]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -240.0
+offset_top = 28.0
+offset_right = 240.0
+offset_bottom = 96.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 56
+text = "Autumn"
+horizontal_alignment = 1
+
+[node name="Hands" type="HBoxContainer" parent="Screen" unique_id=1501414443]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 40.0
+offset_top = -190.0
+offset_right = -40.0
+offset_bottom = -76.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+
+[node name="Left" type="VBoxContainer" parent="Screen/Hands" unique_id=555117002]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Caption" type="Label" parent="Screen/Hands/Left" unique_id=417077520]
+layout_mode = 2
+text = "left hand"
+
+[node name="Slot" parent="Screen/Hands/Left" unique_id=2033193347 instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(300, 72)
+layout_mode = 2
+mouse_filter = 2
+EmptyText = "nothing"
+
+[node name="Gap" type="Control" parent="Screen/Hands" unique_id=628027128]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="Right" type="VBoxContainer" parent="Screen/Hands" unique_id=575870513]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Caption" type="Label" parent="Screen/Hands/Right" unique_id=650522938]
+layout_mode = 2
+text = "right hand"
+horizontal_alignment = 2
+
+[node name="Slot" parent="Screen/Hands/Right" unique_id=679988275 instance=ExtResource("2_slot")]
+custom_minimum_size = Vector2(300, 72)
+layout_mode = 2
+mouse_filter = 2
+EmptyText = "nothing"
+
+[node name="DrawerPanel" type="PanelContainer" parent="Screen" unique_id=369877719]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -560.0
+offset_top = -160.0
+offset_right = -48.0
+offset_bottom = 100.0
+grow_horizontal = 0
+grow_vertical = 2
+
+[node name="Layout" type="VBoxContainer" parent="Screen/DrawerPanel" unique_id=1182365313]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="Title" type="Label" parent="Screen/DrawerPanel/Layout" unique_id=668286885]
+layout_mode = 2
+theme_override_font_sizes/font_size = 42
+text = "Drawer"
+horizontal_alignment = 1
+
+[node name="Slots" type="GridContainer" parent="Screen/DrawerPanel/Layout" unique_id=2097710073]
+layout_mode = 2
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
+columns = 2
+
+[node name="Slot1" parent="Screen/DrawerPanel/Layout/Slots" unique_id=316911085 instance=ExtResource("2_slot")]
+layout_mode = 2
+
+[node name="Slot2" parent="Screen/DrawerPanel/Layout/Slots" unique_id=771388159 instance=ExtResource("2_slot")]
+layout_mode = 2
+
+[node name="Slot3" parent="Screen/DrawerPanel/Layout/Slots" unique_id=1011406711 instance=ExtResource("2_slot")]
+layout_mode = 2
+
+[node name="Slot4" parent="Screen/DrawerPanel/Layout/Slots" unique_id=162236262 instance=ExtResource("2_slot")]
+layout_mode = 2
+
+[node name="Help" type="Label" parent="Screen/DrawerPanel/Layout" unique_id=2103496545]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "click a slot to swap it with that hand"
+horizontal_alignment = 1
+
+[node name="Tally" type="VBoxContainer" parent="Screen"]
+layout_mode = 0
+offset_left = 40.0
+offset_top = 28.0
+offset_right = 440.0
+offset_bottom = 300.0
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="Harvested" type="Label" parent="Screen/Tally"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 40
+text = "flowers grown: 0"
+
+[node name="Seeds" type="VBoxContainer" parent="Screen/Tally"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 0
+
+[node name="Marigold" type="Label" parent="Screen/Tally/Seeds"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+script = ExtResource("3_seed_counter")
+Seeds = ExtResource("4_marigold_seeds")
+
+[node name="Tulip" type="Label" parent="Screen/Tally/Seeds"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+script = ExtResource("3_seed_counter")
+Seeds = ExtResource("5_tulip_seeds")
+
+[node name="Rose" type="Label" parent="Screen/Tally/Seeds"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+script = ExtResource("3_seed_counter")
+Seeds = ExtResource("6_rose_seeds")
+
+[node name="Frostbloom" type="Label" parent="Screen/Tally/Seeds"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+script = ExtResource("3_seed_counter")
+Seeds = ExtResource("7_frostbloom_seeds")
+
+[node name="EndScreen" type="Control" parent="Screen"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Dim" type="ColorRect" parent="Screen/EndScreen"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.12, 0.07, 0.04, 0.55)
+
+[node name="Center" type="CenterContainer" parent="Screen/EndScreen"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="Screen/EndScreen/Center"]
+custom_minimum_size = Vector2(640, 0)
+layout_mode = 2
+
+[node name="Layout" type="VBoxContainer" parent="Screen/EndScreen/Center/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="Title" type="Label" parent="Screen/EndScreen/Center/Panel/Layout"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 60
+text = "out of seeds..."
+horizontal_alignment = 1
+
+[node name="Score" type="Label" parent="Screen/EndScreen/Center/Panel/Layout"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 36
+text = "you grew 0 flowers"
+horizontal_alignment = 1
+
+[node name="Buttons" type="HBoxContainer" parent="Screen/EndScreen/Center/Panel/Layout"]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="Again" type="Button" parent="Screen/EndScreen/Center/Panel/Layout/Buttons"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 36
+text = "Try Again"
+script = ExtResource("8_scene_button")
+
+[node name="Title" type="Button" parent="Screen/EndScreen/Center/Panel/Layout/Buttons"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 36
+text = "Title"
+script = ExtResource("8_scene_button")
+Scene = "res://scenes/title_screen.tscn"

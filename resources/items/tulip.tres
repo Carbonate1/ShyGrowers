@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="ItemData" format=3 uid="uid://dc64kcorqpops"]
+
+[ext_resource type="Script" uid="uid://db4al8dnpbdvi" path="res://scripts/Items/ItemData.cs" id="1_item"]
+
+[resource]
+script = ExtResource("1_item")
+DisplayName = "Tulip"
+Pickup = "res://scenes/Items/tulip.tscn"
+SellValue = 7

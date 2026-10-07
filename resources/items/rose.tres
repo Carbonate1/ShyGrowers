@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/Items/ItemData.cs" id="1_item"]
+
+[resource]
+script = ExtResource("1_item")
+DisplayName = "Rose"
+Pickup = "res://scenes/Items/rose.tscn"
+SellValue = 9

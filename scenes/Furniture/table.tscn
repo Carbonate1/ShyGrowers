@@ -1,0 +1,94 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/Furniture/Drawer.cs" id="1_drawer"]
+[ext_resource type="PackedScene" path="res://assets/models/table.glb" id="2_model"]
+[ext_resource type="Script" path="res://scripts/Items/ItemData.cs" id="3_item"]
+[ext_resource type="Resource" path="res://resources/items/hoe.tres" id="4_hoe"]
+[ext_resource type="Resource" path="res://resources/items/trowel.tres" id="6_trowel"]
+[ext_resource type="Resource" path="res://resources/items/marigold_seeds.tres" id="7_marigold_seeds"]
+[ext_resource type="Resource" path="res://resources/items/rose_seeds.tres" id="8_rose_seeds"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_handle"]
+size = Vector3(0.56, 0.12, 0.065)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_slot"]
+size = Vector3(0.105, 0.09, 0.19)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_top"]
+size = Vector3(1.2, 0.04, 0.6)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_leg"]
+size = Vector3(0.06, 0.71, 0.06)
+
+[node name="Table" type="Node3D" node_paths=PackedStringArray("Animator", "Slots")]
+script = ExtResource("1_drawer")
+Animator = NodePath("Model/AnimationPlayer")
+Slots = NodePath("Model/Cube_025/Slots")
+SlotSize = Vector3(0.1, 0.09, 0.19)
+Items = Array[ExtResource("3_item")]([ExtResource("4_hoe"), ExtResource("6_trowel"), ExtResource("7_marigold_seeds"), ExtResource("8_rose_seeds")])
+
+[node name="Model" parent="." instance=ExtResource("2_model")]
+
+[node name="Slots" type="Node3D" parent="Model/Cube_025"]
+position = Vector3(0, 0.635, 0)
+
+[node name="Slot1" type="Area3D" parent="Model/Cube_025/Slots"]
+position = Vector3(-0.165, 0, 0.13)
+
+[node name="Shape" type="CollisionShape3D" parent="Model/Cube_025/Slots/Slot1"]
+position = Vector3(0, 0.045, 0)
+shape = SubResource("BoxShape3D_slot")
+
+[node name="Slot2" type="Area3D" parent="Model/Cube_025/Slots"]
+position = Vector3(-0.055, 0, 0.13)
+
+[node name="Shape" type="CollisionShape3D" parent="Model/Cube_025/Slots/Slot2"]
+position = Vector3(0, 0.045, 0)
+shape = SubResource("BoxShape3D_slot")
+
+[node name="Slot3" type="Area3D" parent="Model/Cube_025/Slots"]
+position = Vector3(0.055, 0, 0.13)
+
+[node name="Shape" type="CollisionShape3D" parent="Model/Cube_025/Slots/Slot3"]
+position = Vector3(0, 0.045, 0)
+shape = SubResource("BoxShape3D_slot")
+
+[node name="Slot4" type="Area3D" parent="Model/Cube_025/Slots"]
+position = Vector3(0.165, 0, 0.13)
+
+[node name="Shape" type="CollisionShape3D" parent="Model/Cube_025/Slots/Slot4"]
+position = Vector3(0, 0.045, 0)
+shape = SubResource("BoxShape3D_slot")
+
+[node name="Handle" type="Area3D" parent="Model/Cube_025"]
+position = Vector3(0, 0.676, 0.2675)
+
+[node name="Shape" type="CollisionShape3D" parent="Model/Cube_025/Handle"]
+shape = SubResource("BoxShape3D_handle")
+
+[node name="Collision" type="StaticBody3D" parent="."]
+input_ray_pickable = false
+
+[node name="Top" type="CollisionShape3D" parent="Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.73, 0)
+shape = SubResource("BoxShape3D_top")
+
+[node name="Leg1" type="CollisionShape3D" parent="Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.55, 0.355, -0.25)
+shape = SubResource("BoxShape3D_leg")
+
+[node name="Leg2" type="CollisionShape3D" parent="Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.55, 0.355, -0.25)
+shape = SubResource("BoxShape3D_leg")
+
+[node name="Leg3" type="CollisionShape3D" parent="Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.55, 0.355, 0.25)
+shape = SubResource("BoxShape3D_leg")
+
+[node name="Leg4" type="CollisionShape3D" parent="Collision"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.55, 0.355, 0.25)
+shape = SubResource("BoxShape3D_leg")
+
+[connection signal="input_event" from="Model/Cube_025/Handle" to="." method="OnHandleInputEvent"]
+
+[editable path="Model"]

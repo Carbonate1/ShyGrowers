@@ -1,25 +1,124 @@
 [gd_scene format=3 uid="uid://dvr2i3kiholpi"]
 
-[ext_resource type="Texture2D" uid="uid://7fgnkedt57cm" path="res://assets/Placeholders/Background Placeholder.jpeg" id="1_sa3yf"]
-[ext_resource type="Script" uid="uid://dhemnavt3n3ii" path="res://scripts/PlayButton.cs" id="2_s4lrb"]
+[ext_resource type="PackedScene" path="res://scenes/Room/living_room.tscn" id="1_room"]
+[ext_resource type="Material" path="res://assets/materials/ink_outline.tres" id="2_ink"]
+[ext_resource type="Script" uid="uid://daoihciiwxjgh" path="res://scripts/UI/TitleMenu.cs" id="3_menu"]
+[ext_resource type="Script" uid="uid://dubja1kehjywd" path="res://scripts/UI/SceneButton.cs" id="4_scene_button"]
+[ext_resource type="Script" uid="uid://54g1tp2xlbj5" path="res://scripts/Rendering/ToonShading.cs" id="5_toon"]
+[ext_resource type="Shader" uid="uid://d0wxi54p7jjrr" path="res://assets/shaders/cozy_toon.gdshader" id="6_surface"]
+[ext_resource type="Shader" uid="uid://cmpnkg3cwdc52" path="res://assets/shaders/cozy_toon_double_sided.gdshader" id="7_double_sided"]
+[ext_resource type="Shader" uid="uid://dmt5sfwpum53j" path="res://assets/shaders/cozy_toon_sprite.gdshader" id="8_sprite"]
 
-[node name="TitleScreen" type="Node2D" unique_id=475059401]
+[sub_resource type="QuadMesh" id="QuadMesh_ink"]
+material = ExtResource("2_ink")
+size = Vector2(2, 2)
 
-[node name="Camera" type="Camera2D" parent="." unique_id=1669018157]
-anchor_mode = 0
+[sub_resource type="Animation" id="Animation_drift"]
+resource_name = "drift"
+length = 16.0
+loop_mode = 2
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Camera:position")
+tracks/0/interp = 2
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 16),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(1.9, 1.5, 1.6), Vector3(1.2, 1.4, 1.9)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Camera:rotation")
+tracks/1/interp = 2
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 16),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(-0.15, 0.82, 0), Vector3(-0.12, 0.62, 0)]
+}
 
-[node name="Background" type="Sprite2D" parent="." unique_id=123173198]
-scale = Vector2(7.777027, 4.371622)
-texture = ExtResource("1_sa3yf")
-centered = false
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_title"]
+_data = {
+&"drift": SubResource("Animation_drift")
+}
 
-[node name="PlayButton" type="Button" parent="." unique_id=372315821]
-offset_left = 462.0
-offset_top = 295.0
-offset_right = 693.0
-offset_bottom = 350.0
-action_mode = 0
-text = "Play
-"
-script = ExtResource("2_s4lrb")
-metadata/_edit_use_anchors_ = true
+[node name="TitleScreen" type="Node3D" unique_id=138385194]
+
+[node name="Room" parent="." unique_id=166537599 instance=ExtResource("1_room")]
+
+[node name="Camera" type="Camera3D" parent="." unique_id=378465573]
+transform = Transform3D(0.68222123, -0.10926107, 0.7229358, 0, 0.9887711, 0.14943814, -0.7311458, -0.10194987, 0.6745606, 1.9, 1.5, 1.6)
+fov = 55.0
+near = 0.03
+
+[node name="InkOutline" type="MeshInstance3D" parent="Camera" unique_id=1355941158]
+cast_shadow = 0
+extra_cull_margin = 16384.0
+mesh = SubResource("QuadMesh_ink")
+
+[node name="CameraDrift" type="AnimationPlayer" parent="." unique_id=1332716306]
+libraries/ = SubResource("AnimationLibrary_title")
+autoplay = &"drift"
+
+[node name="Menu" type="CanvasLayer" parent="." unique_id=1057578932]
+
+[node name="TitleMenu" type="Control" parent="Menu" unique_id=1933654949]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("3_menu")
+
+[node name="Title" type="Label" parent="Menu/TitleMenu" unique_id=976574694]
+layout_mode = 0
+offset_left = 110.0
+offset_top = 120.0
+offset_right = 1010.0
+offset_bottom = 290.0
+theme_override_font_sizes/font_size = 128
+text = "Shy Growers"
+
+[node name="Tagline" type="Label" parent="Menu/TitleMenu" unique_id=432038477]
+layout_mode = 0
+offset_left = 118.0
+offset_top = 290.0
+offset_right = 1018.0
+offset_bottom = 340.0
+theme_override_font_sizes/font_size = 34
+text = "placeholder"
+
+[node name="Main" type="VBoxContainer" parent="Menu/TitleMenu" unique_id=1440837202]
+layout_mode = 0
+offset_left = 118.0
+offset_top = 430.0
+offset_right = 478.0
+offset_bottom = 610.0
+theme_override_constants/separation = 16
+
+[node name="Play" type="Button" parent="Menu/TitleMenu/Main" unique_id=1336181032]
+layout_mode = 2
+theme_override_font_sizes/font_size = 40
+text = "Play"
+script = ExtResource("4_scene_button")
+Scene = "res://scenes/garden.tscn"
+
+[node name="Quit" type="Button" parent="Menu/TitleMenu/Main" unique_id=2124450283]
+layout_mode = 2
+theme_override_font_sizes/font_size = 40
+text = "Quit"
+
+[node name="ToonShading" type="Node" parent="." unique_id=1008997096]
+script = ExtResource("5_toon")
+Surface = ExtResource("6_surface")
+DoubleSidedSurface = ExtResource("7_double_sided")
+Sprite = ExtResource("8_sprite")
+
+[connection signal="pressed" from="Menu/TitleMenu/Main/Quit" to="Menu/TitleMenu" method="OnQuitPressed"]

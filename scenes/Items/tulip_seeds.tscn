@@ -1,0 +1,29 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/Items/ItemPickup.cs" id="1_pickup"]
+[ext_resource type="Resource" path="res://resources/items/tulip_seeds.tres" id="2_item"]
+[ext_resource type="PhysicsMaterial" path="res://resources/physics/item_physics.tres" id="3_physics"]
+[ext_resource type="PackedScene" path="res://assets/models/items/seeds.glb" id="4_model"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_seed"]
+radius = 0.017
+height = 0.061
+
+[node name="TulipSeeds" type="RigidBody3D" node_paths=PackedStringArray("Grip") groups=["pickups"]]
+collision_layer = 2
+collision_mask = 3
+mass = 0.02
+physics_material_override = ExtResource("3_physics")
+continuous_cd = true
+script = ExtResource("1_pickup")
+Item = ExtResource("2_item")
+Grip = NodePath("Grip")
+
+[node name="Model" parent="." instance=ExtResource("4_model")]
+transform = Transform3D(0.017, 0, 0, 0, 0.017, 0, 0, 0, 0.017, 0, 0, 0)
+
+[node name="Shape" type="CollisionShape3D" parent="."]
+transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0)
+shape = SubResource("CapsuleShape3D_seed")
+
+[node name="Grip" type="Marker3D" parent="."]
