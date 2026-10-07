@@ -15,11 +15,13 @@ public partial class Tulip : Plant
 		DecayTime: DECAY_TIME,
 		OutOfViewTimeMultiplier: OUT_OF_VIEW_TIME_MULTIPLIER
 	);
+	static readonly AdjacencyBonus adjacencyBonus = new AdjacencyBonus();
 
 	public Tulip() : base(
 		plantData: PLANT_DATA, 
 		plantSize: 1, 
-		growingSeason: PlantBox.Season.Spring)
+		growingSeason: Season.Spring,
+		adjBonus: adjacencyBonus)
 	{
 		SetStageTimerDuration(GROWTH_TIME);
 	}

@@ -225,7 +225,10 @@ public partial class Level1 : Node2D
 
 		foreach (Plant plant in adjPlants)
 		{
-			// TODO: Create a member of Plant for adjacency bonuses; specifically for allowing other seasonal plants
+			if (plant.adjBonus.season == option.growingSeason)
+			{
+				return true;
+			}
 		}
 
 		return true;
