@@ -32,6 +32,8 @@ public abstract partial class Plant : Node2D
 	}
 
 	// Member variables
+	// Const
+	private const float DECAY_RATE = 0.05F;
 
 	// Private
 	private readonly PlantData plantData;
@@ -309,6 +311,8 @@ public abstract partial class Plant : Node2D
 		{
 			infoLabel.Text = $"{careNeeded}";
 		}
+
+		infoLabel.Text += $"\nSale value = {saleValue}";
 	}
 
 	public override void _Ready()
@@ -342,10 +346,26 @@ public abstract partial class Plant : Node2D
 		UpdateGrowthStage();
 	}
 
+	private void UpdateSaleValue(double delta)
+	{
+		if ((currentState != State.Dead && careNeeded != Care.None) ||
+			(currentState == State.Decaying))
+		{
+			saleValue -= DECAY_RATE * (float)delta;
+		}
+
+		if (saleValue <= 0.0)
+		{
+			currentState = State.Dead;
+			saleValue = 0;
+		}
+	}
+
 	public override void _Process(double delta)
 	{
 		TimeCheck(plantData.HarvestableTime);
 		UpdateTimerDuration();
 		UpdateInfoDisplay();
+		UpdateSaleValue(delta);
 	}
 }
