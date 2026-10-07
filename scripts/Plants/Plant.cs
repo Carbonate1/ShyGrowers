@@ -5,8 +5,8 @@ using System.Collections.Generic;
 public sealed record PlantData(
 	int GrowthTime, // Time between each growth stage
 	int OptimalSaleValue, // Value of the plant when sold at its optimal time
-	int HarvestableTime, // Time before the plant decays after reaching its harvestable stage
-	int DecayTime,	// Time before the plant dies after reaching its decay stage
+	int HarvestableTime, // Time the plant remains harvestable (in both harvestable & decaying state)
+	int DecayTime, // Time for the harvested plant's value to decay in the inventory
 	double OutOfViewTimeMultiplier
 );
 
@@ -74,6 +74,7 @@ public abstract partial class Plant : Node2D
 	public string PlantTypeName => GetType().Name;
 	public Texture2D HarvestableTexture => stageSprites[State.Harvestable].Texture;
 	public float GetSaleValue => saleValue;
+	public int DecayTime => plantData.DecayTime;
 	
 
 	// Events
@@ -116,6 +117,7 @@ public abstract partial class Plant : Node2D
 		this.plantData = plantData;
 		this.plantSize = plantSize;
 		this.adjBonus = adjBonus;
+		saleValue = plantData.OptimalSaleValue;
 		currentState = State.Planted;
 		careNeeded = Care.None;
 		decayStarted = false;
@@ -193,8 +195,7 @@ public abstract partial class Plant : Node2D
 		int baseStageDuration = currentState switch
 		{
 			State.Planted or State.Growing1 or State.Growing2 => plantData.GrowthTime,
-			State.Harvestable => plantData.HarvestableTime,
-			State.Decaying => plantData.DecayTime,
+			State.Harvestable or State.Decaying => plantData.HarvestableTime,
 			_ => 0
 		};
 
@@ -262,7 +263,7 @@ public abstract partial class Plant : Node2D
 		stageTimer.WaitTime = configuredStageDuration;
 	}
 
-	protected void TimeCheck(int harvestableTime, int decayTime)
+	protected void TimeCheck(int harvestableTime)
 	{
 		if (careNeeded != Care.None || stageTimer.TimeLeft > 0)
 		{
@@ -283,9 +284,9 @@ public abstract partial class Plant : Node2D
 			else
 			{
 				currentState = NextState();
-				StartStageTimer(decayTime);
+				StartStageTimer(harvestableTime);
 			}
-		} 
+		}
 		else if (currentState == State.Decaying)
 		{
 			currentState = NextState();
@@ -343,7 +344,7 @@ public abstract partial class Plant : Node2D
 
 	public override void _Process(double delta)
 	{
-		TimeCheck(plantData.HarvestableTime, plantData.DecayTime);
+		TimeCheck(plantData.HarvestableTime);
 		UpdateTimerDuration();
 		UpdateInfoDisplay();
 	}

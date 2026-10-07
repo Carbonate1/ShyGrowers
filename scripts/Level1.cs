@@ -7,6 +7,7 @@ public partial class Level1 : Node2D
 {
 	private const int BOX_COUNT = 4;
 	private const string BOX_VIEW_SCENE_PATH = "res://scenes/plant_box.tscn";
+	private const string INVENTORY_SCENE_PATH = "res://scenes/inventory.tscn";
 	private const int BOX_DISTANCE = 1200; // in pixels
 	private static readonly PlantOption[] PlantOptions =
 	{
@@ -21,8 +22,8 @@ public partial class Level1 : Node2D
 	private readonly PlantBox[] boxViews = new PlantBox[BOX_COUNT];
 	private readonly ToolItem[] handItems = new ToolItem[2];
 	private readonly HashSet<ToolItem> connectedToolItems = new();
-	private readonly Dictionary<string, int> inventory = new();
 	private CanvasLayer plantMenuLayer;
+	private Inventory inventoryView;
 	private PlantBox pendingPlantBox;
 	private Camera2D camera;
 	private int currentPlantBoxIdx;
@@ -33,8 +34,6 @@ public partial class Level1 : Node2D
 	public PlantBox CurrentPlantBox => boxViews[currentPlantBoxIdx];
 	public ToolItem LeftHandItem => GetHandItem(MouseButton.Left);
 	public ToolItem RightHandItem => GetHandItem(MouseButton.Right);
-	public IReadOnlyDictionary<string, int> Inventory =>
-		new ReadOnlyDictionary<string, int>(inventory);
 
 	// Events
 	public event Action<PlantBox> CurrentPlantBoxChanged;
@@ -70,6 +69,17 @@ public partial class Level1 : Node2D
 			AddChild(boxViewInstance);
 		}
 
+		PackedScene inventoryScene = GD.Load<PackedScene>(INVENTORY_SCENE_PATH);
+		if (inventoryScene is null)
+		{
+			throw new InvalidOperationException($"Could not load inventory scene at '{INVENTORY_SCENE_PATH}'.");
+		}
+
+		inventoryView = inventoryScene.Instantiate<Inventory>();
+		inventoryView.CloseRequested += CloseInventory;
+		AddChild(inventoryView);
+		inventoryView.Hide();
+
 		currentPlantBoxIdx = 0;
 		UpdatePlayerOrientation();
 		CurrentPlantBoxChanged?.Invoke(CurrentPlantBox);
@@ -84,6 +94,11 @@ public partial class Level1 : Node2D
 		}
 
 		if (@event is not InputEventKey keyEvent || !keyEvent.Pressed || keyEvent.Echo)
+		{
+			return;
+		}
+
+		if (showingInventory && keyEvent.Keycode != Key.Q)
 		{
 			return;
 		}
@@ -158,11 +173,10 @@ public partial class Level1 : Node2D
 					RemovePlantFromBox(plant);
 					break;
 				case ToolUseResult.HarvestPlant:
-					string plantTypeName = plant.PlantTypeName;
+					InventoryItem harvestedItem = new(plant);
 					if (RemovePlantFromBox(plant))
 					{
-						inventory.TryGetValue(plantTypeName, out int count);
-						inventory[plantTypeName] = count + 1;
+						inventoryView.AddItem(harvestedItem);
 					}
 					break;
 			}
@@ -301,24 +315,24 @@ public partial class Level1 : Node2D
 	{
 		if (showingInventory)
 		{
-			HideInventory();
-			showingInventory = false;
+			CloseInventory();
 		}
 		else
 		{
-			ShowInventory();
-			showingInventory = true;
+			OpenInventory();
 		}
 	}
 
-	private void ShowInventory()
+	private void OpenInventory()
 	{
-		
+		inventoryView.Show();
+		showingInventory = true;
 	}
 
-	private void HideInventory()
+	private void CloseInventory()
 	{
-		
+		inventoryView.Hide();
+		showingInventory = false;
 	}
 
 	private void OnPlantMenuBackdropInput(InputEvent @event)

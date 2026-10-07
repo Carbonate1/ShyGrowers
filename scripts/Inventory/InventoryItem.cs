@@ -3,9 +3,14 @@ using Godot;
 public partial class InventoryItem : Resource
 {
     public string name;
-    public Texture texture;
+    public Texture2D texture;
     public float currentSellingPrice;
-    private float sellingPriceAtHarvest;
+    public float sellingPriceAtHarvest;
+    public double decayTime;
+
+    public InventoryItem()
+    {
+    }
 
     public InventoryItem(Plant plant)
     {
@@ -13,5 +18,13 @@ public partial class InventoryItem : Resource
         texture = plant.HarvestableTexture;
         sellingPriceAtHarvest = plant.GetSaleValue;
         currentSellingPrice = sellingPriceAtHarvest;
+        decayTime = plant.DecayTime;
+    }
+
+    public void Decay(double delta)
+    {
+        currentSellingPrice = Mathf.Max(
+            0,
+            currentSellingPrice - (float)(sellingPriceAtHarvest * delta / decayTime));
     }
 }
