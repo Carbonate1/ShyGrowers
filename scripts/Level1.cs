@@ -222,10 +222,6 @@ public partial class Level1 : Node2D
 		}
 
 		List<Plant> adjPlants = plantBox.GetAdjacentPlants(plotIdx, option.plantSize);
-		if (adjPlants is null)
-		{
-			return false;
-		}
 
 		foreach (Plant plant in adjPlants)
 		{

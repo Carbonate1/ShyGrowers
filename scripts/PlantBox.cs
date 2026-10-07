@@ -213,10 +213,6 @@ public partial class PlantBox : Area2D
 			}
 		}
 
-		if (adjPlants.Count == 0)
-		{
-			adjPlants = null;
-		}
 		return adjPlants;
 	}
 
