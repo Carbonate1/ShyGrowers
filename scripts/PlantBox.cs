@@ -216,6 +216,52 @@ public partial class PlantBox : Area2D
 		return adjPlants;
 	}
 
+	private List<Plant> GetAdjacentPlants(Plant plant)
+	{
+		List<Plant> adjPlants = new List<Plant>();
+
+		PlantPlacement plantPlacement = null;
+		foreach (PlantPlacement placement in placements)
+		{
+			if (placement.Plant == plant)
+			{
+				plantPlacement = placement;
+			}
+		}
+		if (plantPlacement is null)
+		{
+			return adjPlants;
+		}
+
+		foreach (PlantPlacement placement in placements) {
+			if (placement.FirstPlot + placement.PlotCount == placement.FirstPlot ||
+				placement.FirstPlot == plantPlacement.FirstPlot + plantPlacement.PlotCount)
+			{
+				adjPlants.Add(placement.Plant);
+			}
+		}
+
+		return adjPlants;
+	}
+
+	public int GetAdjacentPlantTimeBonuses(Plant plant)
+	{
+		int multiplier = 1;
+
+		List<Plant> adjPlants = GetAdjacentPlants(plant);
+
+		foreach (Plant adjPlant in adjPlants)
+		{
+			if ((adjPlant.adjBonus.type == AdjacencyBonus.Type.GrowthTime && plant.IsGrowing) ||
+				(adjPlant.adjBonus.type == AdjacencyBonus.Type.DecayTime && !plant.IsGrowing))
+			{
+				multiplier /= plant.adjBonus.multiplier;
+			}
+		}
+
+		return multiplier;
+	}
+
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{

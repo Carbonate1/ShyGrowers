@@ -42,6 +42,7 @@ public abstract partial class Plant : Node2D
 	private double configuredStageDuration;
 	private int owningPlantBoxIdx = -1;
 	private int playerOrientationIdx = -1;
+	private PlantBox owningPlantBox;
 
 	// Protected
 	protected Timer stageTimer;
@@ -66,6 +67,10 @@ public abstract partial class Plant : Node2D
 	}
 
 	public bool IsHarvestable => currentState == State.Harvestable;
+	public bool IsGrowing => 	currentState == State.Planted || 
+								currentState == State.Growing1 || 
+								currentState == State.Growing2 || 
+								currentState == State.Harvestable;
 	public string PlantTypeName => GetType().Name;
 
 	// Events
@@ -144,13 +149,23 @@ public abstract partial class Plant : Node2D
 		}
 	}
 
-
 	// Used to display time remaining and adjust timer speed when the plant is out of view.
 	public double GetTimerDuration(int duration)
 	{
+		int multiplier = owningPlantBox is null
+			? 1
+			: owningPlantBox.GetAdjacentPlantTimeBonuses(this);
+		duration *= multiplier;
+
 		return owningPlantBoxIdx != playerOrientationIdx
 			? duration / plantData.OutOfViewTimeMultiplier
 			: duration;
+	}
+
+	internal void SetOwningPlantBox(PlantBox plantBox)
+	{
+		owningPlantBox = plantBox;
+		UpdateTimerDuration();
 	}
 
 	internal void SetOwningPlantBoxIdx(int newPlantBoxIdx)
