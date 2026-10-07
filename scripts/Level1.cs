@@ -61,7 +61,7 @@ public partial class Level1 : Node2D
 		for (int i = 0; i < boxViews.Length; i++)
 		{
 			PlantBox boxViewInstance = boxViewScene.Instantiate<PlantBox>();
-			boxViewInstance.Initialize(newBoxIdx: i, season: PlantBox.Season.Any);
+			boxViewInstance.Initialize(newBoxIdx: i, season: Season.Any);
 			boxViewInstance.Position = new Vector2(i * BOX_DISTANCE, 0);
 			boxViews[i] = boxViewInstance;
 			boxViewInstance.PlantClicked += OnPlantClicked;
@@ -215,7 +215,7 @@ public partial class Level1 : Node2D
 		}
 
 		// If the plant's season matches with the plantBox's sesason || an adjacent plant allows for this plant to grow, return true
-		if (plantBox.season == PlantBox.Season.Any ||
+		if (plantBox.season == Season.Any ||
 			option.growingSeason == plantBox.season)
 		{
 			return true;

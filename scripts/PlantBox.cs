@@ -2,18 +2,18 @@ using Godot;
 using System;
 using System.Collections.Generic;
 
+public enum Season
+{
+	Winter,
+	Spring,
+	Summer,
+	Fall,
+	Any,
+	None
+};
+
 public partial class PlantBox : Area2D
 {
-	public enum Season
-	{
-		Winter,
-		Spring,
-		Summer,
-		Fall,
-		Any
-	};
-
-
 	public const int PLOT_COUNT = 6;
 
 	public Season season;
