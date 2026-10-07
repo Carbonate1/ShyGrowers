@@ -14,7 +14,7 @@ public class AdjacencyBonus
 
     public readonly Type type;
     public readonly Season season;
-    public readonly int multiplier;
+    public readonly int multiplier; // plant timers are divided by multiplier; set this to < 1 if intended to extend decay time
 
     public AdjacencyBonus(
         Type type,
