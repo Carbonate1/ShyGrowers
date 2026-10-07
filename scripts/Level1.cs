@@ -13,23 +13,30 @@ public partial class Level1 : Node2D
 		new("Tulip", "res://scenes/Plants/tulip.tscn")
 	};
 
+	private sealed record PlantOption(string DisplayName, string ScenePath);
+
+	// Member variables
+
+	// Private
 	private readonly PlantBox[] boxViews = new PlantBox[BOX_COUNT];
 	private readonly ToolItem[] handItems = new ToolItem[2];
 	private readonly HashSet<ToolItem> connectedToolItems = new();
 	private readonly Dictionary<string, int> inventory = new();
-	private int currentPlantBoxIdx;
 	private CanvasLayer plantMenuLayer;
 	private PlantBox pendingPlantBox;
+	private Camera2D camera;
+	private int currentPlantBoxIdx;
 	private int pendingPlotIdx;
 
+	// Properties
 	public PlantBox CurrentPlantBox => boxViews[currentPlantBoxIdx];
 	public ToolItem LeftHandItem => GetHandItem(MouseButton.Left);
 	public ToolItem RightHandItem => GetHandItem(MouseButton.Right);
 	public IReadOnlyDictionary<string, int> Inventory =>
 		new ReadOnlyDictionary<string, int>(inventory);
-	public event Action<PlantBox> CurrentPlantBoxChanged;
 
-	private Camera2D camera;
+	// Events
+	public event Action<PlantBox> CurrentPlantBoxChanged;
 
 	public override void _EnterTree()
 	{
@@ -41,8 +48,6 @@ public partial class Level1 : Node2D
 		GetTree().NodeAdded -= OnNodeAdded;
 	}
 
-	private sealed record PlantOption(string DisplayName, string ScenePath);
-	
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
