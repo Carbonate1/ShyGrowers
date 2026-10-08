@@ -1,6 +1,0 @@
-[gd_scene format=3 uid="uid://b11q3catg01hu"]
-
-[ext_resource type="Script" path="res://scripts/Inventory/Inventory.cs" id="1_qw0r6"]
-
-[node name="Inventory" type="CanvasLayer" unique_id=1207907946]
-script = ExtResource("1_qw0r6")

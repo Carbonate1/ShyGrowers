@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://bu7yiauwokddk"]
+
+[ext_resource type="Script" path="res://scenes/Canvases/PlantSelectionMenu.cs" id="1_menu"]
+
+[node name="PlantSelectionMenu" type="CanvasLayer" unique_id=1440387990]
+script = ExtResource("1_menu")
