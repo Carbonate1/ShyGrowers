@@ -8,13 +8,8 @@ public partial class Level1 : Node2D
 	private const int BOX_COUNT = 4;
 	private const string BOX_VIEW_SCENE_PATH = "res://scenes/plant_box.tscn";
 	private const string INVENTORY_SCENE_PATH = "res://scenes/inventory.tscn";
+	private const string PLANT_SELECTION_MENU_SCENE_PATH = "res://scenes/Canvases/plant_selection_menu.tscn";
 	private const int BOX_DISTANCE = 1200; // in pixels
-	private static readonly PlantOption[] PlantOptions =
-	{
-		new("Tulip", "res://scenes/Plants/tulip.tscn")
-	};
-
-	private sealed record PlantOption(string DisplayName, string ScenePath);
 
 	// Member variables
 
@@ -22,12 +17,10 @@ public partial class Level1 : Node2D
 	private readonly PlantBox[] boxViews = new PlantBox[BOX_COUNT];
 	private readonly ToolItem[] handItems = new ToolItem[2];
 	private readonly HashSet<ToolItem> connectedToolItems = new();
-	private CanvasLayer plantMenuLayer;
-	private Inventory inventoryView;
-	private PlantBox pendingPlantBox;
+	private PlantSelectionMenu plantSelectionMenu;
+	private Inventory inventoryLayer;
 	private Camera2D camera;
 	private int currentPlantBoxIdx;
-	private int pendingPlotIdx;
 	private bool showingInventory;
 
 	// Properties
@@ -75,10 +68,20 @@ public partial class Level1 : Node2D
 			throw new InvalidOperationException($"Could not load inventory scene at '{INVENTORY_SCENE_PATH}'.");
 		}
 
-		inventoryView = inventoryScene.Instantiate<Inventory>();
-		inventoryView.CloseRequested += CloseInventory;
-		AddChild(inventoryView);
-		inventoryView.Hide();
+		inventoryLayer = inventoryScene.Instantiate<Inventory>();
+		inventoryLayer.CloseRequested += CloseInventory;
+		AddChild(inventoryLayer);
+		inventoryLayer.Hide();
+
+		PackedScene plantSelectionMenuScene = GD.Load<PackedScene>(PLANT_SELECTION_MENU_SCENE_PATH);
+		if (plantSelectionMenuScene is null)
+		{
+			throw new InvalidOperationException(
+				$"Could not load plant selection menu scene at '{PLANT_SELECTION_MENU_SCENE_PATH}'.");
+		}
+
+		plantSelectionMenu = plantSelectionMenuScene.Instantiate<PlantSelectionMenu>();
+		AddChild(plantSelectionMenu);
 
 		currentPlantBoxIdx = 0;
 		UpdatePlayerOrientation();
@@ -88,7 +91,7 @@ public partial class Level1 : Node2D
 
 	public override void _UnhandledInput(InputEvent @event)
 	{
-		if (plantMenuLayer is not null)
+		if (plantSelectionMenu.IsOpen)
 		{
 			return;
 		}
@@ -153,13 +156,13 @@ public partial class Level1 : Node2D
 		toolItem.Clicked += OnToolItemClicked;
 		if (toolItem is SeedPacket seedPacket)
 		{
-			seedPacket.PlantSelectionRequested += ShowPlantMenu;
+			seedPacket.PlantSelectionRequested += plantSelectionMenu.Open;
 		}
 	}
 
 	private void OnPlantClicked(Plant plant, MouseButton button)
 	{
-		if (plantMenuLayer is not null)
+		if (plantSelectionMenu.IsOpen)
 		{
 			return;
 		}
@@ -176,7 +179,7 @@ public partial class Level1 : Node2D
 					InventoryItem harvestedItem = new(plant);
 					if (RemovePlantFromBox(plant))
 					{
-						inventoryView.AddItem(harvestedItem);
+						inventoryLayer.AddItem(harvestedItem);
 					}
 					break;
 			}
@@ -204,7 +207,7 @@ public partial class Level1 : Node2D
 		int plotIdx, 
 		MouseButton button)
 	{
-		if (plantMenuLayer is not null)
+		if (plantSelectionMenu.IsOpen)
 		{
 			return;
 		}
@@ -214,101 +217,6 @@ public partial class Level1 : Node2D
 		{
 			item.UseOnEmptyPlot(plantBox, plotIdx);
 		}
-	}
-
-	private bool IsPlantableHere(
-		Plant option,
-		PlantBox plantBox,
-		int plotIdx)
-	{
-		if (plotIdx < 0 || plotIdx + option.plantSize > PlantBox.PLOT_COUNT)
-		{
-			return false;
-		}
-
-		for (int occupiedPlotIdx = plotIdx; occupiedPlotIdx < plotIdx + option.plantSize; occupiedPlotIdx++)
-		{
-			if (plantBox.GetPlantAtPlot(occupiedPlotIdx) is not null)
-			{
-				return false;
-			}
-		}
-
-		// If the plant's season matches with the plantBox's sesason || an adjacent plant allows for this plant to grow, return true
-		if (plantBox.season == Season.Any ||
-			option.growingSeason == plantBox.season)
-		{
-			return true;
-		}
-
-		List<Plant> adjPlants = plantBox.GetAdjacentPlants(plotIdx, option.plantSize);
-
-		foreach (Plant plant in adjPlants)
-		{
-			if (plant.adjBonus.season == option.growingSeason)
-			{
-				return true;
-			}
-		}
-
-		return true;
-	}
-
-	private void ShowPlantMenu(PlantBox plantBox, int plotIdx)
-	{
-		if (plantMenuLayer is not null)
-		{
-			return;
-		}
-
-		pendingPlantBox = plantBox;
-		pendingPlotIdx = plotIdx;
-		plantMenuLayer = new CanvasLayer { Layer = 10 };
-		var backdrop = new ColorRect
-		{
-			Color = new Color(0, 0, 0, 0.6f),
-			MouseFilter = Control.MouseFilterEnum.Stop,
-			AnchorRight = 1,
-			AnchorBottom = 1
-		};
-		backdrop.GuiInput += OnPlantMenuBackdropInput;
-		plantMenuLayer.AddChild(backdrop);
-
-		var menu = new PanelContainer
-		{
-			AnchorLeft = 0.5f,
-			AnchorTop = 0.5f,
-			AnchorRight = 0.5f,
-			AnchorBottom = 0.5f,
-			OffsetLeft = -180,
-			OffsetTop = -120,
-			OffsetRight = 180,
-			OffsetBottom = 120,
-			MouseFilter = Control.MouseFilterEnum.Stop
-		};
-		var options = new VBoxContainer();
-		options.AddChild(new Label
-		{
-			Text = "Choose a plant",
-			HorizontalAlignment = HorizontalAlignment.Center
-		});
-
-		foreach (PlantOption option in PlantOptions)
-		{
-			var button = new Button { Text = option.DisplayName };
-			button.Pressed += () => SelectPlant(option);
-			Plant plant = LoadPlant(option);
-			button.Disabled = !IsPlantableHere(plant, pendingPlantBox, pendingPlotIdx);
-			plant.Free();
-			options.AddChild(button);
-		}
-
-		var cancelButton = new Button { Text = "Cancel" };
-		cancelButton.Pressed += ClosePlantMenu;
-		options.AddChild(cancelButton);
-		menu.AddChild(options);
-		backdrop.AddChild(menu);
-		AddChild(plantMenuLayer);
 	}
 
 	private void ToggleInventory()
@@ -325,56 +233,14 @@ public partial class Level1 : Node2D
 
 	private void OpenInventory()
 	{
-		inventoryView.Show();
+		inventoryLayer.Show();
 		showingInventory = true;
 	}
 
 	private void CloseInventory()
 	{
-		inventoryView.Hide();
+		inventoryLayer.Hide();
 		showingInventory = false;
-	}
-
-	private void OnPlantMenuBackdropInput(InputEvent @event)
-	{
-		if (@event is InputEventMouseButton { Pressed: true })
-		{
-			GetViewport().SetInputAsHandled();
-		}
-	}
-
-	private void SelectPlant(PlantOption option)
-	{
-		Plant plant = LoadPlant(option);
-
-		if (!pendingPlantBox.TryPlant(plant, pendingPlotIdx))
-		{
-			plant.Free();
-			GD.PushWarning($"There is not enough room to plant {option.DisplayName} in this plot.");
-			return;
-		}
-
-		pendingPlantBox.AddChild(plant);
-		plant.Position = pendingPlantBox.GetPlantPosition(pendingPlotIdx, plant.plantSize);
-		ClosePlantMenu();
-	}
-
-	private static Plant LoadPlant(PlantOption option)
-	{
-		PackedScene plantScene = GD.Load<PackedScene>(option.ScenePath);
-		if (plantScene is null)
-		{
-			throw new InvalidOperationException($"Could not load plant scene at '{option.ScenePath}'.");
-		}
-
-		return plantScene.Instantiate<Plant>();
-	}
-
-	private void ClosePlantMenu()
-	{
-		plantMenuLayer?.QueueFree();
-		plantMenuLayer = null;
-		pendingPlantBox = null;
 	}
 
 	private void OnToolItemClicked(ToolItem clickedItem, MouseButton button)
