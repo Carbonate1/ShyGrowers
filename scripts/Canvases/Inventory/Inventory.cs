@@ -6,28 +6,16 @@ public partial class Inventory : CanvasLayer
 {
 	private readonly List<InventoryItem> items = new();
 	private readonly List<Label> priceLabels = new();
+	private readonly Dictionary<InventoryItem, HBoxContainer> itemRows = new();
 	private VBoxContainer itemList;
 	private Label emptyMessage;
 
 	public event Action CloseRequested;
-	public event Action<InventoryItem, HBoxContainer, Label> RemoveItem;
 
 	public IReadOnlyList<InventoryItem> Items => items;
 
 	public override void _Ready()
 	{
-		RemoveItem += (
-			InventoryItem item, 
-			HBoxContainer container,
-			Label label
-		) => 
-			RemoveItemFromInventory(
-				item, 
-				container,
-				label
-			);
-
-
 		var backdrop = new ColorRect
 		{
 			Color = new Color(0, 0, 0, 0.65f),
@@ -143,18 +131,24 @@ public partial class Inventory : CanvasLayer
 		priceLabels.Add(priceLabel);
 		row.AddChild(priceLabel);
 
-		var removeButton = new Button { Text = "Remove item" };
-		removeButton.Pressed += () => RemoveItem?.Invoke(item, row, priceLabel);
-		row.AddChild(removeButton);
+		itemRows.Add(item, row);
 	}
 
-	private void RemoveItemFromInventory(
-		InventoryItem item, 
-		HBoxContainer container, 
-		Label label)
+	public bool RemoveItem(InventoryItem item)
 	{
-		items.Remove(item);
-		itemList.RemoveChild(container);
-		priceLabels.Remove(label);
+		int itemIndex = items.IndexOf(item);
+		if (itemIndex < 0)
+		{
+			return false;
+		}
+
+		items.RemoveAt(itemIndex);
+		priceLabels.RemoveAt(itemIndex);
+		HBoxContainer row = itemRows[item];
+		itemRows.Remove(item);
+		itemList.RemoveChild(row);
+		row.QueueFree();
+		emptyMessage.Visible = items.Count == 0;
+		return true;
 	}
 }
