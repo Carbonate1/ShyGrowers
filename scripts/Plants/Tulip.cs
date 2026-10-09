@@ -17,6 +17,10 @@ public partial class Tulip : Plant
 	);
 	static readonly AdjacencyBonus adjacencyBonus = new AdjacencyBonus();
 
+	public override bool IsHarvestable => 	currentState == State.Harvestable || 
+											currentState == State.Decaying ||
+											currentState == State.Dead;
+
 	public Tulip() : base(
 		plantData: PLANT_DATA, 
 		plantSize: 1, 
@@ -35,5 +39,36 @@ public partial class Tulip : Plant
 	public override void _Process(double delta)
 	{
 		base._Process(delta);
+	}
+
+	protected override void UpdateSaleValue(double delta)
+	{
+		if (currentState == State.Dead)
+		{
+			saleValue = 1;
+			return;
+		}
+
+		if (saleValue <= 1)
+		{
+			currentState = State.Dead;
+			saleValue = 1;
+		}
+
+		if ((currentState != State.Dead && careNeeded != Care.None) ||
+			(currentState == State.Decaying))
+		{
+			saleValue -= owningPlantBoxIdx != playerOrientationIdx
+			? DECAY_RATE * (float)delta * (float)PLANT_DATA.OutOfViewTimeMultiplier
+			: DECAY_RATE * (float)delta;
+			
+		}
+
+		// When the plant hits its decaying stage, sale value drops a substantial amount
+		if (currentState == State.Decaying &&!decayingSaleValueApplied)
+		{
+			saleValue -= 1;
+			decayingSaleValueApplied = true;
+		}
 	}
 }

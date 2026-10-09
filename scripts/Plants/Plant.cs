@@ -33,7 +33,7 @@ public abstract partial class Plant : Node2D
 
 	// Member variables
 	// Const
-	private const float DECAY_RATE = 0.05F;
+	protected const float DECAY_RATE = 0.05F;
 
 	// Private
 	private readonly PlantData plantData;
@@ -42,14 +42,15 @@ public abstract partial class Plant : Node2D
 	private readonly Dictionary<State, CollisionShape2D> stageShapes = new();
 	private readonly Dictionary<State, Sprite2D> stageSprites = new();
 	private double configuredStageDuration;
-	private int owningPlantBoxIdx = -1;
-	private int playerOrientationIdx = -1;
 	private PlantBox owningPlantBox;
 
 	// Protected
 	protected Timer stageTimer;
 	protected bool decayStarted;
 	protected float saleValue; // TODO: Set this up to reflected optimal value * customer willingness * time spent decaying
+	protected bool decayingSaleValueApplied;
+	protected int owningPlantBoxIdx = -1;
+	protected int playerOrientationIdx = -1;
 
 	// Public
 	public Care careNeeded;
@@ -68,7 +69,8 @@ public abstract partial class Plant : Node2D
 		}
 	}
 
-	public bool IsHarvestable => currentState == State.Harvestable;
+	public virtual bool IsHarvestable => 	currentState == State.Harvestable || 
+											currentState == State.Decaying;
 	public bool IsGrowing => 	currentState == State.Planted || 
 								currentState == State.Growing1 || 
 								currentState == State.Growing2 || 
@@ -123,6 +125,7 @@ public abstract partial class Plant : Node2D
 		currentState = State.Planted;
 		careNeeded = Care.None;
 		decayStarted = false;
+		decayingSaleValueApplied = false;
 		AddChild(stageTimer = new Timer
         {
             OneShot = true
@@ -346,12 +349,22 @@ public abstract partial class Plant : Node2D
 		UpdateGrowthStage();
 	}
 
-	private void UpdateSaleValue(double delta)
+	protected virtual void UpdateSaleValue(double delta)
 	{
 		if ((currentState != State.Dead && careNeeded != Care.None) ||
 			(currentState == State.Decaying))
 		{
-			saleValue -= DECAY_RATE * (float)delta;
+			saleValue -= owningPlantBoxIdx != playerOrientationIdx
+			? DECAY_RATE * (float)delta * (float)plantData.OutOfViewTimeMultiplier
+			: DECAY_RATE * (float)delta;
+			
+		}
+
+		// When the plant hits its decaying stage, sale value drops a substantial amount
+		if (currentState == State.Decaying &&!decayingSaleValueApplied)
+		{
+			saleValue -= 1;
+			decayingSaleValueApplied = true;
 		}
 
 		if (saleValue <= 0.0)
