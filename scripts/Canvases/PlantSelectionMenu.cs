@@ -32,11 +32,28 @@ public partial class PlantSelectionMenu : CanvasLayer
 			return;
 		}
 
+		SetPendingSelection(plantBox, plotIdx, currentSeedStock, tryConsume);
+		Control backdrop = CreateBackdrop();
+		PanelContainer menu = CreateMenuPanel();
+		menu.AddChild(CreateOptions());
+		backdrop.AddChild(menu);
+		ShowMenu(backdrop);
+	}
+
+	private void SetPendingSelection(
+		PlantBox plantBox,
+		int plotIdx,
+		IReadOnlyDictionary<string, int> currentSeedStock,
+		Func<string, bool> tryConsume)
+	{
 		pendingPlantBox = plantBox;
 		pendingPlotIdx = plotIdx;
 		seedStock = currentSeedStock;
 		tryConsumeSeed = tryConsume;
+	}
 
+	private ColorRect CreateBackdrop()
+	{
 		var backdrop = new ColorRect
 		{
 			Color = new Color(0, 0, 0, 0.6f),
@@ -45,7 +62,11 @@ public partial class PlantSelectionMenu : CanvasLayer
 			AnchorBottom = 1
 		};
 		backdrop.GuiInput += OnBackdropInput;
+		return backdrop;
+	}
 
+	private static PanelContainer CreateMenuPanel()
+	{
 		var menu = new PanelContainer
 		{
 			AnchorLeft = 0.5f,
@@ -58,6 +79,11 @@ public partial class PlantSelectionMenu : CanvasLayer
 			OffsetBottom = 120,
 			MouseFilter = Control.MouseFilterEnum.Stop
 		};
+		return menu;
+	}
+
+	private VBoxContainer CreateOptions()
+	{
 		var options = new VBoxContainer();
 		options.AddChild(new Label
 		{
@@ -67,21 +93,28 @@ public partial class PlantSelectionMenu : CanvasLayer
 
 		foreach (SeedOffer offer in SeedCatalog.Offers)
 		{
-			seedStock.TryGetValue(offer.Id, out int count);
-			var button = new Button { Text = $"{offer.DisplayName} (x{count})" };
-			button.Pressed += () => SelectPlant(offer);
-			Plant plant = LoadPlant(offer);
-			button.Disabled = count <= 0 || !IsPlantableHere(plant, pendingPlantBox, pendingPlotIdx);
-			plant.Free();
-			options.AddChild(button);
+			options.AddChild(CreatePlantButton(offer));
 		}
 
 		var cancelButton = new Button { Text = "Cancel" };
 		cancelButton.Pressed += Close;
 		options.AddChild(cancelButton);
-		menu.AddChild(options);
-		backdrop.AddChild(menu);
+		return options;
+	}
 
+	private Button CreatePlantButton(SeedOffer offer)
+	{
+		seedStock.TryGetValue(offer.Id, out int count);
+		var button = new Button { Text = $"{offer.DisplayName} (x{count})" };
+		button.Pressed += () => SelectPlant(offer);
+		Plant plant = LoadPlant(offer);
+		button.Disabled = count <= 0 || !IsPlantableHere(plant, pendingPlantBox, pendingPlotIdx);
+		plant.Free();
+		return button;
+	}
+
+	private void ShowMenu(Control backdrop)
+	{
 		menuRoot = backdrop;
 		AddChild(menuRoot);
 		Show();
