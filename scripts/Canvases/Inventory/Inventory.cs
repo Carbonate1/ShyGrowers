@@ -16,6 +16,14 @@ public partial class Inventory : CanvasLayer
 
 	public override void _Ready()
 	{
+		VBoxContainer content = CreateContent();
+		CreateHeader(content);
+		CreateItemList(content);
+		AddExistingItems();
+	}
+
+	private VBoxContainer CreateContent()
+	{
 		var backdrop = new ColorRect
 		{
 			Color = new Color(0, 0, 0, 0.65f),
