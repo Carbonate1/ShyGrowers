@@ -23,8 +23,9 @@ public partial class InventoryItem : Resource
 
     public void Decay(double delta)
     {
+        float minSellingPrice = Mathf.Min(sellingPriceAtHarvest, 1);
         currentSellingPrice = Mathf.Max(
-            0,
+            minSellingPrice,
             currentSellingPrice - (float)(delta * decayRate));
     }
 }
