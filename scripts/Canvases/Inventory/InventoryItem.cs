@@ -4,21 +4,21 @@ public partial class InventoryItem : Resource
 {
     public string name;
     public Texture2D texture;
+    private double decayRate;
     public float currentSellingPrice;
     private float sellingPriceAtHarvest;
-    private double decayRate;
 
     public InventoryItem()
     {
     }
 
-    public InventoryItem(Plant plant)
+    public InventoryItem(Plant plant, float saleMultiplier = 1.0f)
     {
         name = plant.PlantTypeName;
         texture = plant.HarvestableTexture;
-        sellingPriceAtHarvest = plant.GetSaleValue;
-        currentSellingPrice = sellingPriceAtHarvest;
         decayRate = plant.InventoryDecayRate;
+        sellingPriceAtHarvest = plant.GetSaleValue * saleMultiplier;
+        currentSellingPrice = sellingPriceAtHarvest;
     }
 
     public void Decay(double delta)
