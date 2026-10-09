@@ -57,15 +57,16 @@ public partial class Level1 : Node2D
 			seedStock.Add(offer.Id, 0);
 		}
 		currentPlantBoxIdx = 0;
-		UpdatePlayerOrientation();
-		CurrentPlantBoxChanged?.Invoke(CurrentPlantBox);
 		showingInventory = false;
 		showingShop = false;
 
 		LoadPlantBoxes();
+		UpdatePlayerOrientation();
 		LoadInventory();
 		LoadShop();
 		LoadPlantSelectionMenu();
+
+		CurrentPlantBoxChanged?.Invoke(CurrentPlantBox);
 	}
 
 	private void LoadPlantBoxes()
