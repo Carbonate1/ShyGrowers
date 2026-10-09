@@ -54,7 +54,14 @@ public partial class Level1 : Node2D
 		camera = GetNode<Camera2D>("Camera");
 		foreach (SeedOffer offer in SeedCatalog.Offers)
 		{
-			seedStock.Add(offer.Id, 0);
+			if (offer.Id == "Tulip")
+			{
+				seedStock.Add(offer.Id, 5);
+			}
+			else
+			{
+				seedStock.Add(offer.Id, 0);
+			}
 		}
 		currentPlantBoxIdx = 0;
 		showingInventory = false;
