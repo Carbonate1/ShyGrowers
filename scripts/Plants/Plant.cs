@@ -49,7 +49,6 @@ public abstract partial class Plant : Node2D
 	protected bool decayStarted;
 	protected float saleValue; // TODO: Set this up to reflected optimal value * customer willingness * time spent decaying
 	protected bool decayingSaleValueApplied;
-	protected int owningPlantBoxIdx = -1;
 	protected int playerOrientationIdx = -1;
 
 	// Public
@@ -57,6 +56,7 @@ public abstract partial class Plant : Node2D
 	public int plantSize; // Indicates how many plots this plant occupies in a PlantBox
 	public Season growingSeason;
 	public AdjacencyBonus adjBonus;
+	public int owningPlantBoxIdx = -1;
 
 	// Properties
 	protected State currentState
