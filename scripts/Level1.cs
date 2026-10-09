@@ -233,9 +233,10 @@ public partial class Level1 : Node2D
 					RemovePlantFromBox(plant);
 					break;
 				case ToolUseResult.HarvestPlant:
-					InventoryItem harvestedItem = new(plant);
 					if (RemovePlantFromBox(plant))
 					{
+						float saleMultiplier = boxViews[plant.owningPlantBoxIdx].GetAdjacentPlantSaleBonuses(plant);
+						InventoryItem harvestedItem = new(plant, saleMultiplier);
 						inventoryLayer.AddItem(harvestedItem);
 					}
 					break;

@@ -263,6 +263,21 @@ public partial class PlantBox : Area2D
 		return multiplier;
 	}
 
+	public float GetAdjacentPlantSaleBonuses(Plant plant)
+	{
+		float retVal = 1.0f;
+		List<Plant> adjPlants = GetAdjacentPlants(plant);
+		foreach (Plant adjPlant in adjPlants)
+		{
+			if (adjPlant.adjBonus.type == AdjacencyBonus.Type.SaleValue)
+			{
+				retVal *= plant.adjBonus.multiplier;
+			}
+		}
+
+		return retVal;
+	}
+
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
