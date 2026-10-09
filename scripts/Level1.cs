@@ -7,7 +7,7 @@ public partial class Level1 : Node2D
 {
 	private const int BOX_COUNT = 4;
 	private const string BOX_VIEW_SCENE_PATH = "res://scenes/plant_box.tscn";
-	private const string INVENTORY_SCENE_PATH = "res://scenes/inventory.tscn";
+	private const string INVENTORY_SCENE_PATH = "res://scenes/Canvases/inventory.tscn";
 	private const string SHOP_SCENE_PATH = "res://scenes/Canvases/shop.tscn";
 	private const string PLANT_SELECTION_MENU_SCENE_PATH = "res://scenes/Canvases/plant_selection_menu.tscn";
 	private const int BOX_DISTANCE = 1200; // in pixels
