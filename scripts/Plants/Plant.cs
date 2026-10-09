@@ -43,6 +43,7 @@ public abstract partial class Plant : Node2D
 	private readonly Dictionary<State, Sprite2D> stageSprites = new();
 	private double configuredStageDuration;
 	private PlantBox owningPlantBox;
+	private Random random;
 
 	// Protected
 	protected Timer stageTimer;
@@ -232,7 +233,6 @@ public abstract partial class Plant : Node2D
 
 	protected void SelectCareNeeded()
 	{
-		Random random = new Random();
 		int careNeededIndex = random.Next(1, Enum.GetValues(typeof(Care)).Length);
 		careNeeded = (Care)careNeededIndex;
 	}
@@ -320,6 +320,7 @@ public abstract partial class Plant : Node2D
 
 	public override void _Ready()
 	{
+		random = new Random();
 		stageArea = GetNodeOrNull<Area2D>("Area")
 			?? throw new InvalidOperationException("Plant scene is missing its 'Area' node.");
 		stageArea.CollisionLayer = 1;
