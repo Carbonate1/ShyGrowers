@@ -18,13 +18,13 @@ public partial class InventoryItem : Resource
         texture = plant.HarvestableTexture;
         sellingPriceAtHarvest = plant.GetSaleValue;
         currentSellingPrice = sellingPriceAtHarvest;
-        decayTime = plant.DecayTime;
+        decayRate = plant.InventoryDecayRate;
     }
 
     public void Decay(double delta)
     {
         currentSellingPrice = Mathf.Max(
             0,
-            currentSellingPrice - (float)(sellingPriceAtHarvest * delta / decayTime));
+            currentSellingPrice - (float)(delta * decayRate));
     }
 }

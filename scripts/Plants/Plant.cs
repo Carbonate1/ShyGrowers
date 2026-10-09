@@ -6,7 +6,7 @@ public sealed record PlantData(
 	int GrowthTime, // Time between each growth stage
 	int OptimalSaleValue, // Value of the plant when sold at its optimal time
 	int HarvestableTime, // Time the plant remains harvestable (in both harvestable & decaying state)
-	int DecayTime, // Time for the harvested plant's value to decay in the inventory
+	float InventoryDecayRate, // Time for the harvested plant's value to decay in the inventory
 	double OutOfViewTimeMultiplier
 );
 
@@ -78,7 +78,7 @@ public abstract partial class Plant : Node2D
 	public string PlantTypeName => GetType().Name;
 	public Texture2D HarvestableTexture => stageSprites[State.Harvestable].Texture;
 	public float GetSaleValue => saleValue;
-	public int DecayTime => plantData.DecayTime;
+	public float InventoryDecayRate => plantData.InventoryDecayRate;
 	
 
 	// Events
@@ -112,7 +112,7 @@ public abstract partial class Plant : Node2D
 		ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(plantData.OutOfViewTimeMultiplier, 0);
 		ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(plantData.GrowthTime, 0);
 		ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(plantData.HarvestableTime, 0);
-		ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(plantData.DecayTime, 0);
+		ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(plantData.InventoryDecayRate, 0);
 		ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(plantData.OptimalSaleValue, 0);
 		ArgumentOutOfRangeException.ThrowIfLessThan(plantSize, 1);
 		ArgumentOutOfRangeException.ThrowIfGreaterThan(plantSize, PlantBox.PLOT_COUNT);
