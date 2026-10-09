@@ -5,8 +5,8 @@ public partial class InventoryItem : Resource
     public string name;
     public Texture2D texture;
     public float currentSellingPrice;
-    public float sellingPriceAtHarvest;
-    public double decayTime;
+    private float sellingPriceAtHarvest;
+    private double decayRate;
 
     public InventoryItem()
     {
