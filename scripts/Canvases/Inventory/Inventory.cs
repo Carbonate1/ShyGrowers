@@ -49,7 +49,11 @@ public partial class Inventory : CanvasLayer
 
 		var content = new VBoxContainer();
 		panel.AddChild(content);
+		return content;
+	}
 
+	private void CreateHeader(VBoxContainer content)
+	{
 		var header = new HBoxContainer();
 		content.AddChild(header);
 		header.AddChild(new Label
@@ -62,7 +66,10 @@ public partial class Inventory : CanvasLayer
 		var closeButton = new Button { Text = "Close" };
 		closeButton.Pressed += () => CloseRequested?.Invoke();
 		header.AddChild(closeButton);
+	}
 
+	private void CreateItemList(VBoxContainer content)
+	{
 		emptyMessage = new Label
 		{
 			Text = "No harvested plants yet.",
@@ -82,7 +89,10 @@ public partial class Inventory : CanvasLayer
 			SizeFlagsHorizontal = Control.SizeFlags.ExpandFill
 		};
 		scroll.AddChild(itemList);
+	}
 
+	private void AddExistingItems()
+	{
 		emptyMessage.Visible = items.Count == 0;
 		foreach (InventoryItem item in items)
 		{
