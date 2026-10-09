@@ -4,16 +4,10 @@ using System.Collections.Generic;
 
 public partial class PlantSelectionMenu : CanvasLayer
 {
-	private const string TULIP_SCENE_PATH = "res://scenes/Plants/tulip.tscn";
-	private static readonly PlantOption[] PlantOptions =
-	{
-		new("Tulip", TULIP_SCENE_PATH)
-	};
-
-	private sealed record PlantOption(string DisplayName, string ScenePath);
-
 	private PlantBox pendingPlantBox;
 	private int pendingPlotIdx;
+	private IReadOnlyDictionary<string, int> seedStock;
+	private Func<string, bool> tryConsumeSeed;
 	private Control menuRoot;
 
 	public bool IsOpen => menuRoot is not null;
@@ -24,9 +18,15 @@ public partial class PlantSelectionMenu : CanvasLayer
 		Hide();
 	}
 
-	public void Open(PlantBox plantBox, int plotIdx)
+	public void Open(
+		PlantBox plantBox,
+		int plotIdx,
+		IReadOnlyDictionary<string, int> currentSeedStock,
+		Func<string, bool> tryConsume)
 	{
 		ArgumentNullException.ThrowIfNull(plantBox);
+		ArgumentNullException.ThrowIfNull(currentSeedStock);
+		ArgumentNullException.ThrowIfNull(tryConsume);
 		if (IsOpen)
 		{
 			return;
@@ -34,6 +34,8 @@ public partial class PlantSelectionMenu : CanvasLayer
 
 		pendingPlantBox = plantBox;
 		pendingPlotIdx = plotIdx;
+		seedStock = currentSeedStock;
+		tryConsumeSeed = tryConsume;
 
 		var backdrop = new ColorRect
 		{
@@ -63,12 +65,13 @@ public partial class PlantSelectionMenu : CanvasLayer
 			HorizontalAlignment = HorizontalAlignment.Center
 		});
 
-		foreach (PlantOption option in PlantOptions)
+		foreach (SeedOffer offer in SeedCatalog.Offers)
 		{
-			var button = new Button { Text = option.DisplayName };
-			button.Pressed += () => SelectPlant(option);
-			Plant plant = LoadPlant(option);
-			button.Disabled = !IsPlantableHere(plant, pendingPlantBox, pendingPlotIdx);
+			seedStock.TryGetValue(offer.Id, out int count);
+			var button = new Button { Text = $"{offer.DisplayName} (x{count})" };
+			button.Pressed += () => SelectPlant(offer);
+			Plant plant = LoadPlant(offer);
+			button.Disabled = count <= 0 || !IsPlantableHere(plant, pendingPlantBox, pendingPlotIdx);
 			plant.Free();
 			options.AddChild(button);
 		}
@@ -89,6 +92,8 @@ public partial class PlantSelectionMenu : CanvasLayer
 		menuRoot?.QueueFree();
 		menuRoot = null;
 		pendingPlantBox = null;
+		seedStock = null;
+		tryConsumeSeed = null;
 		Hide();
 	}
 
@@ -133,14 +138,24 @@ public partial class PlantSelectionMenu : CanvasLayer
 		}
 	}
 
-	private void SelectPlant(PlantOption option)
+	private void SelectPlant(SeedOffer offer)
 	{
-		Plant plant = LoadPlant(option);
+		if (!seedStock.TryGetValue(offer.Id, out int count) || count <= 0)
+		{
+			return;
+		}
+
+		Plant plant = LoadPlant(offer);
 		if (!pendingPlantBox.TryPlant(plant, pendingPlotIdx))
 		{
 			plant.Free();
-			GD.PushWarning($"There is not enough room to plant {option.DisplayName} in this plot.");
+			GD.PushWarning($"There is not enough room to plant {offer.DisplayName} in this plot.");
 			return;
+		}
+
+		if (!tryConsumeSeed(offer.Id))
+		{
+			throw new InvalidOperationException($"Potential race condition: Seed stock for '{offer.Id}' changed while planting.");
 		}
 
 		pendingPlantBox.AddChild(plant);
@@ -148,12 +163,12 @@ public partial class PlantSelectionMenu : CanvasLayer
 		Close();
 	}
 
-	private static Plant LoadPlant(PlantOption option)
+	private static Plant LoadPlant(SeedOffer offer)
 	{
-		PackedScene plantScene = GD.Load<PackedScene>(option.ScenePath);
+		PackedScene plantScene = GD.Load<PackedScene>(offer.ScenePath);
 		if (plantScene is null)
 		{
-			throw new InvalidOperationException($"Could not load plant scene at '{option.ScenePath}'.");
+			throw new InvalidOperationException($"Could not load plant scene at '{offer.ScenePath}'.");
 		}
 
 		return plantScene.Instantiate<Plant>();

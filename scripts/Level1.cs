@@ -8,8 +8,10 @@ public partial class Level1 : Node2D
 	private const int BOX_COUNT = 4;
 	private const string BOX_VIEW_SCENE_PATH = "res://scenes/plant_box.tscn";
 	private const string INVENTORY_SCENE_PATH = "res://scenes/inventory.tscn";
+	private const string SHOP_SCENE_PATH = "res://scenes/Canvases/shop.tscn";
 	private const string PLANT_SELECTION_MENU_SCENE_PATH = "res://scenes/Canvases/plant_selection_menu.tscn";
 	private const int BOX_DISTANCE = 1200; // in pixels
+	private const float STARTING_COINS = 10;
 
 	// Member variables
 
@@ -17,11 +19,15 @@ public partial class Level1 : Node2D
 	private readonly PlantBox[] boxViews = new PlantBox[BOX_COUNT];
 	private readonly ToolItem[] handItems = new ToolItem[2];
 	private readonly HashSet<ToolItem> connectedToolItems = new();
+	private readonly Dictionary<string, int> seedStock = new();
 	private PlantSelectionMenu plantSelectionMenu;
 	private Inventory inventoryLayer;
+	private Shop shopLayer;
 	private Camera2D camera;
 	private int currentPlantBoxIdx;
+	private float coins;
 	private bool showingInventory;
+	private bool showingShop;
 
 	// Properties
 	public PlantBox CurrentPlantBox => boxViews[currentPlantBoxIdx];
@@ -44,7 +50,26 @@ public partial class Level1 : Node2D
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
+		coins = STARTING_COINS;
 		camera = GetNode<Camera2D>("Camera");
+		foreach (SeedOffer offer in SeedCatalog.Offers)
+		{
+			seedStock.Add(offer.Id, 0);
+		}
+		currentPlantBoxIdx = 0;
+		UpdatePlayerOrientation();
+		CurrentPlantBoxChanged?.Invoke(CurrentPlantBox);
+		showingInventory = false;
+		showingShop = false;
+
+		LoadPlantBoxes();
+		LoadInventory();
+		LoadShop();
+		LoadPlantSelectionMenu();
+	}
+
+	private void LoadPlantBoxes()
+	{
 		PackedScene boxViewScene = GD.Load<PackedScene>(BOX_VIEW_SCENE_PATH);
 		if (boxViewScene is null)
 		{
@@ -61,7 +86,10 @@ public partial class Level1 : Node2D
 			boxViewInstance.EmptyPlotClicked += OnEmptyPlotClicked;
 			AddChild(boxViewInstance);
 		}
+	}
 
+	private void LoadInventory()
+	{
 		PackedScene inventoryScene = GD.Load<PackedScene>(INVENTORY_SCENE_PATH);
 		if (inventoryScene is null)
 		{
@@ -72,7 +100,26 @@ public partial class Level1 : Node2D
 		inventoryLayer.CloseRequested += CloseInventory;
 		AddChild(inventoryLayer);
 		inventoryLayer.Hide();
+	}
 
+	private void LoadShop()
+	{
+		PackedScene shopScene = GD.Load<PackedScene>(SHOP_SCENE_PATH);
+		if (shopScene is null)
+		{
+			throw new InvalidOperationException($"Could not load shop scene at '{SHOP_SCENE_PATH}'.");
+		}
+
+		shopLayer = shopScene.Instantiate<Shop>();
+		shopLayer.CloseRequested += CloseShop;
+		shopLayer.BuySeedRequested += BuySeed;
+		shopLayer.SellPlantRequested += SellPlant;
+		AddChild(shopLayer);
+		shopLayer.Hide();
+	}
+
+	private void LoadPlantSelectionMenu()
+	{
 		PackedScene plantSelectionMenuScene = GD.Load<PackedScene>(PLANT_SELECTION_MENU_SCENE_PATH);
 		if (plantSelectionMenuScene is null)
 		{
@@ -82,11 +129,6 @@ public partial class Level1 : Node2D
 
 		plantSelectionMenu = plantSelectionMenuScene.Instantiate<PlantSelectionMenu>();
 		AddChild(plantSelectionMenu);
-
-		currentPlantBoxIdx = 0;
-		UpdatePlayerOrientation();
-		CurrentPlantBoxChanged?.Invoke(CurrentPlantBox);
-		showingInventory = false;
 	}
 
 	public override void _UnhandledInput(InputEvent @event)
@@ -105,6 +147,10 @@ public partial class Level1 : Node2D
 		{
 			return;
 		}
+		if (showingShop && keyEvent.Keycode != Key.E)
+		{
+			return;
+		}
 
 		switch (keyEvent.Keycode)
 		{
@@ -116,6 +162,9 @@ public partial class Level1 : Node2D
 				break;
 			case Key.Q:
 				ToggleInventory();
+				break;
+			case Key.E:
+				ToggleShop();
 				break;
 		}
 	}
@@ -156,7 +205,7 @@ public partial class Level1 : Node2D
 		toolItem.Clicked += OnToolItemClicked;
 		if (toolItem is SeedPacket seedPacket)
 		{
-			seedPacket.PlantSelectionRequested += plantSelectionMenu.Open;
+			seedPacket.PlantSelectionRequested += OpenPlantSelectionMenu;
 		}
 	}
 
@@ -233,6 +282,11 @@ public partial class Level1 : Node2D
 
 	private void OpenInventory()
 	{
+		if (showingShop)
+		{
+			CloseShop();
+		}
+
 		inventoryLayer.Show();
 		showingInventory = true;
 	}
@@ -241,6 +295,95 @@ public partial class Level1 : Node2D
 	{
 		inventoryLayer.Hide();
 		showingInventory = false;
+	}
+
+	private void ToggleShop()
+	{
+		if (showingShop)
+		{
+			CloseShop();
+		}
+		else
+		{
+			OpenShop();
+		}
+	}
+
+	private void OpenShop()
+	{
+		if (showingInventory)
+		{
+			CloseInventory();
+		}
+
+		RefreshShop();
+		shopLayer.Show();
+		showingShop = true;
+	}
+
+	private void CloseShop()
+	{
+		shopLayer.Hide();
+		showingShop = false;
+	}
+
+	private void RefreshShop()
+	{
+		shopLayer.SetContents(coins, seedStock, inventoryLayer.Items);
+	}
+
+	private void BuySeed(string seedId)
+	{
+		SeedOffer offer = null;
+		foreach (SeedOffer availableOffer in SeedCatalog.Offers)
+		{
+			if (availableOffer.Id == seedId)
+			{
+				offer = availableOffer;
+				break;
+			}
+		}
+
+		if (offer is null || coins < offer.Price)
+		{
+			return;
+		}
+
+		coins -= offer.Price;
+		seedStock[offer.Id]++;
+		RefreshShop();
+	}
+
+	private void SellPlant(InventoryItem item)
+	{
+		if (!inventoryLayer.RemoveItem(item))
+		{
+			return;
+		}
+
+		coins += item.currentSellingPrice;
+		RefreshShop();
+	}
+
+	private void OpenPlantSelectionMenu(PlantBox plantBox, int plotIdx)
+	{
+		if (showingInventory || showingShop)
+		{
+			return;
+		}
+
+		plantSelectionMenu.Open(plantBox, plotIdx, seedStock, TryConsumeSeed);
+	}
+
+	private bool TryConsumeSeed(string seedId)
+	{
+		if (!seedStock.TryGetValue(seedId, out int count) || count <= 0)
+		{
+			return false;
+		}
+
+		seedStock[seedId] = count - 1;
+		return true;
 	}
 
 	private void OnToolItemClicked(ToolItem clickedItem, MouseButton button)
