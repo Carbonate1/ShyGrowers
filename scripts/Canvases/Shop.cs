@@ -4,30 +4,54 @@ using System.Collections.Generic;
 using System.Linq;
 
 public sealed record SeedOffer(string Id, string DisplayName, string ScenePath, int Price);
-
 public static class SeedCatalog
 {
 	public static IReadOnlyList<SeedOffer> Offers { get; } = Array.AsReadOnly(new[]
 	{
 		new SeedOffer("Tulip", "Tulip Seeds", "res://scenes/Plants/tulip.tscn", 1)
 	});
-}
+};
 
 public partial class Shop : CanvasLayer
 {
+	private const float STOCK_MARKET_UPDATE_INTERVAL = 0.1f;
+
 	private Label coinLabel;
 	private VBoxContainer buyingItems;
 	private VBoxContainer sellingItems;
+	private readonly Dictionary<string, Label> marketValueLabels = new();
+	private Dictionary<string, float> marketValue = new();
 	private readonly Dictionary<InventoryItem, Button> sellButtons = new();
 	private IReadOnlyDictionary<string, int> seedStock = new Dictionary<string, int>();
 	private IReadOnlyList<InventoryItem> inventoryItems = Array.Empty<InventoryItem>();
 	private float coins;
+	private Random random;
+	private Timer stockMarketIntervalTimer;
 
 	public event Action CloseRequested;
 	public event Action<string> BuySeedRequested;
 	public event Action<InventoryItem> SellPlantRequested;
 
 	public override void _Ready()
+	{
+        AddChild(stockMarketIntervalTimer = new Timer
+        {
+            WaitTime = STOCK_MARKET_UPDATE_INTERVAL,
+			OneShot = true
+        });
+		stockMarketIntervalTimer.Start();
+
+        InitializeMarket();
+		VBoxContainer content = CreateShopContent();
+		CreateHeader(content);
+		CreateSections(content);
+		CreateMarketValueDisplay(content);
+
+		UpdateMarketValueLabels();
+		Refresh();
+	}
+
+	private VBoxContainer CreateShopContent()
 	{
 		var backdrop = new ColorRect
 		{
@@ -54,7 +78,11 @@ public partial class Shop : CanvasLayer
 
 		var content = new VBoxContainer();
 		panel.AddChild(content);
+		return content;
+	}
 
+	private void CreateHeader(VBoxContainer content)
+	{
 		var header = new HBoxContainer();
 		content.AddChild(header);
 		header.AddChild(new Label
@@ -69,7 +97,10 @@ public partial class Shop : CanvasLayer
 		var closeButton = new Button { Text = "Close" };
 		closeButton.Pressed += () => CloseRequested?.Invoke();
 		header.AddChild(closeButton);
+	}
 
+	private void CreateSections(VBoxContainer content)
+	{
 		var sections = new HBoxContainer
 		{
 			SizeFlagsVertical = Control.SizeFlags.ExpandFill
@@ -88,8 +119,27 @@ public partial class Shop : CanvasLayer
 
 		var ordersSection = CreateSection("Special orders");
 		sections.AddChild(ordersSection);
+	}
 
-		Refresh();
+	private void CreateMarketValueDisplay(VBoxContainer content)
+	{
+		var marketSection = new VBoxContainer();
+		content.AddChild(marketSection);
+		marketSection.AddChild(new HSeparator());
+		var marketValues = new HBoxContainer
+		{
+			Alignment = BoxContainer.AlignmentMode.Center
+		};
+		marketSection.AddChild(marketValues);
+		foreach (KeyValuePair<string, float> entry in marketValue)
+		{
+			var label = new Label
+			{
+				HorizontalAlignment = HorizontalAlignment.Center
+			};
+			marketValueLabels.Add(entry.Key, label);
+			marketValues.AddChild(label);
+		}
 	}
 
 	public override void _Process(double delta)
@@ -97,6 +147,40 @@ public partial class Shop : CanvasLayer
 		foreach (KeyValuePair<InventoryItem, Button> entry in sellButtons)
 		{
 			entry.Value.Text = $"Sell - {entry.Key.currentSellingPrice:0.00}";
+		}
+
+		if (stockMarketIntervalTimer.IsStopped())
+		{
+			UpdateMarket();
+			UpdateMarketValueLabels();
+			stockMarketIntervalTimer.Start();
+		}
+		
+	}
+
+	private void InitializeMarket()
+	{
+		random = new();
+		marketValue.Add("Tulip", 1);
+	}
+
+	// TODO: Normalize the values
+	private void UpdateMarket()
+	{
+		foreach (string entry in marketValue.Keys.ToList())
+		{
+			int sign = random.Next(0, 2) > 0.5
+				? 1
+				: -1;
+			marketValue[entry] = (float)Math.Clamp(marketValue[entry] + random.Next(0, 11) / 100f * sign, 0.5, 2);
+		}
+	}
+
+	private void UpdateMarketValueLabels()
+	{
+		foreach (KeyValuePair<string, Label> entry in marketValueLabels)
+		{
+			entry.Value.Text = $"{entry.Key}: {marketValue[entry.Key]:0.00}x";
 		}
 	}
 
