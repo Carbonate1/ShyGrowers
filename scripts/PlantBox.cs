@@ -245,9 +245,9 @@ public partial class PlantBox : Area2D
 		return adjPlants;
 	}
 
-	public int GetAdjacentPlantTimeBonuses(Plant plant)
+	public float GetAdjacentPlantTimeBonuses(Plant plant)
 	{
-		int multiplier = 1;
+		float multiplier = 1;
 
 		List<Plant> adjPlants = GetAdjacentPlants(plant);
 

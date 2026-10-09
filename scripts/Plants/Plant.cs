@@ -160,9 +160,9 @@ public abstract partial class Plant : Node2D
 	}
 
 	// Used to display time remaining and adjust timer speed when the plant is out of view.
-	public double GetTimerDuration(int duration)
+	public double GetTimerDuration(float duration)
 	{
-		int multiplier = owningPlantBox is null
+		float multiplier = owningPlantBox is null
 			? 1
 			: owningPlantBox.GetAdjacentPlantTimeBonuses(this);
 		duration *= multiplier;
