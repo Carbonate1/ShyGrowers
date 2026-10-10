@@ -14,6 +14,9 @@ public partial class Plant : Node3D
 {
 	private const float DECAY_RATE = 0.05f;
 	private const float MINIMUM_SALE_VALUE = 1f;
+	private const float WRONG_CARE_PUNISHMENT = 0.3f;
+	private const float QUICK_CARE_BONUS = 0.5f;
+	private const float TIME_FOR_QUICK_CARE_BONUS = 5f;
 
 	
 	public enum Stage
@@ -57,6 +60,8 @@ public partial class Plant : Node3D
 	private float saleValue;
 	private bool decayingSaleValueApplied;
 	private readonly Random random = new();
+	private readonly Timer waitingForCare = new(); // If care is given before the timer stops, the plant's sale value incrases
+												   // Start timer when care is selected
 
 	public override void _Ready()
 	{
@@ -64,6 +69,10 @@ public partial class Plant : Node3D
 		saleValue = OptimalSaleValue;
 		CareNeeded = Care.Watering;
 		ShowStage();
+		
+		AddChild(waitingForCare);
+		waitingForCare.OneShot = true;
+		waitingForCare.WaitTime = TIME_FOR_QUICK_CARE_BONUS;
 	}
 
 	public override void _Process(double delta)
@@ -92,6 +101,7 @@ public partial class Plant : Node3D
 
 	private Care SelectCare()
 	{
+		waitingForCare.Start();
 		return (Care)random.Next((int)Care.Watering, (int)Care.Weeding + 1);
 	}
 	public bool CompleteCare(Care completedCare)
@@ -104,12 +114,17 @@ public partial class Plant : Node3D
 
 		if (completedCare != CareNeeded)
 		{
-			saleValue -= 0.3f;
+			saleValue -= WRONG_CARE_PUNISHMENT;
 			return false;
 		}
 
 		CareNeeded = Care.None;
 		timeElapsed = 0;
+		
+		if (!waitingForCare.IsStopped())
+		{
+			saleValue += QUICK_CARE_BONUS;
+		}
 		Advance();
 		return true;
 	}
