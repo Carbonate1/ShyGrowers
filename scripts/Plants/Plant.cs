@@ -53,8 +53,6 @@ public partial class Plant : Node3D
 	public Texture2D HarvestableTexture =>
 		Stages?.GetNodeOrNull<Sprite3D>(nameof(Stage.Harvestable))?.Texture;
 
-	internal PlanterBox OwningPlanterBox { get; private set; }
-
 	private double timeElapsed;
 	private float saleValue;
 	private bool decayingSaleValueApplied;
@@ -70,10 +68,9 @@ public partial class Plant : Node3D
 
 	public override void _Process(double delta)
 	{
-		double speed = TimeScale * (OwningPlanterBox?.GetAdjacentPlantTimeBonuses(this) ?? 1f);
 		if (CurrentStage != Stage.Dead && CareNeeded == Care.None)
 		{
-			timeElapsed += delta * speed;
+			timeElapsed += delta * TimeScale;
 			if (timeElapsed >= StageDuration)
 			{
 				timeElapsed = 0;
@@ -89,7 +86,8 @@ public partial class Plant : Node3D
 			}
 		}
 
-		UpdateSaleValue(delta * speed);
+		UpdateSaleValue(delta * TimeScale);
+		UpdateLabel();
 	}
 
 	private Care SelectCare()
@@ -114,18 +112,6 @@ public partial class Plant : Node3D
 	public int GetSeedYield()
 	{
 		return GD.RandRange(SeedYield.X, SeedYield.Y);
-	}
-
-	internal void SetOwningPlanterBox(PlanterBox planterBox)
-	{
-		OwningPlanterBox = planterBox;
-		TimeScale = planterBox.TimeScale;
-	}
-
-	internal void ClearOwningPlanterBox()
-	{
-		OwningPlanterBox = null;
-		TimeScale = 1f;
 	}
 
 	private double StageDuration => CurrentStage switch
@@ -235,6 +221,7 @@ public partial class Plant : Node3D
 				Stage.Dead => "gone",
 				_ => ""
 			}
-		};
+		}  	+ $"\nGrowing time: {Math.Round(timeElapsed, 1)}/{StageDuration}"
+			+ $"\nSale Value: {Math.Round(saleValue, 2)}";
 	}
 }

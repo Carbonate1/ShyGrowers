@@ -15,6 +15,8 @@ public enum Season
 [GlobalClass]
 public partial class PlanterBox : Node3D
 {
+	private sealed record PlantPlacement(Plant Plant, int FirstPlot, int PlotCount);
+
 	public const int PLOT_COUNT = 6;
 
 	[Export] public float LookAwaySpeed { get; set; } = 3f;
@@ -24,7 +26,6 @@ public partial class PlanterBox : Node3D
 	public bool IsWatched => Watcher is null || Watcher.IsOnScreen();
 	public float TimeScale => IsWatched ? 1f : LookAwaySpeed;
 
-	private sealed record PlantPlacement(Plant Plant, int FirstPlot, int PlotCount);
 	private readonly List<Plot> plots = new();
 	private readonly List<PlantPlacement> placements = new();
 
@@ -59,7 +60,7 @@ public partial class PlanterBox : Node3D
 	{
 		foreach (PlantPlacement placement in placements)
 		{
-			placement.Plant.TimeScale = TimeScale;
+			placement.Plant.TimeScale = TimeScale * GetAdjacentPlantTimeBonuses(placement.Plant);
 		}
 	}
 
@@ -117,7 +118,6 @@ public partial class PlanterBox : Node3D
 		}
 
 		int plotCount = plant.PlantSize;
-		plant.SetOwningPlanterBox(this);
 		AddChild(plant);
 		plant.Position = GetPlantPosition(firstPlot, plotCount);
 		placements.Add(new PlantPlacement(plant, firstPlot, plotCount));
@@ -146,7 +146,6 @@ public partial class PlanterBox : Node3D
 			plots[index].SetPlant(null, null);
 		}
 
-		plant.ClearOwningPlanterBox();
 		return true;
 	}
 
