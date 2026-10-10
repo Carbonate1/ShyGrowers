@@ -37,7 +37,6 @@ public partial class Plant : Node3D
 	[Export] public int PlantSize { get; set; } = 1;
 	[Export] public Season GrowingSeason { get; set; } = Season.Any;
 	[Export] public AdjacencyBonus Adjacency { get; set; } = new();
-	[Export] public ItemData Produce { get; set; }
 
 	[ExportGroup("Nodes")]
 	[Export] public Node3D Stages { get; set; }
