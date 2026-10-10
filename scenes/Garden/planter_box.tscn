@@ -10,7 +10,7 @@ size = Vector3(0.17, 0.42, 0.3)
 [sub_resource type="BoxShape3D" id="BoxShape3D_box"]
 size = Vector3(1.16, 0.21, 0.35)
 
-[node name="PlanterBox" type="Node3D" node_paths=PackedStringArray("Watcher")]
+[node name="PlanterBox" type="Node3D" groups=["planter_boxes"] node_paths=PackedStringArray("Watcher")]
 script = ExtResource("1_box")
 Watcher = NodePath("Watcher")
 
@@ -36,7 +36,7 @@ aabb = AABB(-0.52, 0.1, -0.15, 1.04, 0.5, 0.3)
 [node name="Plots" type="Node3D" parent="."]
 position = Vector3(0, 0.21, 0)
 
-[node name="Plot1" type="Area3D" parent="Plots" groups=["plots"]]
+[node name="Plot1" type="Area3D" parent="Plots"]
 position = Vector3(-0.45, 0, 0)
 script = ExtResource("2_plot")
 
@@ -44,7 +44,7 @@ script = ExtResource("2_plot")
 position = Vector3(0, 0.2, 0)
 shape = SubResource("BoxShape3D_plot")
 
-[node name="Plot2" type="Area3D" parent="Plots" groups=["plots"]]
+[node name="Plot2" type="Area3D" parent="Plots"]
 position = Vector3(-0.27, 0, 0)
 script = ExtResource("2_plot")
 
@@ -52,7 +52,7 @@ script = ExtResource("2_plot")
 position = Vector3(0, 0.2, 0)
 shape = SubResource("BoxShape3D_plot")
 
-[node name="Plot3" type="Area3D" parent="Plots" groups=["plots"]]
+[node name="Plot3" type="Area3D" parent="Plots"]
 position = Vector3(-0.09, 0, 0)
 script = ExtResource("2_plot")
 
@@ -60,7 +60,7 @@ script = ExtResource("2_plot")
 position = Vector3(0, 0.2, 0)
 shape = SubResource("BoxShape3D_plot")
 
-[node name="Plot4" type="Area3D" parent="Plots" groups=["plots"]]
+[node name="Plot4" type="Area3D" parent="Plots"]
 position = Vector3(0.09, 0, 0)
 script = ExtResource("2_plot")
 
@@ -68,7 +68,7 @@ script = ExtResource("2_plot")
 position = Vector3(0, 0.2, 0)
 shape = SubResource("BoxShape3D_plot")
 
-[node name="Plot5" type="Area3D" parent="Plots" groups=["plots"]]
+[node name="Plot5" type="Area3D" parent="Plots"]
 position = Vector3(0.27, 0, 0)
 script = ExtResource("2_plot")
 
@@ -76,7 +76,7 @@ script = ExtResource("2_plot")
 position = Vector3(0, 0.2, 0)
 shape = SubResource("BoxShape3D_plot")
 
-[node name="Plot6" type="Area3D" parent="Plots" groups=["plots"]]
+[node name="Plot6" type="Area3D" parent="Plots"]
 position = Vector3(0.45, 0, 0)
 script = ExtResource("2_plot")
 

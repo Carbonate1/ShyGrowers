@@ -13,7 +13,7 @@ public partial class Gardener : Node
 
 	public int HarvestCount { get; private set; }
 
-	private readonly List<Plot> plots = new();
+	private readonly List<PlanterBox> planterBoxes = new();
 	private bool gameOver;
 	private bool inventoryOpen;
 
@@ -24,12 +24,12 @@ public partial class Gardener : Node
 		Inventory.Hide();
 		Inventory.CloseRequested += CloseInventory;
 		
-		foreach (Node node in GetTree().GetNodesInGroup("plots"))
+		foreach (Node node in GetTree().GetNodesInGroup("planter_boxes"))
 		{
-			if (node is Plot plot)
+			if (node is PlanterBox planterBox)
 			{
-				plots.Add(plot);
-				plot.Clicked += OnPlotClicked;
+				planterBoxes.Add(planterBox);
+				planterBox.PlotClicked += OnPlotClicked;
 			}
 		}
 	}
@@ -39,6 +39,11 @@ public partial class Gardener : Node
 		if (Inventory is not null)
 		{
 			Inventory.CloseRequested -= CloseInventory;
+		}
+
+		foreach (PlanterBox planterBox in planterBoxes)
+		{
+			planterBox.PlotClicked -= OnPlotClicked;
 		}
 	}
 
@@ -62,11 +67,11 @@ public partial class Gardener : Node
 		}
 	}
 
-	private void OnPlotClicked(Plot plot, MouseButton button)
+	private void OnPlotClicked(PlanterBox planterBox, int plotIndex, MouseButton button)
 	{
 		Hand hand = Hands.GetHand(button);
 		ItemData held = hand.Item;
-		Plant plant = plot.Plant;
+		Plant plant = planterBox.GetPlantAtPlot(plotIndex);
 
 		if (hand.IsBusy)
 		{
@@ -75,20 +80,19 @@ public partial class Gardener : Node
 
 		if (plant is null)
 		{
-			AttemptPlantSeed(held, plot);
+			AttemptPlantSeed(held, planterBox, plotIndex);
 			return;
 		}
 
 		if (held is null)
 		{
-			AttemptHarvest(plant, plot);
+			AttemptHarvest(plant, planterBox, plotIndex);
 			return;
 		}
 
 		if (held.DigsUpPlants)
 		{
-			plot.Clear();
-			CheckIfGameOver();
+			AttemptRemovePlant(plant, planterBox);
 			return;
 		}
 
@@ -97,44 +101,52 @@ public partial class Gardener : Node
 			return;
 		}
 
-		hand.UseOn(plot.GlobalPosition, () =>
+		hand.UseOn(planterBox.GetPlotGlobalPosition(plotIndex), () =>
 		{
 			if (held.CareEffect is not null)
 			{
-				plot.AddChild(held.CareEffect.Instantiate());
+				Node3D effect = held.CareEffect.Instantiate<Node3D>();
+				planterBox.AddChild(effect);
+				effect.GlobalPosition = planterBox.GetPlotGlobalPosition(plotIndex);
 			}
 
-			if (plot.Plant == plant)
+			if (planterBox.GetPlantAtPlot(plotIndex) == plant)
 			{
 				plant.CompleteCare(held.Care);
 			}
 		});
 	}
 
-	private void AttemptPlantSeed(ItemData held, Plot plot)
+	private void AttemptPlantSeed(ItemData held, PlanterBox planterBox, int plotIndex)
 	{
-		if (held?.PlantScene is not null && Seeds.Count(held) > 0)
+		if (held?.PlantScene is null || Seeds.Count(held) <= 0)
 		{
-			if (plot.PlantSeed(held))
-			{
-				plot.Plant.StageChanged += _ => CheckIfGameOver();
-				Seeds.Use(held);
-			}
+			return;
 		}
+
+		Plant plant = held.PlantScene.Instantiate<Plant>();
+		if (!planterBox.TryPlant(plant, plotIndex, held))
+		{
+			plant.Free();
+			return;
+		}
+
+		plant.StageChanged += _ => CheckIfGameOver();
+		Seeds.Use(held);
 	}
 
-	private void AttemptHarvest(Plant plant, Plot plot)
+	private void AttemptHarvest(Plant plant, PlanterBox planterBox, int plotIndex)
 	{
 		if (!plant.IsHarvestable)
 		{
 			return;
 		}
 
-		ItemData sown = plot.SownWith;
-		float saleMultiplier = plot.Box.GetAdjacentPlantSaleBonuses(plant);
+		ItemData sown = planterBox.GetSeedsAtPlot(plotIndex);
+		float saleMultiplier = planterBox.GetAdjacentPlantSaleBonuses(plant);
 		var harvestedItem = new InventoryItem(plant, saleMultiplier);
 		int seedYield = plant.GetSeedYield();
-		if (!plot.Box.RemovePlant(plant))
+		if (!planterBox.RemovePlant(plant))
 		{
 			return;
 		}
@@ -148,6 +160,15 @@ public partial class Gardener : Node
 		CheckIfGameOver();
 	}
 
+	private void AttemptRemovePlant(Plant plant, PlanterBox planterBox)
+	{
+		if (planterBox.RemovePlant(plant))
+		{
+			plant.QueueFree();
+		}
+		CheckIfGameOver();
+	}
+
 	private void CloseInventory()
 	{
 		inventoryOpen = false;
@@ -156,7 +177,9 @@ public partial class Gardener : Node
 
 	private void CheckIfGameOver()
 	{
-		if (gameOver || Seeds.Total > 0 || plots.Any(plot => plot.Plant is { IsAlive: true }))
+		if (gameOver || Seeds.Total > 0 || planterBoxes.Any(box =>
+			Enumerable.Range(0, PlanterBox.PLOT_COUNT)
+				.Any(index => box.GetPlantAtPlot(index) is { IsAlive: true })))
 		{
 			return;
 		}

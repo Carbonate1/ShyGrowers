@@ -15,8 +15,9 @@ public enum Season
 [GlobalClass]
 public partial class PlanterBox : Node3D
 {
-	private sealed record PlantPlacement(Plant Plant, int FirstPlot, int PlotCount);
+	[Signal] public delegate void PlotClickedEventHandler(PlanterBox planterBox, int plotIndex, MouseButton button);
 
+	private sealed record PlantPlacement(Plant Plant, ItemData Seeds, int FirstPlot, int PlotCount);
 	public const int PLOT_COUNT = 6;
 
 	[Export] public float LookAwaySpeed { get; set; } = 3f;
@@ -52,7 +53,16 @@ public partial class PlanterBox : Node3D
 
 		for (int i = 0; i < plots.Count; i++)
 		{
-			plots[i].Initialize(this, i);
+			plots[i].Initialize(i);
+			plots[i].Clicked += OnPlotClicked;
+		}
+	}
+
+	public override void _ExitTree()
+	{
+		foreach (Plot plot in plots)
+		{
+			plot.Clicked -= OnPlotClicked;
 		}
 	}
 
@@ -67,7 +77,19 @@ public partial class PlanterBox : Node3D
 	public Plant GetPlantAtPlot(int plotIndex)
 	{
 		ValidatePlotIndex(plotIndex);
-		return plots[plotIndex].Plant;
+		return FindPlacementAtPlot(plotIndex)?.Plant;
+	}
+
+	public ItemData GetSeedsAtPlot(int plotIndex)
+	{
+		ValidatePlotIndex(plotIndex);
+		return FindPlacementAtPlot(plotIndex)?.Seeds;
+	}
+
+	public Vector3 GetPlotGlobalPosition(int plotIndex)
+	{
+		ValidatePlotIndex(plotIndex);
+		return plots[plotIndex].GlobalPosition;
 	}
 
 	public bool CanPlant(Plant plant, int firstPlot)
@@ -82,7 +104,7 @@ public partial class PlanterBox : Node3D
 
 		for (int index = firstPlot; index < firstPlot + plant.PlantSize; index++)
 		{
-			if (plots[index].Plant is not null)
+			if (GetPlantAtPlot(index) is not null)
 			{
 				return false;
 			}
@@ -120,12 +142,7 @@ public partial class PlanterBox : Node3D
 		int plotCount = plant.PlantSize;
 		AddChild(plant);
 		plant.Position = GetPlantPosition(firstPlot, plotCount);
-		placements.Add(new PlantPlacement(plant, firstPlot, plotCount));
-
-		for (int index = firstPlot; index < firstPlot + plotCount; index++)
-		{
-			plots[index].SetPlant(plant, seeds);
-		}
+		placements.Add(new PlantPlacement(plant, seeds, firstPlot, plotCount));
 
 		return true;
 	}
@@ -139,13 +156,7 @@ public partial class PlanterBox : Node3D
 			return false;
 		}
 
-		PlantPlacement placement = placements[placementIndex];
 		placements.RemoveAt(placementIndex);
-		for (int index = placement.FirstPlot; index < placement.FirstPlot + placement.PlotCount; index++)
-		{
-			plots[index].SetPlant(null, null);
-		}
-
 		return true;
 	}
 
@@ -168,12 +179,12 @@ public partial class PlanterBox : Node3D
 		int leftIndex = firstPlot - 1;
 		int rightIndex = firstPlot + plotCount;
 
-		if (leftIndex >= 0 && plots[leftIndex].Plant is { } leftPlant)
+		if (leftIndex >= 0 && GetPlantAtPlot(leftIndex) is { } leftPlant)
 		{
 			adjacentPlants.Add(leftPlant);
 		}
 
-		if (rightIndex < PLOT_COUNT && plots[rightIndex].Plant is { } rightPlant)
+		if (rightIndex < PLOT_COUNT && GetPlantAtPlot(rightIndex) is { } rightPlant)
 		{
 			adjacentPlants.Add(rightPlant);
 		}
@@ -218,6 +229,18 @@ public partial class PlanterBox : Node3D
 		ArgumentNullException.ThrowIfNull(plant);
 		return placements.Find(placement => placement.Plant == plant)
 			?? throw new ArgumentException("The plant is not placed in this planter box.", nameof(plant));
+	}
+
+	private PlantPlacement FindPlacementAtPlot(int plotIndex)
+	{
+		return placements.Find(placement =>
+			plotIndex >= placement.FirstPlot &&
+			plotIndex < placement.FirstPlot + placement.PlotCount);
+	}
+
+	private void OnPlotClicked(int plotIndex, MouseButton button)
+	{
+		EmitSignal(SignalName.PlotClicked, this, plotIndex, (int)button);
 	}
 
 	private static float ValidateMultiplier(AdjacencyBonus bonus)
