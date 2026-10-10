@@ -46,7 +46,7 @@ public partial class Plant : Node3D
 	public Stage CurrentStage { get; private set; }
 	public Care CareNeeded { get; private set; }
 	public float TimeScale { get; internal set; } = 1f;
-	public bool IsHarvestable => CurrentStage >= Stage.Harvestable;
+	public bool IsHarvestable => CurrentStage is Stage.Harvestable or Stage.Decaying;
 	public bool IsGrowing => CurrentStage <= Stage.Harvestable;
 	public bool IsAlive => CurrentStage < Stage.Decaying;
 	public string PlantTypeName => GetType().Name;
