@@ -9,16 +9,21 @@ public partial class Gardener : Node
 
 	[Export] public Hands Hands { get; set; }
 	[Export] public SeedStock Seeds { get; set; }
+	[Export] public Inventory Inventory { get; set; }
 
 	public int HarvestCount { get; private set; }
 
 	private readonly List<Plot> plots = new();
 	private bool gameOver;
+	private bool inventoryOpen;
 
 	public override void _Ready()
 	{
 		gameOver = false;
-
+		inventoryOpen = false;
+		Inventory.Hide();
+		Inventory.CloseRequested += CloseInventory;
+		
 		foreach (Node node in GetTree().GetNodesInGroup("plots"))
 		{
 			if (node is Plot plot)
@@ -26,6 +31,34 @@ public partial class Gardener : Node
 				plots.Add(plot);
 				plot.Clicked += OnPlotClicked;
 			}
+		}
+	}
+
+	public override void _ExitTree()
+	{
+		if (Inventory is not null)
+		{
+			Inventory.CloseRequested -= CloseInventory;
+		}
+	}
+
+	public override void _UnhandledInput(InputEvent @event)
+	{
+		if (@event is not InputEventKey { Pressed: true, Echo: false } keyEvent)
+		{
+			return;
+		}
+
+		if (keyEvent.Keycode == Key.I)
+		{
+			inventoryOpen = !inventoryOpen;
+			Inventory.Visible = inventoryOpen;
+			GetViewport().SetInputAsHandled();
+		}
+		else if (keyEvent.Keycode == Key.Escape && inventoryOpen)
+		{
+			CloseInventory();
+			GetViewport().SetInputAsHandled();
 		}
 	}
 
@@ -48,7 +81,7 @@ public partial class Gardener : Node
 
 		if (held is null)
 		{
-			AttemptHarvest(plant, plot, button);
+			AttemptHarvest(plant, plot);
 			return;
 		}
 
@@ -90,10 +123,7 @@ public partial class Gardener : Node
 		}
 	}
 
-	private void AttemptHarvest(
-		Plant plant,
-		Plot plot,
-		MouseButton button)
+	private void AttemptHarvest(Plant plant, Plot plot)
 	{
 		if (!plant.IsHarvestable)
 		{
@@ -101,7 +131,8 @@ public partial class Gardener : Node
 		}
 
 		ItemData sown = plot.SownWith;
-		ItemData produce = plant.Produce;
+		float saleMultiplier = plot.Box.GetAdjacentPlantSaleBonuses(plant);
+		var harvestedItem = new InventoryItem(plant, saleMultiplier);
 		int seedYield = plant.GetSeedYield();
 		if (!plot.Box.RemovePlant(plant))
 		{
@@ -109,12 +140,18 @@ public partial class Gardener : Node
 		}
 
 		plant.QueueFree();
-		Hands.GetHand(button).Item = produce;
+		Inventory.AddItem(harvestedItem);
 
 		HarvestCount++;
 		EmitSignal(SignalName.PlantHarvested, HarvestCount);
 		Seeds.Add(sown, seedYield);
 		CheckIfGameOver();
+	}
+
+	private void CloseInventory()
+	{
+		inventoryOpen = false;
+		Inventory.Hide();
 	}
 
 	private void CheckIfGameOver()
