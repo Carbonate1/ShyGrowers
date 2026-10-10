@@ -66,13 +66,16 @@ public partial class Plant : Node3D
 	public override void _Ready()
 	{
 		ValidateConfiguration();
-		saleValue = OptimalSaleValue;
-		CareNeeded = Care.Watering;
-		ShowStage();
-		
+
 		AddChild(waitingForCare);
 		waitingForCare.OneShot = true;
 		waitingForCare.WaitTime = TIME_FOR_QUICK_CARE_BONUS;
+
+		saleValue = OptimalSaleValue;
+		CareNeeded = Care.Watering;
+		waitingForCare.Start();
+		
+		ShowStage();
 	}
 
 	public override void _Process(double delta)
