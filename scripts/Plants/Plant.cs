@@ -97,9 +97,14 @@ public partial class Plant : Node3D
 	public bool CompleteCare(Care completedCare)
 	{
 		if (completedCare == Care.None ||
-			completedCare != CareNeeded ||
 			CurrentStage is not (Stage.Planted or Stage.Growing1 or Stage.Growing2))
 		{
+			return false;
+		}
+
+		if (completedCare != CareNeeded)
+		{
+			saleValue -= 0.3f;
 			return false;
 		}
 
