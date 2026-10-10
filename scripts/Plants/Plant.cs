@@ -47,7 +47,7 @@ public partial class Plant : Node3D
 	public float TimeScale { get; internal set; } = 1f;
 	public bool IsHarvestable => CurrentStage is Stage.Harvestable or Stage.Decaying;
 	public bool IsGrowing => CurrentStage <= Stage.Harvestable;
-	public bool IsAlive => CurrentStage < Stage.Decaying;
+	public bool IsAlive => IsGrowing || CurrentStage == Stage.Decaying;
 	public string PlantTypeName => GetType().Name;
 	public float GetSaleValue => saleValue;
 	public Texture2D HarvestableTexture =>
