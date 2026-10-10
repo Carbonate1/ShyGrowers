@@ -8,17 +8,17 @@ public partial class Gardener : Node
 	[Signal] public delegate void GardenEmptyEventHandler(int total);
 
 	[Export] public Hands Hands { get; set; }
-	[Export] public Hand LeftHand { get; set; }
-	[Export] public Hand RightHand { get; set; }
 	[Export] public SeedStock Seeds { get; set; }
 
 	public int HarvestCount { get; private set; }
 
 	private readonly List<Plot> plots = new();
-	private bool over;
+	private bool gameOver;
 
 	public override void _Ready()
 	{
+		gameOver = false;
+
 		foreach (Node node in GetTree().GetNodesInGroup("plots"))
 		{
 			if (node is Plot plot)
@@ -31,9 +31,9 @@ public partial class Gardener : Node
 
 	private void OnPlotClicked(Plot plot, MouseButton button)
 	{
-		ItemData held = Hands.Get(button);
+		Hand hand = Hands.GetHand(button);
+		ItemData held = hand.Item;
 		Plant plant = plot.Plant;
-		Hand hand = button == MouseButton.Right ? RightHand : LeftHand;
 
 		if (hand.IsBusy)
 		{
@@ -42,35 +42,20 @@ public partial class Gardener : Node
 
 		if (plant is null)
 		{
-			if (held?.PlantScene is not null && Seeds.Count(held) > 0)
-			{
-				plot.Sow(held);
-				plot.Plant.StageChanged += _ => CheckIfEmpty();
-				Seeds.Use(held);
-			}
+			AttemptPlantSeed(held, plot);
 			return;
 		}
 
 		if (held is null)
 		{
-			if (plant.IsHarvestable)
-			{
-				ItemData sown = plot.SownWith;
-				Hands.Set(button, plant.Produce);
-				plot.Clear();
-
-				HarvestCount++;
-				EmitSignal(SignalName.PlantHarvested, HarvestCount);
-				Seeds.Add(sown, plant.RollSeeds());
-				CheckIfEmpty();
-			}
+			AttemptHarvest(plant, plot, button);
 			return;
 		}
 
 		if (held.DigsUpPlants)
 		{
 			plot.Clear();
-			CheckIfEmpty();
+			CheckIfGameOver();
 			return;
 		}
 
@@ -88,19 +73,58 @@ public partial class Gardener : Node
 
 			if (plot.Plant == plant)
 			{
-				plant.GiveCare(held.Care);
+				plant.CompleteCare(held.Care);
 			}
 		});
 	}
 
-	private void CheckIfEmpty()
+	private void AttemptPlantSeed(ItemData held, Plot plot)
 	{
-		if (over || Seeds.Total > 0 || plots.Any(plot => plot.Plant is { IsAlive: true }))
+		if (held?.PlantScene is not null && Seeds.Count(held) > 0)
+		{
+			if (plot.PlantSeed(held))
+			{
+				plot.Plant.StageChanged += _ => CheckIfGameOver();
+				Seeds.Use(held);
+			}
+		}
+	}
+
+	private void AttemptHarvest(
+		Plant plant,
+		Plot plot,
+		MouseButton button)
+	{
+		if (!plant.IsHarvestable)
 		{
 			return;
 		}
 
-		over = true;
+		ItemData sown = plot.SownWith;
+		ItemData produce = plant.Produce;
+		int seedYield = plant.GetSeedYield();
+		if (!plot.Box.RemovePlant(plant))
+		{
+			return;
+		}
+
+		plant.QueueFree();
+		Hands.GetHand(button).Item = produce;
+
+		HarvestCount++;
+		EmitSignal(SignalName.PlantHarvested, HarvestCount);
+		Seeds.Add(sown, seedYield);
+		CheckIfGameOver();
+	}
+
+	private void CheckIfGameOver()
+	{
+		if (gameOver || Seeds.Total > 0 || plots.Any(plot => plot.Plant is { IsAlive: true }))
+		{
+			return;
+		}
+
+		gameOver = true;
 		EmitSignal(SignalName.GardenEmpty, HarvestCount);
 	}
 }

@@ -1,16 +1,21 @@
 using Godot;
+using System;
 
 public enum Care
 {
 	None,
-	Water,
-	Fertilizer,
-	Weed
+	Watering,
+	Fertilizing,
+	Weeding
 }
 
 [GlobalClass]
 public partial class Plant : Node3D
 {
+	private const float DECAY_RATE = 0.05f;
+	private const float MINIMUM_SALE_VALUE = 1f;
+
+	
 	public enum Stage
 	{
 		Planted,
@@ -26,9 +31,13 @@ public partial class Plant : Node3D
 	[Export] public float GrowthTime { get; set; } = 10f;
 	[Export] public float HarvestableTime { get; set; } = 10f;
 	[Export] public float DecayTime { get; set; } = 5f;
-	[Export] public ItemData Produce { get; set; }
+	[Export] public int OptimalSaleValue { get; set; } = 7;
+	[Export] public float InventoryDecayRate { get; set; } = 0.05f;
 	[Export] public Vector2I SeedYield { get; set; } = new(1, 2);
-	[Export] public Care FirstNeed { get; set; } = Care.Water;
+	[Export] public int PlantSize { get; set; } = 1;
+	[Export] public Season GrowingSeason { get; set; } = Season.Any;
+	[Export] public AdjacencyBonus Adjacency { get; set; } = new();
+	[Export] public ItemData Produce { get; set; }
 
 	[ExportGroup("Nodes")]
 	[Export] public Node3D Stages { get; set; }
@@ -36,81 +45,172 @@ public partial class Plant : Node3D
 
 	public Stage CurrentStage { get; private set; }
 	public Care CareNeeded { get; private set; }
-	public float TimeScale { get; set; } = 1f;
-	public bool IsHarvestable => CurrentStage == Stage.Harvestable;
+	public float TimeScale { get; internal set; } = 1f;
+	public bool IsHarvestable => CurrentStage >= Stage.Harvestable;
+	public bool IsGrowing => CurrentStage <= Stage.Harvestable;
 	public bool IsAlive => CurrentStage < Stage.Decaying;
+	public string PlantTypeName => GetType().Name;
+	public float GetSaleValue => saleValue;
+	public Texture2D HarvestableTexture =>
+		Stages?.GetNodeOrNull<Sprite3D>(nameof(Stage.Harvestable))?.Texture;
 
-	private float stageTime;
+	internal PlanterBox OwningPlanterBox { get; private set; }
 
-	private float StageLength => CurrentStage switch
+	private double timeElapsed;
+	private float saleValue;
+	private bool decayingSaleValueApplied;
+	private readonly Random random = new();
+
+	public override void _Ready()
+	{
+		ValidateConfiguration();
+		saleValue = OptimalSaleValue;
+		CareNeeded = SelectCare();
+		ShowStage();
+	}
+
+	public override void _Process(double delta)
+	{
+		double speed = TimeScale * (OwningPlanterBox?.GetAdjacentPlantTimeBonuses(this) ?? 1f);
+		if (CurrentStage != Stage.Dead && CareNeeded == Care.None)
+		{
+			timeElapsed += delta * speed;
+			if (timeElapsed >= StageDuration)
+			{
+				timeElapsed = 0;
+				if (CurrentStage is Stage.Planted or Stage.Growing1 or Stage.Growing2)
+				{
+					CareNeeded = SelectCare();
+					UpdateLabel();
+				}
+				else
+				{
+					Advance();
+				}
+			}
+		}
+
+		UpdateSaleValue(delta * speed);
+	}
+
+	private Care SelectCare()
+	{
+		return (Care)random.Next((int)Care.Watering, (int)Care.Weeding + 1);
+	}
+	public bool CompleteCare(Care completedCare)
+	{
+		if (completedCare == Care.None ||
+			completedCare != CareNeeded ||
+			CurrentStage is not (Stage.Planted or Stage.Growing1 or Stage.Growing2))
+		{
+			return false;
+		}
+
+		CareNeeded = Care.None;
+		timeElapsed = 0;
+		Advance();
+		return true;
+	}
+
+	public int GetSeedYield()
+	{
+		return GD.RandRange(SeedYield.X, SeedYield.Y);
+	}
+
+	internal void SetOwningPlanterBox(PlanterBox planterBox)
+	{
+		OwningPlanterBox = planterBox;
+		TimeScale = planterBox.TimeScale;
+	}
+
+	internal void ClearOwningPlanterBox()
+	{
+		OwningPlanterBox = null;
+		TimeScale = 1f;
+	}
+
+	private double StageDuration => CurrentStage switch
 	{
 		Stage.Harvestable => HarvestableTime,
 		Stage.Decaying => DecayTime,
 		_ => GrowthTime
 	};
 
-	public override void _Ready()
+	private void ValidateConfiguration()
 	{
-		CareNeeded = FirstNeed;
-		ShowStage();
+		ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(GrowthTime, 0);
+		ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(HarvestableTime, 0);
+		ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(DecayTime, 0);
+		ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(OptimalSaleValue, 0);
+		ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(InventoryDecayRate, 0);
+		ArgumentOutOfRangeException.ThrowIfLessThan(PlantSize, 1);
+		ArgumentOutOfRangeException.ThrowIfGreaterThan(PlantSize, PlanterBox.PLOT_COUNT);
+		ArgumentNullException.ThrowIfNull(Adjacency);
 	}
 
-	public override void _Process(double delta)
+	private void UpdateSaleValue(double delta)
 	{
-		if (CareNeeded != Care.None || CurrentStage == Stage.Dead)
+		if (CurrentStage == Stage.Dead)
 		{
 			return;
 		}
 
-		stageTime += (float)delta * TimeScale;
-		if (stageTime < StageLength)
+		if (CareNeeded != Care.None || CurrentStage == Stage.Decaying)
 		{
-			return;
+			saleValue -= DECAY_RATE * (float)delta;
 		}
 
-		if (CurrentStage < Stage.Harvestable)
+		if (CurrentStage == Stage.Decaying && !decayingSaleValueApplied)
 		{
-			CareNeeded = (Care)GD.RandRange(1, 3);
-			UpdateLabel();
-		}
-		else
-		{
-			Advance();
-		}
-	}
-
-	public bool GiveCare(Care care)
-	{
-		if (care == Care.None || care != CareNeeded)
-		{
-			return false;
+			saleValue -= 1f;
+			decayingSaleValueApplied = true;
 		}
 
-		CareNeeded = Care.None;
-		Advance();
-		return true;
-	}
-
-	public int RollSeeds()
-	{
-		return GD.RandRange(SeedYield.X, SeedYield.Y);
+		if (saleValue <= MINIMUM_SALE_VALUE)
+		{
+			saleValue = MINIMUM_SALE_VALUE;
+			SetStage(Stage.Dead);
+		}
 	}
 
 	private void Advance()
 	{
-		CurrentStage++;
-		stageTime = 0f;
+		Stage nextStage = CurrentStage switch
+		{
+			Stage.Planted => Stage.Growing1,
+			Stage.Growing1 => Stage.Growing2,
+			Stage.Growing2 => Stage.Harvestable,
+			Stage.Harvestable => Stage.Decaying,
+			Stage.Decaying => Stage.Dead,
+			_ => Stage.Dead
+		};
+
+		SetStage(nextStage);
+	}
+
+	private void SetStage(Stage stage)
+	{
+		if (CurrentStage == stage)
+		{
+			return;
+		}
+
+		CurrentStage = stage;
+		timeElapsed = 0;
 		ShowStage();
 		EmitSignal(SignalName.StageChanged, this);
 	}
 
 	private void ShowStage()
 	{
-		foreach (Node child in Stages.GetChildren())
+		if (Stages is not null)
 		{
-			if (child is Node3D stage)
+			foreach (Node child in Stages.GetChildren())
 			{
-				stage.Visible = stage.Name.ToString() == CurrentStage.ToString();
+				if (child is Node3D stage)
+				{
+					stage.Visible = stage.Name == CurrentStage.ToString();
+				}
 			}
 		}
 
@@ -126,9 +226,9 @@ public partial class Plant : Node3D
 
 		NeedLabel.Text = CareNeeded switch
 		{
-			Care.Water => "thirsty",
-			Care.Fertilizer => "hungry",
-			Care.Weed => "weedy",
+			Care.Watering => "thirsty",
+			Care.Fertilizing => "hungry",
+			Care.Weeding => "weedy",
 			_ => CurrentStage switch
 			{
 				Stage.Harvestable => "ready!",

@@ -77,8 +77,8 @@ public partial class Hud : CanvasLayer
 
 	private void ShowHands()
 	{
-		LeftHand.SetItem(Hands.Left);
-		RightHand.SetItem(Hands.Right);
+		LeftHand.SetItem(Hands.LeftHand.Item);
+		RightHand.SetItem(Hands.RightHand.Item);
 	}
 
 	private void ShowDrawer()

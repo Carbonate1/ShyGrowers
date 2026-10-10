@@ -80,20 +80,20 @@ cast_shadow = 0
 extra_cull_margin = 16384.0
 mesh = SubResource("QuadMesh_ink")
 
-[node name="LeftHand" type="Node3D" parent="Camera" node_paths=PackedStringArray("Hands", "World", "Drawer")]
+[node name="LeftHand" type="Node3D" parent="Camera" node_paths=PackedStringArray("World", "Drawer")]
 position = Vector3(-0.36, -0.27, -0.72)
 rotation_degrees = Vector3(15, -20, 0)
 script = ExtResource("14_hand")
+Item = ExtResource("6_seeds")
 ReachYaw = -90.0
-Hands = NodePath("../../Hands")
 World = NodePath("../../Items")
 Drawer = NodePath("../../Room/Table")
 
-[node name="RightHand" type="Node3D" parent="Camera" node_paths=PackedStringArray("Hands", "World", "Drawer")]
+[node name="RightHand" type="Node3D" parent="Camera" node_paths=PackedStringArray("World", "Drawer")]
 position = Vector3(0.36, -0.27, -0.72)
 rotation_degrees = Vector3(15, 20, 0)
 script = ExtResource("14_hand")
-Hands = NodePath("../../Hands")
+Item = ExtResource("7_watering_can")
 Button = 2
 TossAction = &"toss_right"
 World = NodePath("../../Items")
@@ -107,10 +107,10 @@ transform = Transform3D(0.94, 0, -0.342, 0, 1, 0, 0.342, 0, 0.94, 0.2, 0.01, -2.
 [node name="FrostbloomSeeds" parent="Items" instance=ExtResource("21_frostbloom_packet")]
 transform = Transform3D(0.342, 0, 0.94, 0, 1, 0, -0.94, 0, 0.342, 2.62, 0.5, 0.42)
 
-[node name="Hands" type="Node" parent="."]
+[node name="Hands" type="Node" parent="." node_paths=PackedStringArray("LeftHand", "RightHand")]
 script = ExtResource("5_hands")
-Left = ExtResource("6_seeds")
-Right = ExtResource("7_watering_can")
+LeftHand = NodePath("../Camera/LeftHand")
+RightHand = NodePath("../Camera/RightHand")
 
 [node name="Seeds" type="Node" parent="."]
 script = ExtResource("16_seed_stock")
@@ -124,8 +124,6 @@ ExtResource("20_frostbloom_seeds"): 3
 [node name="Gardener" type="Node" parent="." node_paths=PackedStringArray("Hands", "LeftHand", "RightHand", "Seeds")]
 script = ExtResource("8_gardener")
 Hands = NodePath("../Hands")
-LeftHand = NodePath("../Camera/LeftHand")
-RightHand = NodePath("../Camera/RightHand")
 Seeds = NodePath("../Seeds")
 
 [node name="Hud" parent="." node_paths=PackedStringArray("Hands", "Drawer", "Camera", "Gardener", "Seeds") instance=ExtResource("9_hud")]
