@@ -62,7 +62,7 @@ public partial class Plant : Node3D
 	{
 		ValidateConfiguration();
 		saleValue = OptimalSaleValue;
-		CareNeeded = SelectCare();
+		CareNeeded = Care.Watering;
 		ShowStage();
 	}
 
