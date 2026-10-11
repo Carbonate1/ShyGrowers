@@ -11,6 +11,7 @@ public partial class Inventory : CanvasLayer
 	private Label emptyMessage;
 
 	public event Action CloseRequested;
+	public event Action ItemsChanged;
 
 	public IReadOnlyList<InventoryItem> Items => items;
 
@@ -118,6 +119,7 @@ public partial class Inventory : CanvasLayer
 			emptyMessage.Visible = false;
 			AddItemRow(item);
 		}
+		ItemsChanged?.Invoke();
 	}
 
 	private void AddItemRow(InventoryItem item)
@@ -167,6 +169,7 @@ public partial class Inventory : CanvasLayer
 		itemList.RemoveChild(row);
 		row.QueueFree();
 		emptyMessage.Visible = items.Count == 0;
+		ItemsChanged?.Invoke();
 		return true;
 	}
 }

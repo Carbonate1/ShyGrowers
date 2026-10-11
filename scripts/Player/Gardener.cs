@@ -15,14 +15,10 @@ public partial class Gardener : Node
 
 	private readonly List<PlanterBox> planterBoxes = new();
 	private bool gameOver;
-	private bool inventoryOpen;
 
 	public override void _Ready()
 	{
 		gameOver = false;
-		inventoryOpen = false;
-		Inventory.Hide();
-		Inventory.CloseRequested += CloseInventory;
 		
 		foreach (Node node in GetTree().GetNodesInGroup("planter_boxes"))
 		{
@@ -36,34 +32,9 @@ public partial class Gardener : Node
 
 	public override void _ExitTree()
 	{
-		if (Inventory is not null)
-		{
-			Inventory.CloseRequested -= CloseInventory;
-		}
-
 		foreach (PlanterBox planterBox in planterBoxes)
 		{
 			planterBox.PlotClicked -= OnPlotClicked;
-		}
-	}
-
-	public override void _UnhandledInput(InputEvent @event)
-	{
-		if (@event is not InputEventKey { Pressed: true, Echo: false } keyEvent)
-		{
-			return;
-		}
-
-		if (keyEvent.Keycode == Key.I)
-		{
-			inventoryOpen = !inventoryOpen;
-			Inventory.Visible = inventoryOpen;
-			GetViewport().SetInputAsHandled();
-		}
-		else if (keyEvent.Keycode == Key.Escape && inventoryOpen)
-		{
-			CloseInventory();
-			GetViewport().SetInputAsHandled();
 		}
 	}
 
@@ -167,12 +138,6 @@ public partial class Gardener : Node
 			plant.QueueFree();
 		}
 		CheckIfGameOver();
-	}
-
-	private void CloseInventory()
-	{
-		inventoryOpen = false;
-		Inventory.Hide();
 	}
 
 	private void CheckIfGameOver()

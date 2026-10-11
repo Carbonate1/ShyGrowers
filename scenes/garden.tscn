@@ -22,6 +22,8 @@
 [ext_resource type="Resource" path="res://resources/items/frostbloom_seeds.tres" id="20_frostbloom_seeds"]
 [ext_resource type="PackedScene" path="res://scenes/Items/frostbloom_seeds.tscn" id="21_frostbloom_packet"]
 [ext_resource type="PackedScene" path="res://scenes/Canvases/inventory.tscn" id="22_inventory"]
+[ext_resource type="Script" path="res://scripts/Canvases/ShopController.cs" id="23_shop_controller"]
+[ext_resource type="PackedScene" path="res://scenes/Canvases/shop.tscn" id="24_shop"]
 
 [sub_resource type="QuadMesh" id="QuadMesh_ink"]
 material = ExtResource("4_ink")
@@ -123,12 +125,19 @@ ExtResource("20_frostbloom_seeds"): 3
 })
 
 [node name="Inventory" parent="." instance=ExtResource("22_inventory")]
+[node name="Shop" parent="." instance=ExtResource("24_shop")]
 
 [node name="Gardener" type="Node" parent="." node_paths=PackedStringArray("Hands", "Seeds", "Inventory")]
 script = ExtResource("8_gardener")
 Hands = NodePath("../Hands")
 Seeds = NodePath("../Seeds")
 Inventory = NodePath("../Inventory")
+
+[node name="ShopController" type="Node" parent="." node_paths=PackedStringArray("Shop", "Inventory", "Seeds")]
+script = ExtResource("23_shop_controller")
+Shop = NodePath("../Shop")
+Inventory = NodePath("../Inventory")
+Seeds = NodePath("../Seeds")
 
 [node name="Hud" parent="." node_paths=PackedStringArray("Hands", "Drawer", "Camera", "Gardener", "Seeds") instance=ExtResource("9_hud")]
 Hands = NodePath("../Hands")

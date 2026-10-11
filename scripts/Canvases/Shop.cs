@@ -3,30 +3,31 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-public sealed record SeedOffer(string Id, string DisplayName, string ScenePath, int Price);
+public sealed record SeedOffer(string Id, string DisplayName, string SeedItemPath, string ScenePath, int Price);
 public static class SeedCatalog
 {
 	public static IReadOnlyList<SeedOffer> Offers { get; } = Array.AsReadOnly(new[]
 	{
-		new SeedOffer("Tulip", "Tulip Seeds", "res://scenes/Plants/tulip.tscn", 1)
+		new SeedOffer(
+			"Tulip",
+			"Tulip Seeds",
+			"res://resources/items/tulip_seeds.tres",
+			"res://scenes/Plants/tulip.tscn",
+			1)
 	});
 };
 
 public partial class Shop : CanvasLayer
 {
-	private const float STOCK_MARKET_UPDATE_INTERVAL = 0.1f;
-
 	private Label coinLabel;
 	private VBoxContainer buyingItems;
 	private VBoxContainer sellingItems;
 	private readonly Dictionary<string, Label> marketValueLabels = new();
-	private Dictionary<string, float> marketValue = new();
 	private readonly Dictionary<InventoryItem, Button> sellButtons = new();
 	private IReadOnlyDictionary<string, int> seedStock = new Dictionary<string, int>();
+	private IReadOnlyDictionary<string, float> marketValue = new Dictionary<string, float>();
 	private IReadOnlyList<InventoryItem> inventoryItems = Array.Empty<InventoryItem>();
 	private float coins;
-	private Random random;
-	private Timer stockMarketIntervalTimer;
 
 	public event Action CloseRequested;
 	public event Action<string> BuySeedRequested;
@@ -34,14 +35,6 @@ public partial class Shop : CanvasLayer
 
 	public override void _Ready()
 	{
-        AddChild(stockMarketIntervalTimer = new Timer
-        {
-            WaitTime = STOCK_MARKET_UPDATE_INTERVAL,
-			OneShot = true
-        });
-		stockMarketIntervalTimer.Start();
-
-        InitializeMarket();
 		VBoxContainer content = CreateShopContent();
 		CreateHeader(content);
 		CreateSections(content);
@@ -131,13 +124,13 @@ public partial class Shop : CanvasLayer
 			Alignment = BoxContainer.AlignmentMode.Center
 		};
 		marketSection.AddChild(marketValues);
-		foreach (KeyValuePair<string, float> entry in marketValue)
+		foreach (SeedOffer offer in SeedCatalog.Offers)
 		{
 			var label = new Label
 			{
 				HorizontalAlignment = HorizontalAlignment.Center
 			};
-			marketValueLabels.Add(entry.Key, label);
+			marketValueLabels.Add(offer.Id, label);
 			marketValues.AddChild(label);
 		}
 	}
@@ -148,50 +141,30 @@ public partial class Shop : CanvasLayer
 		{
 			entry.Value.Text = $"Sell - {entry.Key.currentSellingPrice:0.00}";
 		}
-
-		if (stockMarketIntervalTimer.IsStopped())
-		{
-			UpdateMarket();
-			UpdateMarketValueLabels();
-			stockMarketIntervalTimer.Start();
-		}
-		
-	}
-
-	private void InitializeMarket()
-	{
-		random = new();
-		marketValue.Add("Tulip", 1);
-	}
-
-	// TODO: Normalize the values
-	private void UpdateMarket()
-	{
-		foreach (string entry in marketValue.Keys.ToList())
-		{
-			int sign = random.Next(0, 2) > 0.5
-				? 1
-				: -1;
-			marketValue[entry] = (float)Math.Clamp(marketValue[entry] + random.Next(0, 11) / 100f * sign, 0.5, 2);
-		}
 	}
 
 	private void UpdateMarketValueLabels()
 	{
 		foreach (KeyValuePair<string, Label> entry in marketValueLabels)
 		{
-			entry.Value.Text = $"{entry.Key}: {marketValue[entry.Key]:0.00}x";
+			if (marketValue.TryGetValue(entry.Key, out float value))
+			{
+				entry.Value.Text = $"{entry.Key}: {value:0.00}x";
+			}
 		}
 	}
 
 	public void SetContents(
 		float currentCoins,
 		IReadOnlyDictionary<string, int> currentSeedStock,
-		IReadOnlyList<InventoryItem> currentInventoryItems)
+		IReadOnlyList<InventoryItem> currentInventoryItems,
+		IReadOnlyDictionary<string, float> currentMarketValues)
 	{
 		coins = currentCoins;
 		seedStock = currentSeedStock;
 		inventoryItems = currentInventoryItems;
+		marketValue = currentMarketValues;
+		UpdateMarketValueLabels();
 		Refresh();
 	}
 
