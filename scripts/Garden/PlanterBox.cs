@@ -2,12 +2,16 @@ using Godot;
 using System;
 using System.Collections.Generic;
 
-public enum Season
+public enum Biome
 {
 	Winter,
 	Spring,
 	Summer,
-	Fall,
+	Autumn,
+	Night,
+	Desert,
+	Space,
+	Ocean,
 	Any,
 	None
 }
@@ -22,7 +26,7 @@ public partial class PlanterBox : Node3D
 
 	[Export] public float LookAwaySpeed { get; set; } = 3f;
 	[Export] public VisibleOnScreenNotifier3D Watcher { get; set; }
-	[Export] public Season GrowingSeason { get; set; } = Season.Any;
+	[Export] public Biome GrowingBiome { get; set; } = Biome.Any;
 
 	public bool IsWatched => Watcher is null || Watcher.IsOnScreen();
 	public float TimeScale => IsWatched ? 1f : LookAwaySpeed;
@@ -110,17 +114,20 @@ public partial class PlanterBox : Node3D
 			}
 		}
 
-		if (GrowingSeason is Season.Any or Season.None ||
-			plant.Data.GrowingSeason is Season.Any or Season.None ||
-			GrowingSeason == plant.Data.GrowingSeason)
+
+		if (GrowingBiome is Biome.Any or Biome.None ||
+			plant.Data.GrowingBiomes.Contains(Biome.Any) || 
+			plant.Data.GrowingBiomes.Contains(Biome.None) ||
+			plant.Data.GrowingBiomes.Contains(GrowingBiome))
 		{
 			return true;
 		}
 
 		foreach (Plant neighbor in GetAdjacentPlants(firstPlot, plant.Data.PlantSize))
 		{
-			if (neighbor.Data.Adjacency.BonusType == AdjacencyBonus.Type.AdditionalSeason &&
-				neighbor.Data.Adjacency.BonusSeason == plant.Data.GrowingSeason)
+			if (neighbor.Data.Adjacency.BonusType == AdjacencyBonus.Type.AdditionalBiome &&
+				(neighbor.Data.Adjacency.BonusBiome == Biome.Any ||
+				plant.Data.GrowingBiomes.Contains(neighbor.Data.Adjacency.BonusBiome)))
 			{
 				return true;
 			}

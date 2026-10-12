@@ -11,6 +11,6 @@ public partial class PlantData : Resource
 	[Export] public float DecayTime { get; set; } = 5.0f;
 	[Export] public float DecayRate { get; set; } = 0.01f;
 	[Export] public float InventoryDecayRate { get; set; } = 0.05f;
-	[Export] public Season GrowingSeason { get; set; } = Season.Any;
+	[Export] public Godot.Collections.Array<Biome> GrowingBiomes { get; set; } = new() {Biome.Any};
 	[Export] public AdjacencyBonus Adjacency { get; set; } = new();
 }

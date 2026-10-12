@@ -9,10 +9,10 @@ public partial class AdjacencyBonus : Resource
 		GrowthTime,
 		DecayTime,
 		SaleValue,
-		AdditionalSeason
+		AdditionalBiome
 	}
 
 	[Export] public Type BonusType { get; set; } = Type.None;
-	[Export] public Season BonusSeason { get; set; } = Season.None;
+	[Export] public Biome BonusBiome { get; set; } = Biome.None;
 	[Export] public float Multiplier { get; set; } = 1f;
 }
