@@ -9,7 +9,7 @@ public partial class ShopController : Node
 	[Export] public Shop Shop { get; set; }
 	[Export] public Inventory Inventory { get; set; }
 	[Export] public SeedStock Seeds { get; set; }
-	[Export] public float StartingCoins { get; set; }
+	[Export] public float StartingCoins { get; set; } = 3;
 
 	private readonly Dictionary<string, PlantData> plantDataByName = new();
 	private readonly Dictionary<string, SeedOffer> seedOffers = new();
