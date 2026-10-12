@@ -16,6 +16,7 @@ public partial class Plant : Node3D
 	private const float WRONG_CARE_PUNISHMENT = 0.3f;
 	private const float QUICK_CARE_BONUS = 0.5f;
 	private const float TIME_FOR_QUICK_CARE_BONUS = 5f;
+	private const int NUM_SPRITE_FRAMES = 6;
 
 	
 	public enum Stage
