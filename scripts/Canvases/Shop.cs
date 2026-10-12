@@ -27,7 +27,22 @@ public static class SeedCatalog
 			"Frostbloom",
 			"res://resources/plants/frostbloom.tres",
 			"res://scenes/Plants/frostbloom.tscn",
-			1)
+			1),
+		new SeedOffer(
+			"Ambi Rose",
+			"res://resources/plants/ambi_rose.tres",
+			"res://scenes/Plants/ambi_rose.tscn",
+			1),
+		new SeedOffer(
+			"Azure Queen",
+			"res://resources/plants/azure_queen.tres",
+			"res://scenes/Plants/azure_queen.tscn",
+			1),
+		new SeedOffer(
+			"Neighbouring Root",
+			"res://resources/plants/neighbouring_root.tres",
+			"res://scenes/Plants/neighbouring_root.tscn",
+			1),
 	});
 };
 
