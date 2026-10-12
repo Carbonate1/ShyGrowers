@@ -169,7 +169,7 @@ public partial class Plant : Node3D
 		if (saleValue <= MINIMUM_SALE_VALUE)
 		{
 			saleValue = MINIMUM_SALE_VALUE;
-			SetStage(Stage.Dead);
+			SetStage(Stage.Dead); // TODO: This doesn't update the visual state
 		}
 	}
 
