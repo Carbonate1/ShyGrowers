@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b0injjww3sasx"
-path="res://.godot/imported/tulipGrowing1.png-068fc76b3f7fa6ebe1ac9f9923ec01e6.ctex"
+uid="uid://fdnithpullnc"
+path="res://.godot/imported/Seed.png-9640ea266a6c1e1718f326dc144c5eaa.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/plants/tulip/tulipGrowing1.png"
-dest_files=["res://.godot/imported/tulipGrowing1.png-068fc76b3f7fa6ebe1ac9f9923ec01e6.ctex"]
+source_file="res://assets/plants/tulip/Seed.png"
+dest_files=["res://.godot/imported/Seed.png-9640ea266a6c1e1718f326dc144c5eaa.ctex"]
 
 [params]
 

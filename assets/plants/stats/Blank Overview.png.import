@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bmcmsxpw2glyt"
-path="res://.godot/imported/tulipHarvestable.png-70992664e2e355087872d28a5628b94b.ctex"
+uid="uid://ct2r71tbqthny"
+path="res://.godot/imported/Blank Overview.png-e28338bdd39d55ec0a6272db036e1e51.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/plants/tulip/tulipHarvestable.png"
-dest_files=["res://.godot/imported/tulipHarvestable.png-70992664e2e355087872d28a5628b94b.ctex"]
+source_file="res://assets/plants/stats/Blank Overview.png"
+dest_files=["res://.godot/imported/Blank Overview.png-e28338bdd39d55ec0a6272db036e1e51.ctex"]
 
 [params]
 
