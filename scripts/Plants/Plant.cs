@@ -44,8 +44,6 @@ public partial class Plant : Node3D
 	public bool IsGrowing => CurrentStage <= Stage.Harvestable;
 	public bool IsAlive => IsGrowing || CurrentStage == Stage.Decaying;
 	public float GetSaleValue => saleValue;
-	public Texture2D HarvestableTexture =>
-		Stages?.GetNodeOrNull<Sprite3D>(nameof(Stage.Harvestable))?.Texture;
 
 	private double timeElapsed;
 	private float saleValue;
@@ -137,12 +135,11 @@ public partial class Plant : Node3D
 
 	private void ValidateConfiguration()
 	{
-		ArgumentNullException.ThrowIfNull(Data);
-		ArgumentException.ThrowIfNullOrWhiteSpace(Data.DisplayName);
 		ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(Data.GrowthTime, 0);
 		ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(Data.HarvestableTime, 0);
-		ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(Data.DecayTime, 0);
 		ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(Data.DecayRate, 0);
+		ArgumentNullException.ThrowIfNull(Data);
+		ArgumentException.ThrowIfNullOrWhiteSpace(Data.DisplayName);
 		ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(Data.OptimalSaleValue, 0);
 		ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(Data.InventoryDecayRate, 0);
 		ArgumentOutOfRangeException.ThrowIfLessThan(Data.PlantSize, 1);
@@ -240,5 +237,29 @@ public partial class Plant : Node3D
 			}
 		}  	+ $"\nGrowing time: {Math.Round(timeElapsed, 1)}/{StageDuration}"
 			+ $"\nSale Value: {Math.Round(saleValue, 2)}";
+	}
+
+	public Texture2D GetHarvestableTexture()
+	{
+		Sprite3D sprite = Stages?.GetNodeOrNull<Sprite3D>(nameof(Stage.Harvestable));
+		if (sprite?.Texture is not Texture2D texture)
+		{
+			return null;
+		}
+
+		int columns = Math.Max(sprite.Hframes, 1);
+		Vector2 textureSize = texture.GetSize();
+		Vector2 frameSize = new(
+			textureSize.X / columns,
+			textureSize.Y);
+		Vector2 framePosition = new(
+			sprite.Frame % columns * frameSize.X,
+			sprite.Frame / columns * frameSize.Y);
+
+		return new AtlasTexture
+		{
+			Atlas = texture,
+			Region = new Rect2(framePosition, frameSize)
+		};
 	}
 }
