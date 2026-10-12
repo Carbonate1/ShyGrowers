@@ -7,7 +7,7 @@ public partial class SeedStock : Node
 {
 	[Signal] public delegate void ChangedEventHandler();
 
-	[Export] public Dictionary<ItemData, int> Seeds { get; set; } = new();
+	[Export] public Dictionary<PlantData, int> Seeds { get; set; } = new();
 
 	public int Total => Seeds.Values.Sum();
 
@@ -16,12 +16,12 @@ public partial class SeedStock : Node
 		Seeds = Seeds.Duplicate();
 	}
 
-	public int Count(ItemData seeds)
+	public int Count(PlantData seeds)
 	{
 		return seeds is not null && Seeds.TryGetValue(seeds, out int count) ? count : 0;
 	}
 
-	public void Use(ItemData seeds)
+	public void Use(PlantData seeds)
 	{
 		if (Count(seeds) <= 0)
 		{
@@ -32,7 +32,7 @@ public partial class SeedStock : Node
 		EmitSignal(SignalName.Changed);
 	}
 
-	public void Add(ItemData seeds, int amount)
+	public void Add(PlantData seeds, int amount)
 	{
 		if (seeds is null || amount <= 0)
 		{

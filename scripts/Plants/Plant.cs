@@ -12,7 +12,6 @@ public enum Care
 [GlobalClass]
 public partial class Plant : Node3D
 {
-	private const float DECAY_RATE = 0.05f;
 	private const float MINIMUM_SALE_VALUE = 1f;
 	private const float WRONG_CARE_PUNISHMENT = 0.3f;
 	private const float QUICK_CARE_BONUS = 0.5f;
@@ -31,15 +30,8 @@ public partial class Plant : Node3D
 
 	[Signal] public delegate void StageChangedEventHandler(Plant plant);
 
-	[Export] public float GrowthTime { get; set; } = 10f;
-	[Export] public float HarvestableTime { get; set; } = 10f;
-	[Export] public float DecayTime { get; set; } = 5f;
-	[Export] public int OptimalSaleValue { get; set; } = 7;
-	[Export] public float InventoryDecayRate { get; set; } = 0.05f;
+	[Export] public PlantData Data { get; set; }
 	[Export] public Vector2I SeedYield { get; set; } = new(1, 2);
-	[Export] public int PlantSize { get; set; } = 1;
-	[Export] public Season GrowingSeason { get; set; } = Season.Any;
-	[Export] public AdjacencyBonus Adjacency { get; set; } = new();
 
 	[ExportGroup("Nodes")]
 	[Export] public Node3D Stages { get; set; }
@@ -51,7 +43,6 @@ public partial class Plant : Node3D
 	public bool IsHarvestable => CurrentStage is Stage.Harvestable or Stage.Decaying;
 	public bool IsGrowing => CurrentStage <= Stage.Harvestable;
 	public bool IsAlive => IsGrowing || CurrentStage == Stage.Decaying;
-	public string PlantTypeName => GetType().Name;
 	public float GetSaleValue => saleValue;
 	public Texture2D HarvestableTexture =>
 		Stages?.GetNodeOrNull<Sprite3D>(nameof(Stage.Harvestable))?.Texture;
@@ -71,7 +62,7 @@ public partial class Plant : Node3D
 		waitingForCare.OneShot = true;
 		waitingForCare.WaitTime = TIME_FOR_QUICK_CARE_BONUS;
 
-		saleValue = OptimalSaleValue;
+		saleValue = Data.OptimalSaleValue;
 		CareNeeded = Care.Watering;
 		waitingForCare.Start();
 		
@@ -139,21 +130,24 @@ public partial class Plant : Node3D
 
 	private double StageDuration => CurrentStage switch
 	{
-		Stage.Harvestable => HarvestableTime,
-		Stage.Decaying => DecayTime,
-		_ => GrowthTime
+		Stage.Harvestable => Data.HarvestableTime,
+		Stage.Decaying => Data.DecayTime,
+		_ => Data.GrowthTime
 	};
 
 	private void ValidateConfiguration()
 	{
-		ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(GrowthTime, 0);
-		ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(HarvestableTime, 0);
-		ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(DecayTime, 0);
-		ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(OptimalSaleValue, 0);
-		ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(InventoryDecayRate, 0);
-		ArgumentOutOfRangeException.ThrowIfLessThan(PlantSize, 1);
-		ArgumentOutOfRangeException.ThrowIfGreaterThan(PlantSize, PlanterBox.PLOT_COUNT);
-		ArgumentNullException.ThrowIfNull(Adjacency);
+		ArgumentNullException.ThrowIfNull(Data);
+		ArgumentException.ThrowIfNullOrWhiteSpace(Data.DisplayName);
+		ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(Data.GrowthTime, 0);
+		ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(Data.HarvestableTime, 0);
+		ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(Data.DecayTime, 0);
+		ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(Data.DecayRate, 0);
+		ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(Data.OptimalSaleValue, 0);
+		ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(Data.InventoryDecayRate, 0);
+		ArgumentOutOfRangeException.ThrowIfLessThan(Data.PlantSize, 1);
+		ArgumentOutOfRangeException.ThrowIfGreaterThan(Data.PlantSize, PlanterBox.PLOT_COUNT);
+		ArgumentNullException.ThrowIfNull(Data.Adjacency);
 	}
 
 	private void UpdateSaleValue(double delta)
@@ -165,7 +159,7 @@ public partial class Plant : Node3D
 
 		if (CareNeeded != Care.None || CurrentStage == Stage.Decaying)
 		{
-			saleValue -= DECAY_RATE * (float)delta;
+			saleValue -= Data.DecayRate * (float)delta;
 		}
 
 		if (CurrentStage == Stage.Decaying && !decayingSaleValueApplied)

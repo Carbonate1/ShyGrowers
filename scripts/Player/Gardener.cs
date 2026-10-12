@@ -1,4 +1,5 @@
 using Godot;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -10,15 +11,27 @@ public partial class Gardener : Node
 	[Export] public Hands Hands { get; set; }
 	[Export] public SeedStock Seeds { get; set; }
 	[Export] public Inventory Inventory { get; set; }
+	[Export] public PlantSelectionMenu PlantSelectionMenu { get; set; }
 
 	public int HarvestCount { get; private set; }
 
 	private readonly List<PlanterBox> planterBoxes = new();
+	private readonly Dictionary<string, PlantData> plantDataByName = new();
 	private bool gameOver;
 
 	public override void _Ready()
 	{
+		ArgumentNullException.ThrowIfNull(Seeds);
+		ArgumentNullException.ThrowIfNull(PlantSelectionMenu);
 		gameOver = false;
+		foreach (SeedOffer offer in SeedCatalog.Offers)
+		{
+			plantDataByName.Add(
+				offer.Name,
+				GD.Load<PlantData>(offer.PlantDataPath)
+					?? throw new InvalidOperationException($"Could not load plant data for offer '{offer.Name}'."));
+		}
+		PlantSelectionMenu.PlantPlanted += OnPlantPlanted;
 		
 		foreach (Node node in GetTree().GetNodesInGroup("planter_boxes"))
 		{
@@ -36,6 +49,10 @@ public partial class Gardener : Node
 		{
 			planterBox.PlotClicked -= OnPlotClicked;
 		}
+		if (PlantSelectionMenu is not null)
+		{
+			PlantSelectionMenu.PlantPlanted -= OnPlantPlanted;
+		}
 	}
 
 	private void OnPlotClicked(PlanterBox planterBox, int plotIndex, MouseButton button)
@@ -51,7 +68,10 @@ public partial class Gardener : Node
 
 		if (plant is null)
 		{
-			AttemptPlantSeed(held, planterBox, plotIndex);
+			if (held?.OpensPlantSelection == true)
+			{
+				OpenPlantSelection(planterBox, plotIndex);
+			}
 			return;
 		}
 
@@ -88,22 +108,28 @@ public partial class Gardener : Node
 		});
 	}
 
-	private void AttemptPlantSeed(ItemData held, PlanterBox planterBox, int plotIndex)
+	private void OpenPlantSelection(PlanterBox planterBox, int plotIndex)
 	{
-		if (held?.PlantScene is null || Seeds.Count(held) <= 0)
+		Dictionary<string, int> seedCounts = plantDataByName.ToDictionary(
+			entry => entry.Key,
+			entry => Seeds.Count(entry.Value));
+		PlantSelectionMenu.Open(planterBox, plotIndex, seedCounts, TryConsumeSeed);
+	}
+
+	private bool TryConsumeSeed(string offerName)
+	{
+		if (!plantDataByName.TryGetValue(offerName, out PlantData plantData) || Seeds.Count(plantData) <= 0)
 		{
-			return;
+			return false;
 		}
 
-		Plant plant = held.PlantScene.Instantiate<Plant>();
-		if (!planterBox.TryPlant(plant, plotIndex, held))
-		{
-			plant.Free();
-			return;
-		}
+		Seeds.Use(plantData);
+		return true;
+	}
 
+	private void OnPlantPlanted(Plant plant)
+	{
 		plant.StageChanged += _ => CheckIfGameOver();
-		Seeds.Use(held);
 	}
 
 	private void AttemptHarvest(Plant plant, PlanterBox planterBox, int plotIndex)
@@ -113,9 +139,9 @@ public partial class Gardener : Node
 			return;
 		}
 
-		ItemData sown = planterBox.GetSeedsAtPlot(plotIndex);
+		PlantData sown = planterBox.GetSeedsAtPlot(plotIndex);
 		float saleMultiplier = planterBox.GetAdjacentPlantSaleBonuses(plant);
-		var harvestedItem = new InventoryItem(plant, saleMultiplier);
+		InventoryItem harvestedItem = new InventoryItem(plant, saleMultiplier);
 		int seedYield = plant.GetSeedYield();
 		if (!planterBox.RemovePlant(plant))
 		{

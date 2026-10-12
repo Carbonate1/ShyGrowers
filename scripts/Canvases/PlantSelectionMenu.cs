@@ -10,6 +10,7 @@ public partial class PlantSelectionMenu : CanvasLayer
 	private Func<string, bool> tryConsumeSeed;
 	private Control menuRoot;
 
+	public event Action<Plant> PlantPlanted;
 	public bool IsOpen => menuRoot is not null;
 
 	public override void _Ready()
@@ -104,8 +105,9 @@ public partial class PlantSelectionMenu : CanvasLayer
 
 	private Button CreatePlantButton(SeedOffer offer)
 	{
-		seedStock.TryGetValue(offer.Id, out int count);
-		var button = new Button { Text = $"{offer.DisplayName} (x{count})" };
+		seedStock.TryGetValue(offer.Name, out int count);
+		PlantData plantData = LoadPlantData(offer);
+		var button = new Button { Text = $"{plantData.DisplayName} (x{count})" };
 		button.Pressed += () => SelectPlant(offer);
 		Plant plant = LoadPlant(offer);
 		button.Disabled = count <= 0 || !IsPlantableHere(plant, pendingPlanterBox, pendingPlotIdx);
@@ -145,26 +147,28 @@ public partial class PlantSelectionMenu : CanvasLayer
 
 	private void SelectPlant(SeedOffer offer)
 	{
-		if (!seedStock.TryGetValue(offer.Id, out int count) || count <= 0)
+		if (!seedStock.TryGetValue(offer.Name, out int count) || count <= 0)
 		{
 			return;
 		}
 
+		PlantData plantData = LoadPlantData(offer);
 		Plant plant = LoadPlant(offer);
-		if (!pendingPlanterBox.TryPlant(plant, pendingPlotIdx))
+		if (!pendingPlanterBox.TryPlant(plant, pendingPlotIdx, plantData))
 		{
 			plant.Free();
-			GD.PushWarning($"{offer.DisplayName} cannot be planted in this location.");
+			GD.PushWarning($"{plantData.DisplayName} cannot be planted in this location.");
 			return;
 		}
 
-		if (!tryConsumeSeed(offer.Id))
+		if (!tryConsumeSeed(offer.Name))
 		{
 			pendingPlanterBox.RemovePlant(plant);
 			plant.QueueFree();
-			throw new InvalidOperationException($"Potential race condition: Seed stock for '{offer.Id}' changed while planting.");
+			throw new InvalidOperationException($"Potential race condition: Seed stock for '{offer.Name}' changed while planting.");
 		}
 
+		PlantPlanted?.Invoke(plant);
 		Close();
 	}
 
@@ -177,5 +181,11 @@ public partial class PlantSelectionMenu : CanvasLayer
 		}
 
 		return plantScene.Instantiate<Plant>();
+	}
+
+	private static PlantData LoadPlantData(SeedOffer offer)
+	{
+		return GD.Load<PlantData>(offer.PlantDataPath)
+			?? throw new InvalidOperationException($"Could not load plant data at '{offer.PlantDataPath}'.");
 	}
 }

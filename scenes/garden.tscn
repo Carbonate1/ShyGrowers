@@ -5,7 +5,7 @@
 [ext_resource type="Script" path="res://scripts/Player/RoomCamera.cs" id="3_camera"]
 [ext_resource type="Material" path="res://assets/materials/ink_outline.tres" id="4_ink"]
 [ext_resource type="Script" path="res://scripts/Player/Hands.cs" id="5_hands"]
-[ext_resource type="Resource" path="res://resources/items/tulip_seeds.tres" id="6_seeds"]
+[ext_resource type="Resource" path="res://resources/items/seed_packet.tres" id="6_seed_packet"]
 [ext_resource type="Resource" path="res://resources/items/watering_can.tres" id="7_watering_can"]
 [ext_resource type="Script" path="res://scripts/Player/Gardener.cs" id="8_gardener"]
 [ext_resource type="PackedScene" path="res://scenes/UI/hud.tscn" id="9_hud"]
@@ -16,14 +16,15 @@
 [ext_resource type="Script" path="res://scripts/Player/Hand.cs" id="14_hand"]
 [ext_resource type="PackedScene" path="res://scenes/Items/fertilizer.tscn" id="15_fertilizer"]
 [ext_resource type="Script" path="res://scripts/Garden/SeedStock.cs" id="16_seed_stock"]
-[ext_resource type="Script" path="res://scripts/Items/ItemData.cs" id="17_item"]
-[ext_resource type="Resource" path="res://resources/items/marigold_seeds.tres" id="18_marigold_seeds"]
-[ext_resource type="Resource" path="res://resources/items/rose_seeds.tres" id="19_rose_seeds"]
-[ext_resource type="Resource" path="res://resources/items/frostbloom_seeds.tres" id="20_frostbloom_seeds"]
-[ext_resource type="PackedScene" path="res://scenes/Items/frostbloom_seeds.tscn" id="21_frostbloom_packet"]
+[ext_resource type="Script" path="res://scripts/Plants/PlantData.cs" id="17_plant_data"]
+[ext_resource type="Resource" path="res://resources/plants/marigold.tres" id="18_marigold"]
+[ext_resource type="Resource" path="res://resources/plants/rose.tres" id="19_rose"]
+[ext_resource type="Resource" path="res://resources/plants/frostbloom.tres" id="20_frostbloom"]
 [ext_resource type="PackedScene" path="res://scenes/Canvases/inventory.tscn" id="22_inventory"]
 [ext_resource type="Script" path="res://scripts/Canvases/ShopController.cs" id="23_shop_controller"]
 [ext_resource type="PackedScene" path="res://scenes/Canvases/shop.tscn" id="24_shop"]
+[ext_resource type="PackedScene" path="res://scenes/Canvases/plant_selection_menu.tscn" id="25_plant_selection_menu"]
+[ext_resource type="Resource" path="res://resources/plants/tulip.tres" id="26_tulip"]
 
 [sub_resource type="QuadMesh" id="QuadMesh_ink"]
 material = ExtResource("4_ink")
@@ -87,7 +88,7 @@ mesh = SubResource("QuadMesh_ink")
 position = Vector3(-0.36, -0.27, -0.72)
 rotation_degrees = Vector3(15, -20, 0)
 script = ExtResource("14_hand")
-Item = ExtResource("6_seeds")
+Item = ExtResource("6_seed_packet")
 ReachYaw = -90.0
 World = NodePath("../../Items")
 Drawer = NodePath("../../Room/Table")
@@ -107,9 +108,6 @@ Drawer = NodePath("../../Room/Table")
 [node name="Fertilizer" parent="Items" instance=ExtResource("15_fertilizer")]
 transform = Transform3D(0.94, 0, -0.342, 0, 1, 0, 0.342, 0, 0.94, 0.2, 0.01, -2.02)
 
-[node name="FrostbloomSeeds" parent="Items" instance=ExtResource("21_frostbloom_packet")]
-transform = Transform3D(0.342, 0, 0.94, 0, 1, 0, -0.94, 0, 0.342, 2.62, 0.5, 0.42)
-
 [node name="Hands" type="Node" parent="." node_paths=PackedStringArray("LeftHand", "RightHand")]
 script = ExtResource("5_hands")
 LeftHand = NodePath("../Camera/LeftHand")
@@ -117,21 +115,23 @@ RightHand = NodePath("../Camera/RightHand")
 
 [node name="Seeds" type="Node" parent="."]
 script = ExtResource("16_seed_stock")
-Seeds = Dictionary[ExtResource("17_item"), int]({
-ExtResource("18_marigold_seeds"): 3,
-ExtResource("6_seeds"): 3,
-ExtResource("19_rose_seeds"): 3,
-ExtResource("20_frostbloom_seeds"): 3
+Seeds = Dictionary[ExtResource("17_plant_data"), int]({
+ExtResource("18_marigold"): 3,
+ExtResource("26_tulip"): 3,
+ExtResource("19_rose"): 3,
+ExtResource("20_frostbloom"): 3
 })
 
 [node name="Inventory" parent="." instance=ExtResource("22_inventory")]
 [node name="Shop" parent="." instance=ExtResource("24_shop")]
+[node name="PlantSelectionMenu" parent="." instance=ExtResource("25_plant_selection_menu")]
 
-[node name="Gardener" type="Node" parent="." node_paths=PackedStringArray("Hands", "Seeds", "Inventory")]
+[node name="Gardener" type="Node" parent="." node_paths=PackedStringArray("Hands", "Seeds", "Inventory", "PlantSelectionMenu")]
 script = ExtResource("8_gardener")
 Hands = NodePath("../Hands")
 Seeds = NodePath("../Seeds")
 Inventory = NodePath("../Inventory")
+PlantSelectionMenu = NodePath("../PlantSelectionMenu")
 
 [node name="ShopController" type="Node" parent="." node_paths=PackedStringArray("Shop", "Inventory", "Seeds")]
 script = ExtResource("23_shop_controller")

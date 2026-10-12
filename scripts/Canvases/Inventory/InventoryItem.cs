@@ -14,9 +14,9 @@ public partial class InventoryItem : Resource
 
     public InventoryItem(Plant plant, float saleMultiplier = 1.0f)
     {
-        name = plant.PlantTypeName;
+        name = plant.Data.DisplayName;
         texture = plant.HarvestableTexture;
-        decayRate = plant.InventoryDecayRate;
+        decayRate = plant.Data.InventoryDecayRate;
         sellingPriceAtHarvest = plant.GetSaleValue * saleMultiplier;
         currentSellingPrice = sellingPriceAtHarvest;
     }

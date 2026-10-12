@@ -3,10 +3,10 @@
 [ext_resource type="Script" uid="uid://bc2esb41bo3bi" path="res://scripts/UI/Hud.cs" id="1_hud"]
 [ext_resource type="PackedScene" path="res://scenes/UI/item_slot.tscn" id="2_slot"]
 [ext_resource type="Script" path="res://scripts/UI/SeedCounter.cs" id="3_seed_counter"]
-[ext_resource type="Resource" path="res://resources/items/marigold_seeds.tres" id="4_marigold_seeds"]
-[ext_resource type="Resource" path="res://resources/items/tulip_seeds.tres" id="5_tulip_seeds"]
-[ext_resource type="Resource" path="res://resources/items/rose_seeds.tres" id="6_rose_seeds"]
-[ext_resource type="Resource" path="res://resources/items/frostbloom_seeds.tres" id="7_frostbloom_seeds"]
+[ext_resource type="Resource" path="res://resources/plants/marigold.tres" id="4_marigold"]
+[ext_resource type="Resource" path="res://resources/plants/tulip.tres" id="5_tulip"]
+[ext_resource type="Resource" path="res://resources/plants/rose.tres" id="6_rose"]
+[ext_resource type="Resource" path="res://resources/plants/frostbloom.tres" id="7_frostbloom"]
 [ext_resource type="Script" path="res://scripts/UI/SceneButton.cs" id="8_scene_button"]
 
 [node name="Hud" type="CanvasLayer" unique_id=1122126769 node_paths=PackedStringArray("LeftHand", "RightHand", "ViewName", "DrawerPanel", "DrawerSlots", "Harvested", "SeedCounters", "EndScreen", "EndScore")]
@@ -163,25 +163,25 @@ theme_override_constants/separation = 0
 layout_mode = 2
 theme_override_font_sizes/font_size = 28
 script = ExtResource("3_seed_counter")
-Seeds = ExtResource("4_marigold_seeds")
+Seeds = ExtResource("4_marigold")
 
 [node name="Tulip" type="Label" parent="Screen/Tally/Seeds"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 28
 script = ExtResource("3_seed_counter")
-Seeds = ExtResource("5_tulip_seeds")
+Seeds = ExtResource("5_tulip")
 
 [node name="Rose" type="Label" parent="Screen/Tally/Seeds"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 28
 script = ExtResource("3_seed_counter")
-Seeds = ExtResource("6_rose_seeds")
+Seeds = ExtResource("6_rose")
 
 [node name="Frostbloom" type="Label" parent="Screen/Tally/Seeds"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 28
 script = ExtResource("3_seed_counter")
-Seeds = ExtResource("7_frostbloom_seeds")
+Seeds = ExtResource("7_frostbloom")
 
 [node name="EndScreen" type="Control" parent="Screen"]
 visible = false

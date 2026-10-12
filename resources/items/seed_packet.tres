@@ -4,6 +4,6 @@
 
 [resource]
 script = ExtResource("1_item")
-DisplayName = "Frostbloom"
-Pickup = "res://scenes/Items/frostbloom.tscn"
-SellValue = 12
+DisplayName = "Seed Packet"
+Pickup = "res://scenes/Items/seed_packet.tscn"
+OpensPlantSelection = true

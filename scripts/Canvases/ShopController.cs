@@ -11,7 +11,7 @@ public partial class ShopController : Node
 	[Export] public SeedStock Seeds { get; set; }
 	[Export] public float StartingCoins { get; set; }
 
-	private readonly Dictionary<string, ItemData> seedItems = new();
+	private readonly Dictionary<string, PlantData> plantDataByName = new();
 	private readonly Dictionary<string, SeedOffer> seedOffers = new();
 	private readonly Dictionary<string, int> seedCounts = new();
 	private readonly Dictionary<string, float> marketValues = new();
@@ -26,19 +26,19 @@ public partial class ShopController : Node
 
 		foreach (SeedOffer offer in SeedCatalog.Offers)
 		{
-			ItemData seed = GD.Load<ItemData>($"res://resources/items/{offer.Id.ToLowerInvariant()}_seeds.tres")
-				?? throw new InvalidOperationException($"Could not load seed data for offer '{offer.Id}'.");
-			seedItems.Add(offer.Id, seed);
-			seedOffers.Add(offer.Id, offer);
-			marketValues.Add(offer.Id, 1f);
+			PlantData plantData = GD.Load<PlantData>(offer.PlantDataPath)
+				?? throw new InvalidOperationException($"Could not load plant data for offer '{offer.Name}'.");
+			plantDataByName.Add(offer.Name, plantData);
+			seedOffers.Add(offer.Name, offer);
+			marketValues.Add(offer.Name, 1f);
 		}
 
 		Shop.Hide();
 		Inventory.Hide();
-		Shop.CloseRequested += () => Shop.Hide();
+		Shop.CloseRequested += CloseShop;
 		Shop.BuySeedRequested += BuySeed;
 		Shop.SellPlantRequested += SellPlant;
-		Inventory.CloseRequested += () => Inventory.Hide();
+		Inventory.CloseRequested += CloseInventory;
 		Inventory.ItemsChanged += RefreshShop;
 		Seeds.Changed += RefreshShop;
 		RefreshShop();
@@ -112,21 +112,21 @@ public partial class ShopController : Node
 		}
 	}
 
-	private void BuySeed(string offerId)
+	private void BuySeed(string offerName)
 	{
-		if (!seedItems.TryGetValue(offerId, out ItemData seed))
+		if (!plantDataByName.TryGetValue(offerName, out PlantData plantData))
 		{
-			GD.PushWarning($"Unknown seed offer '{offerId}'.");
+			GD.PushWarning($"Unknown seed offer '{offerName}'.");
 			return;
 		}
 
-		if (!seedOffers.TryGetValue(offerId, out SeedOffer offer) || coins < offer.Price)
+		if (!seedOffers.TryGetValue(offerName, out SeedOffer offer) || coins < offer.Price)
 		{
 			return;
 		}
 
 		coins -= offer.Price;
-		Seeds.Add(seed, 1);
+		Seeds.Add(plantData, 1);
 		RefreshShop();
 	}
 
@@ -139,7 +139,7 @@ public partial class ShopController : Node
 			return;
 		}
 
-		coins += salePrice;
+		coins += salePrice * marketValues[item.name];
 		RefreshShop();
 	}
 
@@ -183,7 +183,7 @@ public partial class ShopController : Node
 	private void RefreshShop()
 	{
 		seedCounts.Clear();
-		foreach (KeyValuePair<string, ItemData> entry in seedItems)
+		foreach (KeyValuePair<string, PlantData> entry in plantDataByName)
 		{
 			seedCounts.Add(entry.Key, Seeds.Count(entry.Value));
 		}

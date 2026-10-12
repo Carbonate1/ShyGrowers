@@ -17,7 +17,7 @@ public partial class PlanterBox : Node3D
 {
 	[Signal] public delegate void PlotClickedEventHandler(PlanterBox planterBox, int plotIndex, MouseButton button);
 
-	private sealed record PlantPlacement(Plant Plant, ItemData Seeds, int FirstPlot, int PlotCount);
+	private sealed record PlantPlacement(Plant Plant, PlantData Seeds, int FirstPlot, int PlotCount);
 	public const int PLOT_COUNT = 6;
 
 	[Export] public float LookAwaySpeed { get; set; } = 3f;
@@ -80,7 +80,7 @@ public partial class PlanterBox : Node3D
 		return FindPlacementAtPlot(plotIndex)?.Plant;
 	}
 
-	public ItemData GetSeedsAtPlot(int plotIndex)
+	public PlantData GetSeedsAtPlot(int plotIndex)
 	{
 		ValidatePlotIndex(plotIndex);
 		return FindPlacementAtPlot(plotIndex)?.Seeds;
@@ -95,14 +95,14 @@ public partial class PlanterBox : Node3D
 	public bool CanPlant(Plant plant, int firstPlot)
 	{
 		ArgumentNullException.ThrowIfNull(plant);
-		ArgumentOutOfRangeException.ThrowIfLessThan(plant.PlantSize, 1);
-		ArgumentOutOfRangeException.ThrowIfGreaterThan(plant.PlantSize, PLOT_COUNT);
-		if (firstPlot < 0 || firstPlot + plant.PlantSize > PLOT_COUNT)
+		ArgumentOutOfRangeException.ThrowIfLessThan(plant.Data.PlantSize, 1);
+		ArgumentOutOfRangeException.ThrowIfGreaterThan(plant.Data.PlantSize, PLOT_COUNT);
+		if (firstPlot < 0 || firstPlot + plant.Data.PlantSize > PLOT_COUNT)
 		{
 			return false;
 		}
 
-		for (int index = firstPlot; index < firstPlot + plant.PlantSize; index++)
+		for (int index = firstPlot; index < firstPlot + plant.Data.PlantSize; index++)
 		{
 			if (GetPlantAtPlot(index) is not null)
 			{
@@ -111,16 +111,16 @@ public partial class PlanterBox : Node3D
 		}
 
 		if (GrowingSeason is Season.Any or Season.None ||
-			plant.GrowingSeason is Season.Any or Season.None ||
-			GrowingSeason == plant.GrowingSeason)
+			plant.Data.GrowingSeason is Season.Any or Season.None ||
+			GrowingSeason == plant.Data.GrowingSeason)
 		{
 			return true;
 		}
 
-		foreach (Plant neighbor in GetAdjacentPlants(firstPlot, plant.PlantSize))
+		foreach (Plant neighbor in GetAdjacentPlants(firstPlot, plant.Data.PlantSize))
 		{
-			if (neighbor.Adjacency.BonusType == AdjacencyBonus.Type.AdditionalSeason &&
-				neighbor.Adjacency.BonusSeason == plant.GrowingSeason)
+			if (neighbor.Data.Adjacency.BonusType == AdjacencyBonus.Type.AdditionalSeason &&
+				neighbor.Data.Adjacency.BonusSeason == plant.Data.GrowingSeason)
 			{
 				return true;
 			}
@@ -129,7 +129,7 @@ public partial class PlanterBox : Node3D
 		return false;
 	}
 
-	public bool TryPlant(Plant plant, int firstPlot, ItemData seeds = null)
+	public bool TryPlant(Plant plant, int firstPlot, PlantData seeds = null)
 	{
 		ArgumentNullException.ThrowIfNull(plant);
 		if (plant.GetParent() is not null ||
@@ -139,7 +139,7 @@ public partial class PlanterBox : Node3D
 			return false;
 		}
 
-		int plotCount = plant.PlantSize;
+		int plotCount = plant.Data.PlantSize;
 		AddChild(plant);
 		plant.Position = GetPlantPosition(firstPlot, plotCount);
 		placements.Add(new PlantPlacement(plant, seeds, firstPlot, plotCount));
@@ -198,7 +198,7 @@ public partial class PlanterBox : Node3D
 		float multiplier = 1f;
 		foreach (Plant neighbor in GetAdjacentPlants(placement.FirstPlot, placement.PlotCount))
 		{
-			AdjacencyBonus bonus = neighbor.Adjacency;
+			AdjacencyBonus bonus = neighbor.Data.Adjacency;
 			if ((bonus.BonusType == AdjacencyBonus.Type.GrowthTime && plant.IsGrowing) ||
 				(bonus.BonusType == AdjacencyBonus.Type.DecayTime && !plant.IsGrowing))
 			{
@@ -215,9 +215,9 @@ public partial class PlanterBox : Node3D
 		float multiplier = 1f;
 		foreach (Plant neighbor in GetAdjacentPlants(placement.FirstPlot, placement.PlotCount))
 		{
-			if (neighbor.Adjacency.BonusType == AdjacencyBonus.Type.SaleValue)
+			if (neighbor.Data.Adjacency.BonusType == AdjacencyBonus.Type.SaleValue)
 			{
-				multiplier *= ValidateMultiplier(neighbor.Adjacency);
+				multiplier *= ValidateMultiplier(neighbor.Data.Adjacency);
 			}
 		}
 

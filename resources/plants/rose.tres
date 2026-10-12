@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="PlantData" format=3]
+
+[ext_resource type="Script" path="res://scripts/Plants/PlantData.cs" id="1_plant_data"]
+
+[resource]
+script = ExtResource("1_plant_data")
+DisplayName = "Rose"
+OptimalSaleValue = 9
+GrowthTime = 12.0
+HarvestableTime = 10.0
+DecayTime = 5.0
+DecayRate = 0.05
+InventoryDecayRate = 0.05

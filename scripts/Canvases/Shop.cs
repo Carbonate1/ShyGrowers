@@ -3,16 +3,30 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-public sealed record SeedOffer(string Id, string DisplayName, string SeedItemPath, string ScenePath, int Price);
+public sealed record SeedOffer(string Name, string PlantDataPath, string ScenePath, int Price);
 public static class SeedCatalog
 {
 	public static IReadOnlyList<SeedOffer> Offers { get; } = Array.AsReadOnly(new[]
 	{
 		new SeedOffer(
+			"Marigold",
+			"res://resources/plants/marigold.tres",
+			"res://scenes/Plants/marigold.tscn",
+			1),
+		new SeedOffer(
 			"Tulip",
-			"Tulip Seeds",
-			"res://resources/items/tulip_seeds.tres",
+			"res://resources/plants/tulip.tres",
 			"res://scenes/Plants/tulip.tscn",
+			1),
+		new SeedOffer(
+			"Rose",
+			"res://resources/plants/rose.tres",
+			"res://scenes/Plants/rose.tscn",
+			1),
+		new SeedOffer(
+			"Frostbloom",
+			"res://resources/plants/frostbloom.tres",
+			"res://scenes/Plants/frostbloom.tscn",
 			1)
 	});
 };
@@ -130,7 +144,7 @@ public partial class Shop : CanvasLayer
 			{
 				HorizontalAlignment = HorizontalAlignment.Center
 			};
-			marketValueLabels.Add(offer.Id, label);
+			marketValueLabels.Add(offer.Name, label);
 			marketValues.AddChild(label);
 		}
 	}
@@ -198,19 +212,19 @@ public partial class Shop : CanvasLayer
 
 		foreach (SeedOffer offer in SeedCatalog.Offers)
 		{
-			seedStock.TryGetValue(offer.Id, out int count);
+			seedStock.TryGetValue(offer.Name, out int count);
 			var row = new HBoxContainer();
 			buyingItems.AddChild(row);
 			row.AddChild(new Label
 			{
-				Text = $"{offer.DisplayName} ({count})",
+				Text = $"{offer.Name} Seeds ({count})",
 				SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
 				VerticalAlignment = VerticalAlignment.Center
 			});
 
 			var buyButton = new Button { Text = $"Buy - {offer.Price} coin" };
 			buyButton.Disabled = coins < offer.Price;
-			buyButton.Pressed += () => BuySeedRequested?.Invoke(offer.Id);
+			buyButton.Pressed += () => BuySeedRequested?.Invoke(offer.Name);
 			row.AddChild(buyButton);
 		}
 
