@@ -55,7 +55,7 @@ public partial class PlantSelectionMenu : CanvasLayer
 
 	private ColorRect CreateBackdrop()
 	{
-		var backdrop = new ColorRect
+		ColorRect backdrop = new ColorRect
 		{
 			Color = new Color(0, 0, 0, 0.6f),
 			MouseFilter = Control.MouseFilterEnum.Stop,
@@ -68,7 +68,7 @@ public partial class PlantSelectionMenu : CanvasLayer
 
 	private static PanelContainer CreateMenuPanel()
 	{
-		var menu = new PanelContainer
+		PanelContainer menu = new PanelContainer
 		{
 			AnchorLeft = 0.5f,
 			AnchorTop = 0.5f,
@@ -85,7 +85,7 @@ public partial class PlantSelectionMenu : CanvasLayer
 
 	private VBoxContainer CreateOptions()
 	{
-		var options = new VBoxContainer();
+		VBoxContainer options = new VBoxContainer();
 		options.AddChild(new Label
 		{
 			Text = "Choose a plant",
@@ -97,7 +97,7 @@ public partial class PlantSelectionMenu : CanvasLayer
 			options.AddChild(CreatePlantButton(offer));
 		}
 
-		var cancelButton = new Button { Text = "Cancel" };
+		Button cancelButton = new Button { Text = "Cancel" };
 		cancelButton.Pressed += Close;
 		options.AddChild(cancelButton);
 		return options;
@@ -107,7 +107,7 @@ public partial class PlantSelectionMenu : CanvasLayer
 	{
 		seedStock.TryGetValue(offer.Name, out int count);
 		PlantData plantData = LoadPlantData(offer);
-		var button = new Button { Text = $"{plantData.DisplayName} (x{count})" };
+		Button button = new Button { Text = $"{plantData.DisplayName} (x{count})" };
 		button.Pressed += () => SelectPlant(offer);
 		Plant plant = LoadPlant(offer);
 		button.Disabled = count <= 0 || !IsPlantableHere(plant, pendingPlanterBox, pendingPlotIdx);

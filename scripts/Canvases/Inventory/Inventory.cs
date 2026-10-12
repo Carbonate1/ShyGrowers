@@ -25,7 +25,7 @@ public partial class Inventory : CanvasLayer
 
 	private VBoxContainer CreateContent()
 	{
-		var backdrop = new ColorRect
+		ColorRect backdrop = new ColorRect
 		{
 			Color = new Color(0, 0, 0, 0.65f),
 			MouseFilter = Control.MouseFilterEnum.Stop,
@@ -34,7 +34,7 @@ public partial class Inventory : CanvasLayer
 		};
 		AddChild(backdrop);
 
-		var panel = new PanelContainer
+		PanelContainer panel = new PanelContainer
 		{
 			AnchorLeft = 0.5f,
 			AnchorTop = 0.5f,
@@ -48,14 +48,14 @@ public partial class Inventory : CanvasLayer
 		};
 		AddChild(panel);
 
-		var content = new VBoxContainer();
+		VBoxContainer content = new VBoxContainer();
 		panel.AddChild(content);
 		return content;
 	}
 
 	private void CreateHeader(VBoxContainer content)
 	{
-		var header = new HBoxContainer();
+		HBoxContainer header = new HBoxContainer();
 		content.AddChild(header);
 		header.AddChild(new Label
 		{
@@ -64,7 +64,7 @@ public partial class Inventory : CanvasLayer
 			VerticalAlignment = VerticalAlignment.Center
 		});
 
-		var closeButton = new Button { Text = "Close" };
+		Button closeButton = new Button { Text = "Close" };
 		closeButton.Pressed += () => CloseRequested?.Invoke();
 		header.AddChild(closeButton);
 	}
@@ -78,7 +78,7 @@ public partial class Inventory : CanvasLayer
 		};
 		content.AddChild(emptyMessage);
 
-		var scroll = new ScrollContainer
+		ScrollContainer scroll = new ScrollContainer
 		{
 			SizeFlagsVertical = Control.SizeFlags.ExpandFill,
 			SizeFlagsHorizontal = Control.SizeFlags.ExpandFill
@@ -124,10 +124,10 @@ public partial class Inventory : CanvasLayer
 
 	private void AddItemRow(InventoryItem item)
 	{
-		var row = new HBoxContainer();
+		HBoxContainer row = new HBoxContainer();
 		itemList.AddChild(row);
 
-		var icon = new TextureRect
+		TextureRect icon = new TextureRect
 		{
 			Texture = item.texture,
 			CustomMinimumSize = new Vector2(48, 48),
@@ -142,7 +142,7 @@ public partial class Inventory : CanvasLayer
 			VerticalAlignment = VerticalAlignment.Center
 		});
 
-		var priceLabel = new Label
+		Label priceLabel = new Label
 		{
 			Text = $"Value: {item.currentSellingPrice:0.00}",
 			HorizontalAlignment = HorizontalAlignment.Right,

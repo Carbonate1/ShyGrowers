@@ -175,7 +175,7 @@ public partial class PlanterBox : Node3D
 	public IReadOnlyList<Plant> GetAdjacentPlants(int firstPlot, int plotCount)
 	{
 		ValidatePlacement(firstPlot, plotCount);
-		var adjacentPlants = new List<Plant>(2);
+		List<Plant> adjacentPlants = new List<Plant>(2);
 		int leftIndex = firstPlot - 1;
 		int rightIndex = firstPlot + plotCount;
 

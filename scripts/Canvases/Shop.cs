@@ -60,7 +60,7 @@ public partial class Shop : CanvasLayer
 
 	private VBoxContainer CreateShopContent()
 	{
-		var backdrop = new ColorRect
+		ColorRect backdrop = new ColorRect
 		{
 			Color = new Color(0, 0, 0, 0.65f),
 			MouseFilter = Control.MouseFilterEnum.Stop,
@@ -69,7 +69,7 @@ public partial class Shop : CanvasLayer
 		};
 		AddChild(backdrop);
 
-		var panel = new PanelContainer
+		PanelContainer panel = new PanelContainer
 		{
 			AnchorLeft = 0.5f,
 			AnchorTop = 0.5f,
@@ -83,14 +83,14 @@ public partial class Shop : CanvasLayer
 		};
 		AddChild(panel);
 
-		var content = new VBoxContainer();
+		VBoxContainer content = new VBoxContainer();
 		panel.AddChild(content);
 		return content;
 	}
 
 	private void CreateHeader(VBoxContainer content)
 	{
-		var header = new HBoxContainer();
+		HBoxContainer header = new HBoxContainer();
 		content.AddChild(header);
 		header.AddChild(new Label
 		{
@@ -101,46 +101,46 @@ public partial class Shop : CanvasLayer
 		coinLabel = new Label { VerticalAlignment = VerticalAlignment.Center };
 		header.AddChild(coinLabel);
 
-		var closeButton = new Button { Text = "Close" };
+		Button closeButton = new Button { Text = "Close" };
 		closeButton.Pressed += () => CloseRequested?.Invoke();
 		header.AddChild(closeButton);
 	}
 
 	private void CreateSections(VBoxContainer content)
 	{
-		var sections = new HBoxContainer
+		HBoxContainer sections = new HBoxContainer
 		{
 			SizeFlagsVertical = Control.SizeFlags.ExpandFill
 		};
 		content.AddChild(sections);
 
-		var buySection = CreateSection("Buy seeds");
+		VBoxContainer buySection = CreateSection("Buy seeds");
 		buyingItems = new VBoxContainer();
 		buySection.AddChild(buyingItems);
 		sections.AddChild(buySection);
 
-		var sellSection = CreateSection("Sell plants");
+		VBoxContainer sellSection = CreateSection("Sell plants");
 		sellingItems = new VBoxContainer();
 		sellSection.AddChild(sellingItems);
 		sections.AddChild(sellSection);
 
-		var ordersSection = CreateSection("Special orders");
+		VBoxContainer ordersSection = CreateSection("Special orders");
 		sections.AddChild(ordersSection);
 	}
 
 	private void CreateMarketValueDisplay(VBoxContainer content)
 	{
-		var marketSection = new VBoxContainer();
+		VBoxContainer marketSection = new VBoxContainer();
 		content.AddChild(marketSection);
 		marketSection.AddChild(new HSeparator());
-		var marketValues = new HBoxContainer
+		HBoxContainer marketValues = new HBoxContainer
 		{
 			Alignment = BoxContainer.AlignmentMode.Center
 		};
 		marketSection.AddChild(marketValues);
 		foreach (SeedOffer offer in SeedCatalog.Offers)
 		{
-			var label = new Label
+			Label label = new Label
 			{
 				HorizontalAlignment = HorizontalAlignment.Center
 			};
@@ -184,7 +184,7 @@ public partial class Shop : CanvasLayer
 
 	private static VBoxContainer CreateSection(string title)
 	{
-		var section = new VBoxContainer
+		VBoxContainer section = new VBoxContainer
 		{
 			SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
 			SizeFlagsVertical = Control.SizeFlags.ExpandFill
@@ -213,7 +213,7 @@ public partial class Shop : CanvasLayer
 		foreach (SeedOffer offer in SeedCatalog.Offers)
 		{
 			seedStock.TryGetValue(offer.Name, out int count);
-			var row = new HBoxContainer();
+			HBoxContainer row = new HBoxContainer();
 			buyingItems.AddChild(row);
 			row.AddChild(new Label
 			{
@@ -222,7 +222,7 @@ public partial class Shop : CanvasLayer
 				VerticalAlignment = VerticalAlignment.Center
 			});
 
-			var buyButton = new Button { Text = $"Buy - {offer.Price} coin" };
+			Button buyButton = new Button { Text = $"Buy - {offer.Price} coin" };
 			buyButton.Disabled = coins < offer.Price;
 			buyButton.Pressed += () => BuySeedRequested?.Invoke(offer.Name);
 			row.AddChild(buyButton);
@@ -240,7 +240,7 @@ public partial class Shop : CanvasLayer
 
 		foreach (InventoryItem item in inventoryItems.ToArray())
 		{
-			var row = new HBoxContainer();
+			HBoxContainer row = new HBoxContainer();
 			sellingItems.AddChild(row);
 			row.AddChild(new Label
 			{
@@ -249,7 +249,7 @@ public partial class Shop : CanvasLayer
 				VerticalAlignment = VerticalAlignment.Center
 			});
 
-			var sellButton = new Button { Text = $"Sell - {item.currentSellingPrice:0.00}" };
+			Button sellButton = new Button { Text = $"Sell - {item.currentSellingPrice:0.00}" };
 			sellButton.Pressed += () => SellPlantRequested?.Invoke(item);
 			sellButtons.Add(item, sellButton);
 			row.AddChild(sellButton);
