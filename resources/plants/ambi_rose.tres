@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="PlantData" format=3 uid="uid://l02fvnuxa7q5"]
+
+[ext_resource type="Script" uid="uid://q74ck1mhukdx" path="res://scripts/Plants/AdjacencyBonus.cs" id="1_csa06"]
+[ext_resource type="Script" uid="uid://crbi4mw4l72u1" path="res://scripts/Plants/PlantData.cs" id="2_xu55h"]
+
+[sub_resource type="Resource" id="Resource_ovtb4"]
+script = ExtResource("1_csa06")
+BonusType = 4
+BonusBiome = 8
+
+[resource]
+script = ExtResource("2_xu55h")
+DisplayName = "Ambi Rose"
+OptimalSaleValue = 5
+HarvestableTime = 200.0
+DecayRate = 0.1
+GrowingBiomes = Array[int]([0, 1, 2, 3, 4, 5, 6])
+Adjacency = SubResource("Resource_ovtb4")
+metadata/_custom_type_script = "uid://crbi4mw4l72u1"

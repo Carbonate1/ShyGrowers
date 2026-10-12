@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="PlantData" format=3 uid="uid://dxhrj5lrav5px"]
+
+[ext_resource type="Script" uid="uid://q74ck1mhukdx" path="res://scripts/Plants/AdjacencyBonus.cs" id="1_romxk"]
+[ext_resource type="Script" uid="uid://crbi4mw4l72u1" path="res://scripts/Plants/PlantData.cs" id="2_5q4nx"]
+
+[sub_resource type="Resource" id="Resource_r3lh8"]
+script = ExtResource("1_romxk")
+BonusType = 1
+Multiplier = 3.0
+metadata/_custom_type_script = "uid://q74ck1mhukdx"
+
+[resource]
+script = ExtResource("2_5q4nx")
+DisplayName = "Neighbouring Root"
+OptimalSaleValue = 2
+HarvestableTime = 200.0
+DecayRate = 0.05
+Adjacency = SubResource("Resource_r3lh8")
+metadata/_custom_type_script = "uid://crbi4mw4l72u1"

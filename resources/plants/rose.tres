@@ -1,13 +1,16 @@
-[gd_resource type="Resource" script_class="PlantData" format=3]
+[gd_resource type="Resource" script_class="PlantData" format=3 uid="uid://dk61g3boly4sa"]
 
-[ext_resource type="Script" path="res://scripts/Plants/PlantData.cs" id="1_plant_data"]
+[ext_resource type="Script" uid="uid://q74ck1mhukdx" path="res://scripts/Plants/AdjacencyBonus.cs" id="1_2sic1"]
+[ext_resource type="Script" uid="uid://crbi4mw4l72u1" path="res://scripts/Plants/PlantData.cs" id="1_plant_data"]
+
+[sub_resource type="Resource" id="Resource_p2kll"]
+script = ExtResource("1_2sic1")
 
 [resource]
 script = ExtResource("1_plant_data")
 DisplayName = "Rose"
 OptimalSaleValue = 9
 GrowthTime = 12.0
-HarvestableTime = 10.0
-DecayTime = 5.0
 DecayRate = 0.05
 InventoryDecayRate = 0.05
+GrowingBiomes = Array[int]([2])
