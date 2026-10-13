@@ -1,0 +1,277 @@
+[gd_scene format=3 uid="uid://psiymnu6cj02"]
+
+[ext_resource type="Script" uid="uid://7cjqpk8eaxa2" path="res://scripts/Canvases/PlantOverview.cs" id="1_plant_overview"]
+[ext_resource type="Texture2D" uid="uid://ct2r71tbqthny" path="res://assets/plants/stats/Blank Overview.png" id="2_g6u24"]
+[ext_resource type="Texture2D" uid="uid://cquqf7gt3lo6x" path="res://assets/plants/stats/Biome Icons/Biome Icon - Spring.png" id="3_a6noi"]
+[ext_resource type="Texture2D" uid="uid://dwf4vgpirks2j" path="res://assets/plants/stats/Biome Icons/Biome Icon - Summer.png" id="4_ndkw1"]
+[ext_resource type="Texture2D" uid="uid://dqhw8kkesfp4k" path="res://assets/plants/stats/Biome Icons/Biome Icon - Fall.png" id="5_ta7ms"]
+[ext_resource type="Texture2D" uid="uid://bfahntimqgvxv" path="res://assets/plants/stats/Biome Icons/Biome Icon - Winter.png" id="6_1h1st"]
+[ext_resource type="Texture2D" uid="uid://c6i3433nlj5j6" path="res://assets/plants/stats/Biome Icons/Biome Icon - Underwater.png" id="7_77x4w"]
+[ext_resource type="Texture2D" uid="uid://dls4xo27i538t" path="res://assets/plants/stats/Biome Icons/Biome Icon - Desert.png" id="8_hkjv2"]
+[ext_resource type="Texture2D" uid="uid://c68pmltd6eo3p" path="res://assets/plants/stats/Biome Icons/Biome Icon - Nighttime.png" id="9_2hbrp"]
+[ext_resource type="Texture2D" uid="uid://5irpe5l5ncix" path="res://assets/plants/stats/Biome Icons/Biome Icon - Space.png" id="10_hgtwu"]
+[ext_resource type="Texture2D" uid="uid://cdb7klxuwgts6" path="res://assets/plants/stats/Statbars/Statbar - 0-10.png" id="11_pdxsh"]
+[ext_resource type="Texture2D" uid="uid://iyv3jw8ml8h6" path="res://assets/plants/stats/Statbars/Statbar - 1-10.png" id="12_ljusr"]
+[ext_resource type="Texture2D" uid="uid://dfno8oldtc6q7" path="res://assets/plants/stats/Statbars/Statbar - 2-10.png" id="13_gahkv"]
+[ext_resource type="Texture2D" uid="uid://bl4gbjdpbl4uf" path="res://assets/plants/stats/Statbars/Statbar - 3-10.png" id="14_smwxc"]
+[ext_resource type="Texture2D" uid="uid://csgptmtaihtxi" path="res://assets/plants/stats/Statbars/Statbar - 4-10.png" id="15_byqo7"]
+[ext_resource type="Texture2D" uid="uid://d3r1hl828lyix" path="res://assets/plants/stats/Statbars/Statbar - 5-10.png" id="16_k5k5b"]
+[ext_resource type="Texture2D" uid="uid://bkohejophwapn" path="res://assets/plants/stats/Statbars/Statbar - 6-10.png" id="17_xp6jl"]
+[ext_resource type="Texture2D" uid="uid://bvx115cj8vs35" path="res://assets/plants/stats/Statbars/Statbar - 7-10.png" id="18_ic532"]
+[ext_resource type="Texture2D" uid="uid://jrbbqu53nqhc" path="res://assets/plants/stats/Statbars/Statbar - 8-10.png" id="19_vka6a"]
+[ext_resource type="Texture2D" uid="uid://dah0cmtff8k6f" path="res://assets/plants/stats/Statbars/Statbar - 9-10.png" id="20_lo3xg"]
+[ext_resource type="Texture2D" uid="uid://crsm1epe6doug" path="res://assets/plants/stats/Statbars/Statbar - 10-10.png" id="21_x4bue"]
+[ext_resource type="Texture2D" uid="uid://bxtupuy6ng7tj" path="res://assets/plants/ambirose/PlantAmbirose Harvestable Stage.png" id="22_xct4c"]
+[ext_resource type="Texture2D" uid="uid://c2jhfld6dkmvt" path="res://assets/plants/azure_queen/PlantAzureQueen Harvestable Stage.png" id="23_b3ttk"]
+[ext_resource type="Texture2D" uid="uid://1ykpq5bi3hrn" path="res://assets/plants/desert_cactus/PlantDesertCactus Harvestable Stage.png" id="24_apj8b"]
+[ext_resource type="Texture2D" uid="uid://bwvewtde2155m" path="res://assets/plants/frostbloom/PlantFrostbloom Harvestable Stage.png" id="25_3uan8"]
+[ext_resource type="Texture2D" uid="uid://7j8vdlp1rksm" path="res://assets/plants/marigold/PlantMarigold Harvestable Stage.png" id="26_vailp"]
+[ext_resource type="Texture2D" uid="uid://db8u70m5m8k8v" path="res://assets/plants/neighbouring_root/PlantNeighbouringRoot Harvestable Stage.png" id="27_sncas"]
+[ext_resource type="Texture2D" uid="uid://chi811p0kbrci" path="res://assets/plants/nocturnal/NocturnalPlant Harvestable Stage.png" id="28_hlgqu"]
+[ext_resource type="Texture2D" uid="uid://bcnldksgegsw4" path="res://assets/plants/ocean/OceanPlant Harvestable Stage.png" id="29_uto12"]
+[ext_resource type="Texture2D" uid="uid://dpblc8m3t81e8" path="res://assets/plants/rose/PlantRose Harvestable Stage.png" id="30_tbsgm"]
+[ext_resource type="Texture2D" uid="uid://bmyeqwiel0ewg" path="res://assets/plants/tulip/PlantTulip Harvestable Stage.png" id="31_s3k6c"]
+
+[node name="PlantOverview" type="CanvasLayer" unique_id=1372153265]
+scale = Vector2(3, 3)
+transform = Transform2D(3, 0, 0, 3, 0, 0)
+script = ExtResource("1_plant_overview")
+
+[node name="Blank Overview" type="Sprite2D" parent="." unique_id=343492093]
+position = Vector2(493.83334, 195.16666)
+texture = ExtResource("2_g6u24")
+
+[node name="BiomeIcons" type="Node2D" parent="." unique_id=864242181]
+position = Vector2(493.83334, 195.16666)
+
+[node name="Spring" type="Sprite2D" parent="BiomeIcons" unique_id=1105408516]
+position = Vector2(-98, 23)
+texture = ExtResource("3_a6noi")
+
+[node name="Summer" type="Sprite2D" parent="BiomeIcons" unique_id=259643115]
+position = Vector2(-84, 23)
+texture = ExtResource("4_ndkw1")
+
+[node name="Autumn" type="Sprite2D" parent="BiomeIcons" unique_id=759759933]
+position = Vector2(-70, 23)
+texture = ExtResource("5_ta7ms")
+
+[node name="Winter" type="Sprite2D" parent="BiomeIcons" unique_id=2035820479]
+position = Vector2(-56, 23)
+texture = ExtResource("6_1h1st")
+
+[node name="Underwater" type="Sprite2D" parent="BiomeIcons" unique_id=1218873801]
+position = Vector2(-98, 37)
+texture = ExtResource("7_77x4w")
+
+[node name="Desert" type="Sprite2D" parent="BiomeIcons" unique_id=1863301223]
+position = Vector2(-84, 37)
+texture = ExtResource("8_hkjv2")
+
+[node name="Nighttime" type="Sprite2D" parent="BiomeIcons" unique_id=981415070]
+position = Vector2(-70, 37)
+texture = ExtResource("9_2hbrp")
+
+[node name="Space" type="Sprite2D" parent="BiomeIcons" unique_id=101098640]
+position = Vector2(-56, 37)
+texture = ExtResource("10_hgtwu")
+
+[node name="DecayBar" type="Node2D" parent="." unique_id=1778140344]
+position = Vector2(400.83316, 188.66666)
+scale = Vector2(1.0454545, 1.1666666)
+
+[node name="0-10" type="Sprite2D" parent="DecayBar" unique_id=41133049]
+texture = ExtResource("11_pdxsh")
+
+[node name="1-10" type="Sprite2D" parent="DecayBar" unique_id=745241637]
+visible = false
+texture = ExtResource("12_ljusr")
+
+[node name="2-10" type="Sprite2D" parent="DecayBar" unique_id=1880201696]
+visible = false
+texture = ExtResource("13_gahkv")
+
+[node name="3-10" type="Sprite2D" parent="DecayBar" unique_id=1051629547]
+visible = false
+texture = ExtResource("14_smwxc")
+
+[node name="4-10" type="Sprite2D" parent="DecayBar" unique_id=380109096]
+visible = false
+texture = ExtResource("15_byqo7")
+
+[node name="5-10" type="Sprite2D" parent="DecayBar" unique_id=354207403]
+visible = false
+texture = ExtResource("16_k5k5b")
+
+[node name="6-10" type="Sprite2D" parent="DecayBar" unique_id=205620341]
+visible = false
+texture = ExtResource("17_xp6jl")
+
+[node name="7-10" type="Sprite2D" parent="DecayBar" unique_id=298246811]
+visible = false
+texture = ExtResource("18_ic532")
+
+[node name="8-10" type="Sprite2D" parent="DecayBar" unique_id=1533831022]
+visible = false
+texture = ExtResource("19_vka6a")
+
+[node name="9-10" type="Sprite2D" parent="DecayBar" unique_id=86776050]
+visible = false
+texture = ExtResource("20_lo3xg")
+
+[node name="10-10" type="Sprite2D" parent="DecayBar" unique_id=474147775]
+visible = false
+texture = ExtResource("21_x4bue")
+
+[node name="GrowthBar" type="Node2D" parent="." unique_id=1369624547]
+position = Vector2(400.83347, 173.16666)
+scale = Vector2(1.045, 1.167)
+
+[node name="0-10" type="Sprite2D" parent="GrowthBar" unique_id=533636661]
+texture = ExtResource("11_pdxsh")
+
+[node name="1-10" type="Sprite2D" parent="GrowthBar" unique_id=1498537005]
+visible = false
+texture = ExtResource("12_ljusr")
+
+[node name="2-10" type="Sprite2D" parent="GrowthBar" unique_id=1667290732]
+visible = false
+texture = ExtResource("13_gahkv")
+
+[node name="3-10" type="Sprite2D" parent="GrowthBar" unique_id=1815267386]
+visible = false
+texture = ExtResource("14_smwxc")
+
+[node name="4-10" type="Sprite2D" parent="GrowthBar" unique_id=151843115]
+visible = false
+texture = ExtResource("15_byqo7")
+
+[node name="5-10" type="Sprite2D" parent="GrowthBar" unique_id=1743408133]
+visible = false
+texture = ExtResource("16_k5k5b")
+
+[node name="6-10" type="Sprite2D" parent="GrowthBar" unique_id=1123167583]
+visible = false
+texture = ExtResource("17_xp6jl")
+
+[node name="7-10" type="Sprite2D" parent="GrowthBar" unique_id=2086294598]
+visible = false
+texture = ExtResource("18_ic532")
+
+[node name="8-10" type="Sprite2D" parent="GrowthBar" unique_id=1392906646]
+visible = false
+texture = ExtResource("19_vka6a")
+
+[node name="9-10" type="Sprite2D" parent="GrowthBar" unique_id=1834230434]
+visible = false
+texture = ExtResource("20_lo3xg")
+
+[node name="10-10" type="Sprite2D" parent="GrowthBar" unique_id=1024688055]
+visible = false
+texture = ExtResource("21_x4bue")
+
+[node name="PlantSprite" type="Node2D" parent="." unique_id=1060242253]
+position = Vector2(432.83322, 181.16663)
+scale = Vector2(0.4, 0.4)
+
+[node name="Ambi Rose" type="Sprite2D" parent="PlantSprite" unique_id=737366020]
+position = Vector2(0, -4.999999)
+scale = Vector2(1.5, 1.5)
+texture = ExtResource("22_xct4c")
+
+[node name="Azure Queen" type="Sprite2D" parent="PlantSprite" unique_id=1158376024]
+visible = false
+position = Vector2(0, 7.499999)
+scale = Vector2(1.1, 1.1)
+texture = ExtResource("23_b3ttk")
+
+[node name="Desert Cactus" type="Sprite2D" parent="PlantSprite" unique_id=831097008]
+visible = false
+position = Vector2(0, -20.7)
+scale = Vector2(2, 2)
+texture = ExtResource("24_apj8b")
+
+[node name="Frostbloom" type="Sprite2D" parent="PlantSprite" unique_id=1756746387]
+visible = false
+position = Vector2(0, -21)
+scale = Vector2(2, 2)
+texture = ExtResource("25_3uan8")
+
+[node name="Marigold" type="Sprite2D" parent="PlantSprite" unique_id=1342075269]
+visible = false
+position = Vector2(0, -19.999998)
+scale = Vector2(2, 2)
+texture = ExtResource("26_vailp")
+
+[node name="Neighbouring Root" type="Sprite2D" parent="PlantSprite" unique_id=1384527437]
+visible = false
+position = Vector2(0, -36)
+scale = Vector2(2.5, 2.5)
+texture = ExtResource("27_sncas")
+
+[node name="Nocturnal" type="Sprite2D" parent="PlantSprite" unique_id=1925350864]
+visible = false
+position = Vector2(0, -19.999998)
+scale = Vector2(2, 2)
+texture = ExtResource("28_hlgqu")
+
+[node name="Ocean" type="Sprite2D" parent="PlantSprite" unique_id=694719267]
+visible = false
+position = Vector2(0, -20)
+scale = Vector2(2, 2)
+texture = ExtResource("29_uto12")
+
+[node name="Rose" type="Sprite2D" parent="PlantSprite" unique_id=586700011]
+visible = false
+position = Vector2(0, -5)
+scale = Vector2(1.5, 1.5)
+texture = ExtResource("30_tbsgm")
+
+[node name="Tulip" type="Sprite2D" parent="PlantSprite" unique_id=184506041]
+visible = false
+position = Vector2(0, -5)
+scale = Vector2(1.5, 1.5)
+texture = ExtResource("31_s3k6c")
+
+[node name="Size" type="Label" parent="." unique_id=675601514]
+offset_left = 409.8334
+offset_top = 193.16669
+offset_right = 449.8334
+offset_bottom = 252.16669
+scale = Vector2(0.3, 0.3)
+text = "1
+"
+
+[node name="Name" type="Label" parent="." unique_id=1003482749]
+anchors_preset = -1
+anchor_left = -0.027
+anchor_top = -0.042000003
+anchor_right = -0.027
+anchor_bottom = -0.042000003
+offset_left = 490.67322
+offset_top = 193.52663
+offset_right = 676.6733
+offset_bottom = 221.52663
+scale = Vector2(0.4, 0.4)
+text = "DISPLAY_NAME"
+
+[node name="OptimalSaleValue" type="Label" parent="." unique_id=725528091]
+offset_left = 571.8333
+offset_top = 221.16666
+offset_right = 611.8333
+offset_bottom = 249.16666
+scale = Vector2(0.5, 0.5)
+text = "5"
+
+[node name="AdjacencyLabel" type="Label" parent="." unique_id=271803561]
+custom_maximum_size = Vector2(373, 250)
+offset_left = 451.8334
+offset_top = 164.16669
+offset_right = 824.8334
+offset_bottom = 414.1667
+scale = Vector2(0.3, 0.3)
+text = "-  Adjacent plants may be from other biomes
+
+-  Adjacent plants grow faster
+ 		(2x)"
+autowrap_mode = 2
