@@ -101,7 +101,7 @@ public partial class ShopController : Node
 		}
 
 		marketTimeElapsed += delta;
-		if (marketTimeElapsed < MARKET_UPDATE_INTERVAL)
+		if (marketTimeElapsed >= MARKET_UPDATE_INTERVAL)
 		{
 			marketTimeElapsed = 0;
 			UpdateMarket();
