@@ -49,6 +49,13 @@ public partial class Hud : CanvasLayer
 		ViewName.Text = Camera.CurrentView.Name;
 	}
 
+    public override void _Process(double delta)
+    {
+		float timeLeft = (float)Math.Round(Gardener.endlessTimer.TimeLeft, 2);
+        GetNode<Label>("Screen/Tally/Timer").Text = $"Time Left: {timeLeft} / {Gardener.TIME_TO_MEET_THRESHOLD}";
+		GetNode<Label>("Screen/Tally/CoinThreshold").Text = $"Next Coin Threshold: {Gardener.CurrentCoins} / {Gardener.CoinThreshold}";
+    }
+
 	public override void _UnhandledInput(InputEvent @event)
 	{
 		if (@event.IsActionPressed("ui_cancel") && Drawer.IsOpen)

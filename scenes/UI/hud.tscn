@@ -183,6 +183,14 @@ theme_override_font_sizes/font_size = 28
 script = ExtResource("3_seed_counter")
 Seeds = ExtResource("7_frostbloom")
 
+[node name="Timer" type="Label" parent="Screen/Tally" unique_id=2062797997]
+layout_mode = 2
+text = "Time Left:"
+
+[node name="CoinThreshold" type="Label" parent="Screen/Tally" unique_id=2036721903]
+layout_mode = 2
+text = "Coins Needed: "
+
 [node name="EndScreen" type="Control" parent="Screen"]
 visible = false
 layout_mode = 1
