@@ -4,16 +4,20 @@ using System.Collections.Generic;
 
 public partial class ShopController : Node
 {
+	private const int STARTING_COINS = 3;
 	private const double MARKET_UPDATE_INTERVAL = 3;
 
 	[Export] public Shop Shop { get; set; }
 	[Export] public Inventory Inventory { get; set; }
 	[Export] public SeedStock Seeds { get; set; }
-	[Export] public float StartingCoins { get; set; } = 3;
+	[Export] public UnlockProgress Unlocks { get; set; }
+
+	public float CurrentCoins => coins;
 
 	private PauseMenu pauseMenu;
 	private readonly Dictionary<string, PlantData> plantDataByName = new();
 	private readonly Dictionary<string, SeedOffer> seedOffers = new();
+	private readonly Dictionary<string, UnlockOffer> unlockOffers = new();
 	private readonly Dictionary<string, int> seedCounts = new();
 	private readonly Dictionary<string, float> marketValues = new();
 	private readonly Random random = new();
@@ -22,8 +26,7 @@ public partial class ShopController : Node
 
 	public override void _Ready()
 	{
-		ArgumentOutOfRangeException.ThrowIfNegative(StartingCoins);
-		coins = StartingCoins;
+		coins = STARTING_COINS;
 
 		foreach (SeedOffer offer in SeedCatalog.Offers)
 		{
@@ -33,6 +36,10 @@ public partial class ShopController : Node
 			seedOffers.Add(offer.Name, offer);
 			marketValues.Add(offer.Name, 1f);
 		}
+		foreach (UnlockOffer offer in UnlockCatalog.Offers)
+		{
+			unlockOffers.Add(offer.Name, offer);
+		}
 
 		Shop.Hide();
 		Inventory.Hide();
@@ -41,6 +48,7 @@ public partial class ShopController : Node
 		Shop.CloseRequested += CloseShop;
 		Shop.BuySeedRequested += BuySeed;
 		Shop.SellPlantRequested += SellPlant;
+		Shop.UnlockRequested += Unlock;
 		Inventory.CloseRequested += CloseInventory;
 		Inventory.ItemsChanged += RefreshShop;
 		Seeds.Changed += RefreshShop;
@@ -54,6 +62,7 @@ public partial class ShopController : Node
 			Shop.CloseRequested -= CloseShop;
 			Shop.BuySeedRequested -= BuySeed;
 			Shop.SellPlantRequested -= SellPlant;
+			Shop.UnlockRequested -= Unlock;
 		}
 
 		if (Inventory is not null)
@@ -122,19 +131,64 @@ public partial class ShopController : Node
 
 	private void BuySeed(string offerName)
 	{
+		if (!Unlocks.IsPlantUnlocked(offerName))
+		{
+			return;
+		}
+
 		if (!plantDataByName.TryGetValue(offerName, out PlantData plantData))
 		{
 			GD.PushWarning($"Unknown seed offer '{offerName}'.");
 			return;
 		}
 
-		if (!seedOffers.TryGetValue(offerName, out SeedOffer offer) || coins < offer.Price)
+		if (!seedOffers.TryGetValue(offerName, out SeedOffer offer))
 		{
 			return;
 		}
 
-		coins -= offer.Price;
+		float buyPrice = offer.Price * marketValues[offerName];
+		if (coins < buyPrice)
+		{
+			return;
+		}
+
+		coins -= buyPrice;
 		Seeds.Add(plantData, 1);
+		RefreshShop();
+	}
+
+	private void Unlock(string offerName)
+	{
+		if (!unlockOffers.TryGetValue(offerName, out UnlockOffer offer))
+		{
+			GD.PushWarning($"Unknown unlock offer '{offerName}'.");
+			return;
+		}
+
+		if (coins < offer.Price)
+		{
+			return;
+		}
+
+		bool wasUnlocked = offer.Type == UnlockType.Plant
+			? Unlocks.UnlockPlant(offer.Name)
+			: Unlocks.UnlockPlanter(offer.PlanterBiome);
+		if (!wasUnlocked)
+		{
+			return;
+		}
+
+		if (offer.AssociatedPlantToUnlock is not null)
+		{
+			Unlocks.UnlockPlant(offer.AssociatedPlantToUnlock);
+		}
+
+		coins -= offer.Price;
+		if (!specialOrdersStarted)
+		{
+			StartSpecialOrders();
+		}
 		RefreshShop();
 	}
 
@@ -196,16 +250,21 @@ public partial class ShopController : Node
 			seedCounts.Add(entry.Key, Seeds.Count(entry.Value));
 		}
 
-		Shop.SetContents(coins, seedCounts, Inventory.Items, marketValues);
+		Shop.SetContents(
+			coins,
+			seedCounts,
+			Inventory.Items,
+			marketValues,
+			Unlocks);
 	}
 
 	private void UpdateMarket()
 	{
-		foreach (string offerId in new List<string>(marketValues.Keys))
+		foreach (string offerName in new List<string>(marketValues.Keys))
 		{
 			float change = random.Next(0, 11) / 100f;
 			float direction = random.Next(0, 2) == 0 ? -1f : 1f;
-			marketValues[offerId] = Mathf.Clamp(marketValues[offerId] + change * direction, 0.5f, 2f);
+			marketValues[offerName] = Mathf.Clamp(marketValues[offerName] + change * direction, 0.5f, 2f);
 		}
 	}
 }

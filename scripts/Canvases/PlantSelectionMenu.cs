@@ -7,6 +7,7 @@ public partial class PlantSelectionMenu : CanvasLayer
 	private PlanterBox pendingPlanterBox;
 	private int pendingPlotIdx;
 	private IReadOnlyDictionary<string, int> seedStock;
+	private Func<string, bool> isPlantUnlocked;
 	private Func<string, bool> tryConsumeSeed;
 	private Control menuRoot;
 	private PlantOverview plantOverview;
@@ -24,17 +25,24 @@ public partial class PlantSelectionMenu : CanvasLayer
 		PlanterBox planterBox,
 		int plotIdx,
 		IReadOnlyDictionary<string, int> currentSeedStock,
+		Func<string, bool> isUnlocked,
 		Func<string, bool> tryConsume)
 	{
 		ArgumentNullException.ThrowIfNull(planterBox);
 		ArgumentNullException.ThrowIfNull(currentSeedStock);
+		ArgumentNullException.ThrowIfNull(isUnlocked);
 		ArgumentNullException.ThrowIfNull(tryConsume);
 		if (IsOpen)
 		{
 			return;
 		}
 
-		SetPendingSelection(planterBox, plotIdx, currentSeedStock, tryConsume);
+		SetPendingSelection(
+			planterBox, 
+			plotIdx, 
+			currentSeedStock, 
+			isUnlocked, 
+			tryConsume);
 		PlantOverview overview = GetPlantOverview();
 		Control backdrop = CreateBackdrop();
 		PanelContainer menu = CreateMenuPanel();
@@ -47,11 +55,13 @@ public partial class PlantSelectionMenu : CanvasLayer
 		PlanterBox planterBox,
 		int plotIdx,
 		IReadOnlyDictionary<string, int> currentSeedStock,
+		Func<string, bool> isUnlocked,
 		Func<string, bool> tryConsume)
 	{
 		pendingPlanterBox = planterBox;
 		pendingPlotIdx = plotIdx;
 		seedStock = currentSeedStock;
+		isPlantUnlocked = isUnlocked;
 		tryConsumeSeed = tryConsume;
 	}
 
@@ -96,7 +106,10 @@ public partial class PlantSelectionMenu : CanvasLayer
 
 		foreach (SeedOffer offer in SeedCatalog.Offers)
 		{
-			options.AddChild(CreatePlantButton(offer, overview));
+			if (isPlantUnlocked(offer.Name))
+			{
+				options.AddChild(CreatePlantButton(offer, overview));
+			}
 		}
 
 		Button cancelButton = new Button { Text = "Cancel" };
@@ -146,6 +159,7 @@ public partial class PlantSelectionMenu : CanvasLayer
 		menuRoot = null;
 		pendingPlanterBox = null;
 		seedStock = null;
+		isPlantUnlocked = null;
 		tryConsumeSeed = null;
 		Hide();
 	}
@@ -165,7 +179,9 @@ public partial class PlantSelectionMenu : CanvasLayer
 
 	private void SelectPlant(SeedOffer offer)
 	{
-		if (!seedStock.TryGetValue(offer.Name, out int count) || count <= 0)
+		if (!isPlantUnlocked(offer.Name) ||
+			!seedStock.TryGetValue(offer.Name, out int count) ||
+			count <= 0)
 		{
 			return;
 		}

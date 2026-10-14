@@ -154,20 +154,43 @@ public partial class Inventory : CanvasLayer
 		itemRows.Add(item, row);
 	}
 
+	// TODO: Find a better way than having RemoveItem call RemoveItems
 	public bool RemoveItem(InventoryItem item)
 	{
-		int itemIndex = items.IndexOf(item);
-		if (itemIndex < 0)
+		ArgumentNullException.ThrowIfNull(item);
+		return RemoveItems(new[] { item });
+	}
+
+	public bool RemoveItems(IReadOnlyList<InventoryItem> itemsToRemove)
+	{
+		ArgumentNullException.ThrowIfNull(itemsToRemove);
+		HashSet<InventoryItem> selectedItems = new(ReferenceEqualityComparer.Instance);
+		foreach (InventoryItem item in itemsToRemove)
 		{
-			return false;
+			if (item is null ||
+				!selectedItems.Add(item) ||
+				!items.Exists(existingItem => ReferenceEquals(existingItem, item)))
+			{
+				return false;
+			}
 		}
 
-		items.RemoveAt(itemIndex);
-		priceLabels.RemoveAt(itemIndex);
-		HBoxContainer row = itemRows[item];
-		itemRows.Remove(item);
-		itemList.RemoveChild(row);
-		row.QueueFree();
+		for (int index = items.Count - 1; index >= 0; index--)
+		{
+			if (!selectedItems.Contains(items[index]))
+			{
+				continue;
+			}
+
+			InventoryItem item = items[index];
+			items.RemoveAt(index);
+			priceLabels.RemoveAt(index);
+			HBoxContainer row = itemRows[item];
+			itemRows.Remove(item);
+			itemList.RemoveChild(row);
+			row.QueueFree();
+		}
+
 		emptyMessage.Visible = items.Count == 0;
 		ItemsChanged?.Invoke();
 		return true;

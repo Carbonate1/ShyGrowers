@@ -15,6 +15,8 @@ public partial class Gardener : Node
 	[Export] public SeedStock Seeds { get; set; }
 	[Export] public Inventory Inventory { get; set; }
 	[Export] public PlantSelectionMenu PlantSelectionMenu { get; set; }
+	[Export] public UnlockProgress Unlocks { get; set; }
+	[Export] public ShopController ShopController { get; set; }
 
 	public int HarvestCount { get; private set; }
 
@@ -24,9 +26,12 @@ public partial class Gardener : Node
 
 	public override void _Ready()
 	{
+		gameOver = false;
+		
 		ArgumentNullException.ThrowIfNull(Seeds);
 		ArgumentNullException.ThrowIfNull(PlantSelectionMenu);
-		gameOver = false;
+		ArgumentNullException.ThrowIfNull(Unlocks);
+
 		foreach (SeedOffer offer in SeedCatalog.Offers)
 		{
 			plantDataByName.Add(
@@ -57,7 +62,7 @@ public partial class Gardener : Node
 
 		foreach (PlanterBox planterBox in planterBoxes)
 		{
-			planterBox.UpdateLookAwaySpeed(MAX_LOOK_AWAY_SPEED - LOOK_AWAY_SPEED_CHANGE_PER_BOX * numUsedPlanterBoxes);
+			planterBox.UpdateLookAwaySpeed(lookAwaySpeed);
 		}
     }
 
@@ -75,6 +80,11 @@ public partial class Gardener : Node
 
 	private void OnPlotClicked(PlanterBox planterBox, int plotIndex, MouseButton button)
 	{
+		if (!Unlocks.IsPlanterUnlocked(planterBox.GrowingBiome))
+		{
+			return;
+		}
+
 		Hand hand = Hands.GetHand(button);
 		ItemData held = hand.Item;
 		Plant plant = planterBox.GetPlantAtPlot(plotIndex);
@@ -131,12 +141,19 @@ public partial class Gardener : Node
 		Dictionary<string, int> seedCounts = plantDataByName.ToDictionary(
 			entry => entry.Key,
 			entry => Seeds.Count(entry.Value));
-		PlantSelectionMenu.Open(planterBox, plotIndex, seedCounts, TryConsumeSeed);
+		PlantSelectionMenu.Open(
+			planterBox,
+			plotIndex,
+			seedCounts,
+			Unlocks.IsPlantUnlocked,
+			TryConsumeSeed);
 	}
 
 	private bool TryConsumeSeed(string offerName)
 	{
-		if (!plantDataByName.TryGetValue(offerName, out PlantData plantData) || Seeds.Count(plantData) <= 0)
+		if (!Unlocks.IsPlantUnlocked(offerName) ||
+			!plantDataByName.TryGetValue(offerName, out PlantData plantData) ||
+			Seeds.Count(plantData) <= 0)
 		{
 			return false;
 		}
