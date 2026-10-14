@@ -6,6 +6,9 @@ public partial class ShopController : Node
 {
 	private const int STARTING_COINS = 3;
 	private const double MARKET_UPDATE_INTERVAL = 3;
+	private const double SPECIAL_ORDER_INTERVAL = 60;
+	private const int MAX_PLANTS_PER_SPECIAL_ORDER = 3;
+	private const float SPECIAL_ORDER_REWARD_MULTIPLIER = 1.5f;
 
 	[Export] public Shop Shop { get; set; }
 	[Export] public Inventory Inventory { get; set; }

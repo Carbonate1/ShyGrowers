@@ -4,6 +4,10 @@ using System.Collections.Generic;
 
 public partial class PlantSelectionMenu : CanvasLayer
 {
+	private const int LAYER = 10;
+	private const int OFFSET_X = 180;
+	private const int OFFSET_Y = 120;
+
 	private PlanterBox pendingPlanterBox;
 	private int pendingPlotIdx;
 	private IReadOnlyDictionary<string, int> seedStock;
@@ -17,7 +21,7 @@ public partial class PlantSelectionMenu : CanvasLayer
 
 	public override void _Ready()
 	{
-		Layer = 10;
+		Layer = LAYER;
 		Hide();
 	}
 
@@ -86,10 +90,10 @@ public partial class PlantSelectionMenu : CanvasLayer
 			AnchorTop = 0.5f,
 			AnchorRight = 0.5f,
 			AnchorBottom = 0.5f,
-			OffsetLeft = -180,
-			OffsetTop = -120,
-			OffsetRight = 180,
-			OffsetBottom = 120,
+			OffsetLeft = -OFFSET_X,
+			OffsetTop = -OFFSET_Y,
+			OffsetRight = OFFSET_X,
+			OffsetBottom = OFFSET_Y,
 			MouseFilter = Control.MouseFilterEnum.Stop
 		};
 		return menu;

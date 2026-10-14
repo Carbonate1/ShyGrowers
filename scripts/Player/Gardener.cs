@@ -69,7 +69,7 @@ public partial class Gardener : Node
 		float lookAwaySpeed = Math.Clamp(
 			MAX_LOOK_AWAY_SPEED - LOOK_AWAY_SPEED_CHANGE_PER_BOX * (numUsedPlanterBoxes - 1),
 			1,
-			3
+			MAX_LOOK_AWAY_SPEED
 		);
 
 		foreach (PlanterBox planterBox in planterBoxes)

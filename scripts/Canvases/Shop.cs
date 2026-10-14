@@ -75,6 +75,9 @@ public static class UnlockCatalog
 
 public partial class Shop : CanvasLayer
 {
+	private const int OFFSET_X = 450;
+	private const int OFFSET_Y = 260;
+
 	private Label coinLabel;
 	private TabContainer shopTabs;
 	private VBoxContainer buyingItemsTab;
@@ -125,10 +128,10 @@ public partial class Shop : CanvasLayer
 			AnchorTop = 0.5f,
 			AnchorRight = 0.5f,
 			AnchorBottom = 0.5f,
-			OffsetLeft = -450,
-			OffsetTop = -260,
-			OffsetRight = 450,
-			OffsetBottom = 260,
+			OffsetLeft = -OFFSET_X,
+			OffsetTop = -OFFSET_Y,
+			OffsetRight = OFFSET_X,
+			OffsetBottom = OFFSET_Y,
 			MouseFilter = Control.MouseFilterEnum.Stop
 		};
 		AddChild(panel);
