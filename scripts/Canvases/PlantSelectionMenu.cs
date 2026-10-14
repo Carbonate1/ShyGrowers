@@ -190,12 +190,11 @@ public partial class PlantSelectionMenu : CanvasLayer
 			return;
 		}
 
-		PlantData plantData = LoadPlantData(offer);
 		Plant plant = LoadPlant(offer);
-		if (!pendingPlanterBox.TryPlant(plant, pendingPlotIdx, plantData))
+		if (!pendingPlanterBox.TryPlant(plant, pendingPlotIdx))
 		{
 			plant.Free();
-			GD.PushWarning($"{plantData.DisplayName} cannot be planted in this location.");
+			GD.PushWarning($"{plant.Data.DisplayName} cannot be planted in this location.");
 			return;
 		}
 
