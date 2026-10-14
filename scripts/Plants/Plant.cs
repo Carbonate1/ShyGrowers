@@ -32,7 +32,7 @@ public partial class Plant : Node3D
 	[Signal] public delegate void StageChangedEventHandler(Plant plant);
 
 	[Export] public PlantData Data { get; set; }
-	[Export] public Vector2I SeedYield { get; set; } = new(1, 2);
+	[Export] public Vector2I SeedYield { get; set; } = new(0, 2);
 
 	[ExportGroup("Nodes")]
 	[Export] public Node3D Stages { get; set; }

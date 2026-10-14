@@ -3,7 +3,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-public sealed record SeedOffer(string Name, string PlantDataPath, string ScenePath, int Price);
+public sealed record SeedOffer(
+	string Name,
+	string PlantDataPath,
+	string ScenePath,
+	int Price
+);
+
 public static class SeedCatalog
 {
 	public static IReadOnlyList<SeedOffer> Offers { get; } = Array.AsReadOnly(new[]
@@ -17,32 +23,32 @@ public static class SeedCatalog
 			"Tulip",
 			"res://resources/plants/tulip.tres",
 			"res://scenes/Plants/tulip.tscn",
-			1),
+			2),
 		new SeedOffer(
 			"Rose",
 			"res://resources/plants/rose.tres",
 			"res://scenes/Plants/rose.tscn",
-			1),
+			2),
 		new SeedOffer(
 			"Frostbloom",
 			"res://resources/plants/frostbloom.tres",
 			"res://scenes/Plants/frostbloom.tscn",
-			1),
+			3),
 		new SeedOffer(
 			"Ambi Rose",
 			"res://resources/plants/ambi_rose.tres",
 			"res://scenes/Plants/ambi_rose.tscn",
-			1),
+			4),
 		new SeedOffer(
 			"Azure Queen",
 			"res://resources/plants/azure_queen.tres",
 			"res://scenes/Plants/azure_queen.tscn",
-			1),
+			6),
 		new SeedOffer(
 			"Neighbouring Root",
 			"res://resources/plants/neighbouring_root.tres",
 			"res://scenes/Plants/neighbouring_root.tscn",
-			1),
+			4),
 	});
 };
 
