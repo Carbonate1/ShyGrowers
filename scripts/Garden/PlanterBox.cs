@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 public enum Biome
 {
@@ -33,6 +34,8 @@ public partial class PlanterBox : Node3D
 
 	private readonly List<Plot> plots = new();
 	private readonly List<PlantPlacement> placements = new();
+
+	public bool HasAtLeastOnePlant => plots.Any();
 
 	public override void _Ready()
 	{
@@ -248,6 +251,11 @@ public partial class PlanterBox : Node3D
 	private void OnPlotClicked(int plotIndex, MouseButton button)
 	{
 		EmitSignal(SignalName.PlotClicked, this, plotIndex, (int)button);
+	}
+
+	public void UpdateLookAwaySpeed(float newVal)
+	{
+		ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(newVal, 1);
 	}
 
 	private static float ValidateMultiplier(AdjacencyBonus bonus)

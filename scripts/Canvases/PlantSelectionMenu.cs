@@ -9,6 +9,7 @@ public partial class PlantSelectionMenu : CanvasLayer
 	private IReadOnlyDictionary<string, int> seedStock;
 	private Func<string, bool> tryConsumeSeed;
 	private Control menuRoot;
+	private PlantOverview plantOverview;
 
 	public event Action<Plant> PlantPlanted;
 	public bool IsOpen => menuRoot is not null;
@@ -34,9 +35,10 @@ public partial class PlantSelectionMenu : CanvasLayer
 		}
 
 		SetPendingSelection(planterBox, plotIdx, currentSeedStock, tryConsume);
+		PlantOverview overview = GetPlantOverview();
 		Control backdrop = CreateBackdrop();
 		PanelContainer menu = CreateMenuPanel();
-		menu.AddChild(CreateOptions());
+		menu.AddChild(CreateOptions(overview));
 		backdrop.AddChild(menu);
 		ShowMenu(backdrop);
 	}
@@ -83,7 +85,7 @@ public partial class PlantSelectionMenu : CanvasLayer
 		return menu;
 	}
 
-	private VBoxContainer CreateOptions()
+	private VBoxContainer CreateOptions(PlantOverview overview)
 	{
 		VBoxContainer options = new VBoxContainer();
 		options.AddChild(new Label
@@ -94,7 +96,7 @@ public partial class PlantSelectionMenu : CanvasLayer
 
 		foreach (SeedOffer offer in SeedCatalog.Offers)
 		{
-			options.AddChild(CreatePlantButton(offer));
+			options.AddChild(CreatePlantButton(offer, overview));
 		}
 
 		Button cancelButton = new Button { Text = "Cancel" };
@@ -103,7 +105,7 @@ public partial class PlantSelectionMenu : CanvasLayer
 		return options;
 	}
 
-	private Button CreatePlantButton(SeedOffer offer)
+	private Button CreatePlantButton(SeedOffer offer, PlantOverview overview)
 	{
 		seedStock.TryGetValue(offer.Name, out int count);
 		PlantData plantData = LoadPlantData(offer);
@@ -111,8 +113,23 @@ public partial class PlantSelectionMenu : CanvasLayer
 		button.Pressed += () => SelectPlant(offer);
 		Plant plant = LoadPlant(offer);
 		button.Disabled = count <= 0 || !IsPlantableHere(plant, pendingPlanterBox, pendingPlotIdx);
+		button.MouseEntered += () => overview.ShowOverview(plantData);
+		button.MouseExited += overview.HideOverview;
 		plant.Free();
 		return button;
+	}
+
+	private PlantOverview GetPlantOverview()
+	{
+		if (plantOverview is null)
+		{
+			PackedScene overviewScene = GD.Load<PackedScene>("res://scenes/Canvases/plant_overview.tscn")
+				?? throw new InvalidOperationException("Could not load the plant overview scene.");
+			plantOverview = overviewScene.Instantiate<PlantOverview>();
+			AddChild(plantOverview);
+		}
+
+		return plantOverview;
 	}
 
 	private void ShowMenu(Control backdrop)
@@ -124,6 +141,7 @@ public partial class PlantSelectionMenu : CanvasLayer
 
 	public void Close()
 	{
+		plantOverview?.HideOverview();
 		menuRoot?.QueueFree();
 		menuRoot = null;
 		pendingPlanterBox = null;

@@ -11,6 +11,7 @@ public partial class ShopController : Node
 	[Export] public SeedStock Seeds { get; set; }
 	[Export] public float StartingCoins { get; set; } = 3;
 
+	private PauseMenu pauseMenu;
 	private readonly Dictionary<string, PlantData> plantDataByName = new();
 	private readonly Dictionary<string, SeedOffer> seedOffers = new();
 	private readonly Dictionary<string, int> seedCounts = new();
@@ -35,6 +36,8 @@ public partial class ShopController : Node
 
 		Shop.Hide();
 		Inventory.Hide();
+		pauseMenu = new PauseMenu();
+		AddChild(pauseMenu);
 		Shop.CloseRequested += CloseShop;
 		Shop.BuySeedRequested += BuySeed;
 		Shop.SellPlantRequested += SellPlant;
@@ -98,14 +101,19 @@ public partial class ShopController : Node
 				ToggleShop();
 				GetViewport().SetInputAsHandled();
 				break;
-			case Key.Escape when Shop.Visible || Inventory.Visible:
+			case Key.Escape:
 				if (Shop.Visible)
 				{
 					CloseShop();
 				}
-				else
+				else if (Inventory.Visible)
 				{
 					CloseInventory();
+				}
+				else
+				{
+					GetTree().Paused = true;
+					pauseMenu.Show();
 				}
 				GetViewport().SetInputAsHandled();
 				break;

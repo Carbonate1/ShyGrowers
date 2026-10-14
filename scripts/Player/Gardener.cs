@@ -5,6 +5,9 @@ using System.Linq;
 
 public partial class Gardener : Node
 {
+	private const float MAX_LOOK_AWAY_SPEED = 3f;
+	private const float LOOK_AWAY_SPEED_CHANGE_PER_BOX = 1.5f/8;
+
 	[Signal] public delegate void PlantHarvestedEventHandler(int total);
 	[Signal] public delegate void GardenEmptyEventHandler(int total);
 
@@ -42,6 +45,21 @@ public partial class Gardener : Node
 			}
 		}
 	}
+
+    public override void _Process(double delta)
+    {
+		int numUsedPlanterBoxes = GetNumUsedPlanterBoxes();
+		float lookAwaySpeed = Math.Clamp(
+			MAX_LOOK_AWAY_SPEED - LOOK_AWAY_SPEED_CHANGE_PER_BOX * (numUsedPlanterBoxes - 1),
+			1,
+			3
+		);
+
+		foreach (PlanterBox planterBox in planterBoxes)
+		{
+			planterBox.UpdateLookAwaySpeed(MAX_LOOK_AWAY_SPEED - LOOK_AWAY_SPEED_CHANGE_PER_BOX * numUsedPlanterBoxes);
+		}
+    }
 
 	public override void _ExitTree()
 	{
@@ -191,5 +209,19 @@ public partial class Gardener : Node
 
 		gameOver = true;
 		EmitSignal(SignalName.GardenEmpty, HarvestCount);
+	}
+
+	private int GetNumUsedPlanterBoxes()
+	{
+		int numUsedPlanterBoxes = 0;
+        foreach (PlanterBox planterBox in planterBoxes)
+		{
+			if (planterBox.HasAtLeastOnePlant)
+			{
+				numUsedPlanterBoxes += 1;
+			}
+		}
+
+		return numUsedPlanterBoxes;
 	}
 }
