@@ -20,8 +20,11 @@ public partial class ShopController : Node
 	private readonly Dictionary<string, UnlockOffer> unlockOffers = new();
 	private readonly Dictionary<string, int> seedCounts = new();
 	private readonly Dictionary<string, float> marketValues = new();
+	private readonly List<SpecialOrder> specialOrders = new();
 	private readonly Random random = new();
 	private double marketTimeElapsed;
+	private double specialOrderTimeElapsed;
+	private bool specialOrdersStarted;
 	private float coins;
 
 	public override void _Ready()
@@ -49,6 +52,7 @@ public partial class ShopController : Node
 		Shop.BuySeedRequested += BuySeed;
 		Shop.SellPlantRequested += SellPlant;
 		Shop.UnlockRequested += Unlock;
+		Shop.RedeemSpecialOrderRequested += RedeemSpecialOrder;
 		Inventory.CloseRequested += CloseInventory;
 		Inventory.ItemsChanged += RefreshShop;
 		Seeds.Changed += RefreshShop;
@@ -63,6 +67,7 @@ public partial class ShopController : Node
 			Shop.BuySeedRequested -= BuySeed;
 			Shop.SellPlantRequested -= SellPlant;
 			Shop.UnlockRequested -= Unlock;
+			Shop.RedeemSpecialOrderRequested -= RedeemSpecialOrder;
 		}
 
 		if (Inventory is not null)
@@ -79,17 +84,47 @@ public partial class ShopController : Node
 
 	public override void _Process(double delta)
 	{
+		bool specialOrdersChanged = false;
+		if (specialOrdersStarted)
+		{
+			for (int index = 0; index < specialOrders.Count; index++)
+			{
+				if (specialOrders[index].AdvanceTime(delta))
+				{
+					specialOrders[index] = CreateSpecialOrder();
+					specialOrdersChanged = true;
+				}
+			}
+		}
+
 		marketTimeElapsed += delta;
 		if (marketTimeElapsed < MARKET_UPDATE_INTERVAL)
 		{
-			return;
+			marketTimeElapsed = 0;
+			UpdateMarket();
+			if (Shop.Visible)
+			{
+				RefreshShop();
+			}
 		}
 
-		marketTimeElapsed = 0;
-		UpdateMarket();
-		if (Shop.Visible)
+		if (specialOrdersChanged && Shop.Visible)
 		{
 			RefreshShop();
+		}
+
+		if (specialOrdersStarted)
+		{
+			specialOrderTimeElapsed += delta;
+			while (specialOrderTimeElapsed >= SPECIAL_ORDER_INTERVAL)
+			{
+				specialOrderTimeElapsed -= SPECIAL_ORDER_INTERVAL;
+				specialOrders.Add(CreateSpecialOrder());
+				if (Shop.Visible)
+				{
+					RefreshShop();
+				}
+			}
 		}
 	}
 
@@ -127,6 +162,12 @@ public partial class ShopController : Node
 				GetViewport().SetInputAsHandled();
 				break;
 		}
+	}
+
+	private void StartSpecialOrders()
+	{
+		specialOrdersStarted = true;
+		specialOrderTimeElapsed = 0;
 	}
 
 	private void BuySeed(string offerName)
@@ -192,6 +233,54 @@ public partial class ShopController : Node
 		RefreshShop();
 	}
 
+	private void RedeemSpecialOrder(SpecialOrder order)
+	{
+		ArgumentNullException.ThrowIfNull(order);
+		int orderIndex = specialOrders.IndexOf(order);
+		if (orderIndex < 0 || !order.TryGetItems(Inventory.Items, out IReadOnlyList<InventoryItem> requiredItems))
+		{
+			return;
+		}
+
+		if (!Inventory.RemoveItems(requiredItems))
+		{
+			return;
+		}
+
+		coins += order.Reward;
+		specialOrders.RemoveAt(orderIndex);
+		RefreshShop();
+	}
+
+	private SpecialOrder CreateSpecialOrder()
+	{
+		List<string> availablePlants = new();
+		foreach (SeedOffer offer in SeedCatalog.Offers)
+		{
+			if (Unlocks.IsPlantUnlocked(offer.Name))
+			{
+				availablePlants.Add(offer.Name);
+			}
+		}
+
+		if (availablePlants.Count == 0)
+		{
+			throw new InvalidOperationException("At least one plant must be unlocked to create special orders.");
+		}
+
+		int requestedPlantCount = random.Next(1, MAX_PLANTS_PER_SPECIAL_ORDER + 1);
+		List<string> requestedPlants = new(requestedPlantCount);
+		float reward = 0;
+		for (int index = 0; index < requestedPlantCount; index++)
+		{
+			string plantName = availablePlants[random.Next(availablePlants.Count)];
+			requestedPlants.Add(plantName);
+			reward += plantDataByName[plantName].OptimalSaleValue * SPECIAL_ORDER_REWARD_MULTIPLIER;
+		}
+
+		return new SpecialOrder(requestedPlants, reward);
+	}
+
 	private void SellPlant(InventoryItem item)
 	{
 		ArgumentNullException.ThrowIfNull(item);
@@ -255,7 +344,8 @@ public partial class ShopController : Node
 			seedCounts,
 			Inventory.Items,
 			marketValues,
-			Unlocks);
+			Unlocks,
+			specialOrders);
 	}
 
 	private void UpdateMarket()

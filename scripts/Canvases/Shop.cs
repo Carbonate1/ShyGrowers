@@ -80,12 +80,14 @@ public partial class Shop : CanvasLayer
 	private VBoxContainer buyingItemsTab;
 	private VBoxContainer sellingItemsTab;
 	private VBoxContainer unlockablesTab;
+	private VBoxContainer specialOrdersTab;
 	private readonly Dictionary<string, Label> marketValueLabels = new();
 	private readonly Dictionary<InventoryItem, Button> sellButtons = new();
 	private readonly Dictionary<InventoryItem, Label> sellValueLabels = new();
 	private IReadOnlyDictionary<string, int> seedStock = new Dictionary<string, int>();
 	private IReadOnlyDictionary<string, float> marketValue = new Dictionary<string, float>();
 	private IReadOnlyList<InventoryItem> inventoryItems = Array.Empty<InventoryItem>();
+	private IReadOnlyList<SpecialOrder> specialOrders = Array.Empty<SpecialOrder>();
 	private UnlockProgress unlocks;
 	private float coins;
 
@@ -93,6 +95,7 @@ public partial class Shop : CanvasLayer
 	public event Action<string> BuySeedRequested;
 	public event Action<InventoryItem> SellPlantRequested;
 	public event Action<string> UnlockRequested;
+	public event Action<SpecialOrder> RedeemSpecialOrderRequested;
 
 	public override void _Ready()
 	{
@@ -165,7 +168,7 @@ public partial class Shop : CanvasLayer
 		buyingItemsTab = CreateTab("Buy seeds");
 		sellingItemsTab = CreateTab("Sell plants");
 		unlockablesTab = CreateTab("Unlocks");
-
+		specialOrdersTab = CreateTab("Special orders");
 	}
 
 	private void CreateMarketValueDisplay(VBoxContainer content)
@@ -217,15 +220,18 @@ public partial class Shop : CanvasLayer
 		IReadOnlyDictionary<string, int> currentSeedStock,
 		IReadOnlyList<InventoryItem> currentInventoryItems,
 		IReadOnlyDictionary<string, float> currentMarketValues,
-		UnlockProgress currentUnlocks)
+		UnlockProgress currentUnlocks,
+		IReadOnlyList<SpecialOrder> currentSpecialOrders)
 	{
 		ArgumentNullException.ThrowIfNull(currentUnlocks);
+		ArgumentNullException.ThrowIfNull(currentSpecialOrders);
 		
 		coins = currentCoins;
 		seedStock = currentSeedStock;
 		inventoryItems = currentInventoryItems;
 		marketValue = currentMarketValues;
 		unlocks = currentUnlocks;
+		specialOrders = currentSpecialOrders;
 		UpdateMarketValueLabels();
 		Refresh();
 	}
@@ -258,13 +264,13 @@ public partial class Shop : CanvasLayer
 		ClearChildren(buyingItemsTab);
 		ClearChildren(sellingItemsTab);
 		ClearChildren(unlockablesTab);
-		
+		ClearChildren(specialOrdersTab);
 		sellButtons.Clear();
 		sellValueLabels.Clear();
 
 		RefreshSeedOffers();
 		RefreshUnlockOffers();
-		
+		RefreshSpecialOrders();
 
 		if (inventoryItems.Count == 0)
 		{
@@ -360,6 +366,44 @@ public partial class Shop : CanvasLayer
 			sellButtons.Add(item, sellButton);
 			sellValueLabels.Add(item, valueLabel);
 			row.AddChild(sellButton);
+		}
+	}
+
+	private void RefreshSpecialOrders()
+	{
+		if (specialOrders.Count == 0)
+		{
+			specialOrdersTab.AddChild(new Label
+			{
+				Text = "No special orders available.",
+				HorizontalAlignment = HorizontalAlignment.Center
+			});
+			return;
+		}
+
+		foreach (SpecialOrder order in specialOrders)
+		{
+			HBoxContainer row = new HBoxContainer();
+			specialOrdersTab.AddChild(row);
+			row.AddChild(new Label
+			{
+				Text = string.Join(", ", order.PlantNames
+					.GroupBy(name => name)
+					.Select(group => group.Count() == 1
+						? group.Key
+						: $"{group.Key} x{group.Count()}")),
+				SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
+				VerticalAlignment = VerticalAlignment.Center
+			});
+
+			bool canRedeem = order.TryGetItems(inventoryItems, out _);
+			Button redeemButton = new Button
+			{
+				Text = $"Redeem for {order.Reward:0.00} coins",
+				Disabled = !canRedeem
+			};
+			redeemButton.Pressed += () => RedeemSpecialOrderRequested?.Invoke(order);
+			row.AddChild(redeemButton);
 		}
 	}
 
