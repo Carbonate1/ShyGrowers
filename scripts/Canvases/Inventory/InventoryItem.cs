@@ -7,6 +7,7 @@ public partial class InventoryItem : Resource
     private double decayRate;
     public float currentSellingPrice;
     private float sellingPriceAtHarvest;
+    public Transform3D? bagPose;
 
     public InventoryItem()
     {

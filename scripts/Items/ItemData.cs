@@ -12,6 +12,7 @@ public partial class ItemData : Resource
 	[Export] public PackedScene CareEffect { get; set; }
 	[Export] public bool OpensPlantSelection { get; set; }
 	[Export] public bool DigsUpPlants { get; set; }
+	[Export] public bool Harvests { get; set; }
 
 	public bool IsPhysical => !string.IsNullOrEmpty(Pickup);
 

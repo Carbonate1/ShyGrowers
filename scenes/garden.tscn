@@ -25,6 +25,7 @@
 [ext_resource type="PackedScene" uid="uid://v0ysbnsbn1m0" path="res://scenes/Canvases/shop.tscn" id="24_shop"]
 [ext_resource type="PackedScene" uid="uid://bu7yiauwokddk" path="res://scenes/Canvases/plant_selection_menu.tscn" id="25_plant_selection_menu"]
 [ext_resource type="Resource" path="res://resources/plants/tulip.tres" id="26_tulip"]
+[ext_resource type="PackedScene" path="res://scenes/Items/trowel.tscn" id="27_trowel"]
 
 [sub_resource type="QuadMesh" id="QuadMesh_ink"]
 material = ExtResource("4_ink")
@@ -92,7 +93,6 @@ ReachYaw = -90.0
 transform = Transform3D(0.9396926, 0.088521324, 0.33036608, 0, 0.9659258, -0.25881904, -0.34202012, 0.24321035, 0.90767336, 0.36, -0.27, -0.72)
 script = ExtResource("14_hand")
 Button = 2
-TossAction = &"toss_right"
 World = NodePath("../../Items")
 Drawer = NodePath("../../Room/Table")
 Item = ExtResource("7_watering_can")
@@ -101,6 +101,9 @@ Item = ExtResource("7_watering_can")
 
 [node name="Fertilizer" parent="Items" unique_id=176497549 instance=ExtResource("15_fertilizer")]
 transform = Transform3D(0.94, 0, -0.342, 0, 1, 0, 0.342, 0, 0.94, 0.2, 0.01, -2.02)
+
+[node name="Trowel" parent="Items" unique_id=1559023774 instance=ExtResource("27_trowel")]
+transform = Transform3D(0.906, 0, 0.423, 0, 1, 0, -0.423, 0, 0.906, 2.6, 0.53, 0.4)
 
 [node name="Hands" type="Node" parent="." unique_id=659539949 node_paths=PackedStringArray("LeftHand", "RightHand")]
 script = ExtResource("5_hands")

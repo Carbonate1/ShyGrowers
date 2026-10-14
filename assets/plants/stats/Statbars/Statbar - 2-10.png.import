@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dfno8oldtc6q7"
-path="res://.godot/imported/Statbar - 2:10.png-092b1b438543a257a3ebdfd01512a494.ctex"
+path="res://.godot/imported/Statbar - 2-10.png-c17330b4ea92cbfde7eba9032d275d24.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/plants/stats/Statbars/Statbar - 2:10.png"
-dest_files=["res://.godot/imported/Statbar - 2:10.png-092b1b438543a257a3ebdfd01512a494.ctex"]
+source_file="res://assets/plants/stats/Statbars/Statbar - 2-10.png"
+dest_files=["res://.godot/imported/Statbar - 2-10.png-c17330b4ea92cbfde7eba9032d275d24.ctex"]
 
 [params]
 

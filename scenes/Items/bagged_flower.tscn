@@ -1,0 +1,28 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/Items/BaggedFlower.cs" id="1_flower"]
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_petals"]
+friction = 0.9
+bounce = 0.1
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_flower"]
+size = Vector3(0.05, 0.12, 0.012)
+
+[node name="BaggedFlower" type="RigidBody3D" node_paths=PackedStringArray("Sprite")]
+mass = 0.03
+physics_material_override = SubResource("PhysicsMaterial_petals")
+can_sleep = false
+continuous_cd = true
+script = ExtResource("1_flower")
+Sprite = NodePath("Sprite")
+
+[node name="Shape" type="CollisionShape3D" parent="."]
+shape = SubResource("BoxShape3D_flower")
+
+[node name="Sprite" type="Sprite3D" parent="."]
+cast_shadow = 0
+pixel_size = 0.0022
+shaded = true
+alpha_cut = 1
+texture_filter = 0

@@ -77,7 +77,21 @@ public partial class Gardener : Node
 
 		if (held is null)
 		{
-			AttemptHarvest(plant, planterBox, plotIndex);
+			return;
+		}
+
+		if (held.Harvests)
+		{
+			if (plant.IsHarvestable)
+			{
+				hand.UseOn(planterBox.GetPlotGlobalPosition(plotIndex), () =>
+				{
+					if (planterBox.GetPlantAtPlot(plotIndex) == plant)
+					{
+						AttemptHarvest(plant, planterBox, plotIndex);
+					}
+				});
+			}
 			return;
 		}
 
