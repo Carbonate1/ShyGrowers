@@ -52,9 +52,8 @@ public partial class Hud : CanvasLayer
 
     public override void _Process(double delta)
     {
-		float timeLeft = (float)Math.Round(Gardener.endlessTimer.TimeLeft, 2);
-        GetNode<Label>("Screen/Tally/Timer").Text = $"Time Left: {timeLeft} / {Gardener.TIME_TO_MEET_THRESHOLD}";
-		GetNode<Label>("Screen/Tally/CoinThreshold").Text = $"Next Coin Threshold: {Gardener.CurrentCoins} / {Gardener.CoinThreshold}";
+        GetNode<Label>("Screen/Tally/Timer").Text = $"Time Left: {(int)Gardener.endlessTimer.TimeLeft} / {Gardener.TIME_TO_MEET_THRESHOLD}";
+		GetNode<Label>("Screen/Tally/CoinThreshold").Text = $"Next Coin Threshold: {Math.Round(Gardener.CurrentCoins, 2)} / {Gardener.CoinThreshold}";
     }
 
 	public override void _UnhandledInput(InputEvent @event)
