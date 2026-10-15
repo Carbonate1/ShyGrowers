@@ -7,6 +7,7 @@ public sealed record SeedOffer(
 	string Name,
 	string PlantDataPath,
 	string ScenePath,
+	string SeedPath,
 	int Price
 );
 
@@ -18,36 +19,43 @@ public static class SeedCatalog
 			"Marigold",
 			"res://resources/plants/marigold.tres",
 			"res://scenes/Plants/marigold.tscn",
+			"res://assets/plants/marigold/Seed.png",
 			1),
 		new SeedOffer(
 			"Tulip",
 			"res://resources/plants/tulip.tres",
 			"res://scenes/Plants/tulip.tscn",
+			"res://assets/plants/tulip/Seed.png",
 			2),
 		new SeedOffer(
 			"Rose",
 			"res://resources/plants/rose.tres",
 			"res://scenes/Plants/rose.tscn",
+			"res://assets/plants/rose/Seed.png",
 			2),
 		new SeedOffer(
 			"Frostbloom",
 			"res://resources/plants/frostbloom.tres",
 			"res://scenes/Plants/frostbloom.tscn",
+			"res://assets/plants/frostbloom/Seed.png",
 			3),
 		new SeedOffer(
 			"Ambi Rose",
 			"res://resources/plants/ambi_rose.tres",
 			"res://scenes/Plants/ambi_rose.tscn",
+			"res://assets/plants/ambirose/Seed.png",
 			4),
 		new SeedOffer(
 			"Azure Queen",
 			"res://resources/plants/azure_queen.tres",
 			"res://scenes/Plants/azure_queen.tscn",
+			"res://assets/plants/azure_queen/Seed.png",
 			6),
 		new SeedOffer(
 			"Neighbouring Root",
 			"res://resources/plants/neighbouring_root.tres",
 			"res://scenes/Plants/neighbouring_root.tscn",
+			"res://assets/plants/neighbouring_root/Seed.png",
 			4),
 	});
 };
@@ -301,6 +309,16 @@ public partial class Shop : CanvasLayer
 			float buyPrice = offer.Price * GetMarketMultiplier(offer.Name);
 			HBoxContainer row = new HBoxContainer();
 			buyingItemsTab.AddChild(row);
+			Texture2D seedTexture = GD.Load<Texture2D>(offer.SeedPath)
+				?? throw new InvalidOperationException($"Could not load seed icon at '{offer.SeedPath}'.");
+			row.AddChild(new TextureRect
+			{
+				Texture = seedTexture,
+				CustomMinimumSize = new Vector2(48, 48),
+				ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
+				StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
+				MouseFilter = Control.MouseFilterEnum.Ignore
+			});
 			row.AddChild(new Label
 			{
 				Text = unlocks.IsPlantUnlocked(offer.Name)

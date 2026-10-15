@@ -8,6 +8,8 @@
 [ext_resource type="Resource" path="res://resources/plants/rose.tres" id="6_rose"]
 [ext_resource type="Resource" path="res://resources/plants/frostbloom.tres" id="7_frostbloom"]
 [ext_resource type="Script" path="res://scripts/UI/SceneButton.cs" id="8_scene_button"]
+[ext_resource type="Texture2D" uid="uid://c20di4xfraqoh" path="res://assets/icons/ShopIconV1.png" id="9_7wvwv"]
+[ext_resource type="Texture2D" uid="uid://p6d1wagc57qn" path="res://assets/icons/InventoryIconV1.png" id="10_k00v8"]
 
 [node name="Hud" type="CanvasLayer" unique_id=1122126769 node_paths=PackedStringArray("LeftHand", "RightHand", "ViewName", "DrawerPanel", "DrawerSlots", "Harvested", "SeedCounters", "EndScreen", "EndScore")]
 script = ExtResource("1_hud")
@@ -254,3 +256,36 @@ theme_override_font_sizes/font_size = 36
 text = "Title"
 script = ExtResource("8_scene_button")
 Scene = "res://scenes/title_screen.tscn"
+
+[node name="Icons" type="Control" parent="Screen" unique_id=821425736]
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="ShopIcon" type="Sprite2D" parent="Screen/Icons" unique_id=6782490]
+position = Vector2(1854, 50)
+scale = Vector2(2, 2)
+texture = ExtResource("9_7wvwv")
+
+[node name="ShopLabel" type="Label" parent="Screen/Icons" unique_id=1210189343]
+layout_mode = 0
+offset_left = 1823.0
+offset_top = 92.0
+offset_right = 1885.0
+offset_bottom = 120.0
+text = "S"
+horizontal_alignment = 1
+
+[node name="InventoryIcon" type="Sprite2D" parent="Screen/Icons" unique_id=1407101794]
+position = Vector2(1759, 50)
+scale = Vector2(2, 2)
+texture = ExtResource("10_k00v8")
+
+[node name="InventoryLabel" type="Label" parent="Screen/Icons" unique_id=764701155]
+layout_mode = 0
+offset_left = 1728.0
+offset_top = 92.0
+offset_right = 1791.0
+offset_bottom = 120.0
+text = "I"
+horizontal_alignment = 1
