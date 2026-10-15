@@ -1,4 +1,5 @@
 using Godot;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -48,6 +49,13 @@ public partial class Hud : CanvasLayer
 		ShowHarvested(0);
 		ViewName.Text = Camera.CurrentView.Name;
 	}
+
+    public override void _Process(double delta)
+    {
+		float timeLeft = (float)Math.Round(Gardener.endlessTimer.TimeLeft, 2);
+        GetNode<Label>("Screen/Tally/Timer").Text = $"Time Left: {timeLeft} / {Gardener.TIME_TO_MEET_THRESHOLD}";
+		GetNode<Label>("Screen/Tally/CoinThreshold").Text = $"Next Coin Threshold: {Gardener.CurrentCoins} / {Gardener.CoinThreshold}";
+    }
 
 	public override void _UnhandledInput(InputEvent @event)
 	{

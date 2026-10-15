@@ -4,9 +4,14 @@ using System.Collections.Generic;
 
 public partial class PlantSelectionMenu : CanvasLayer
 {
+	private const int LAYER = 10;
+	private const int OFFSET_X = 180;
+	private const int OFFSET_Y = 120;
+
 	private PlanterBox pendingPlanterBox;
 	private int pendingPlotIdx;
 	private IReadOnlyDictionary<string, int> seedStock;
+	private Func<string, bool> isPlantUnlocked;
 	private Func<string, bool> tryConsumeSeed;
 	private Control menuRoot;
 	private PlantOverview plantOverview;
@@ -16,7 +21,7 @@ public partial class PlantSelectionMenu : CanvasLayer
 
 	public override void _Ready()
 	{
-		Layer = 10;
+		Layer = LAYER;
 		Hide();
 	}
 
@@ -24,17 +29,24 @@ public partial class PlantSelectionMenu : CanvasLayer
 		PlanterBox planterBox,
 		int plotIdx,
 		IReadOnlyDictionary<string, int> currentSeedStock,
+		Func<string, bool> isUnlocked,
 		Func<string, bool> tryConsume)
 	{
 		ArgumentNullException.ThrowIfNull(planterBox);
 		ArgumentNullException.ThrowIfNull(currentSeedStock);
+		ArgumentNullException.ThrowIfNull(isUnlocked);
 		ArgumentNullException.ThrowIfNull(tryConsume);
 		if (IsOpen)
 		{
 			return;
 		}
 
-		SetPendingSelection(planterBox, plotIdx, currentSeedStock, tryConsume);
+		SetPendingSelection(
+			planterBox, 
+			plotIdx, 
+			currentSeedStock, 
+			isUnlocked, 
+			tryConsume);
 		PlantOverview overview = GetPlantOverview();
 		Control backdrop = CreateBackdrop();
 		PanelContainer menu = CreateMenuPanel();
@@ -47,11 +59,13 @@ public partial class PlantSelectionMenu : CanvasLayer
 		PlanterBox planterBox,
 		int plotIdx,
 		IReadOnlyDictionary<string, int> currentSeedStock,
+		Func<string, bool> isUnlocked,
 		Func<string, bool> tryConsume)
 	{
 		pendingPlanterBox = planterBox;
 		pendingPlotIdx = plotIdx;
 		seedStock = currentSeedStock;
+		isPlantUnlocked = isUnlocked;
 		tryConsumeSeed = tryConsume;
 	}
 
@@ -76,10 +90,10 @@ public partial class PlantSelectionMenu : CanvasLayer
 			AnchorTop = 0.5f,
 			AnchorRight = 0.5f,
 			AnchorBottom = 0.5f,
-			OffsetLeft = -180,
-			OffsetTop = -120,
-			OffsetRight = 180,
-			OffsetBottom = 120,
+			OffsetLeft = -OFFSET_X,
+			OffsetTop = -OFFSET_Y,
+			OffsetRight = OFFSET_X,
+			OffsetBottom = OFFSET_Y,
 			MouseFilter = Control.MouseFilterEnum.Stop
 		};
 		return menu;
@@ -96,7 +110,10 @@ public partial class PlantSelectionMenu : CanvasLayer
 
 		foreach (SeedOffer offer in SeedCatalog.Offers)
 		{
-			options.AddChild(CreatePlantButton(offer, overview));
+			if (isPlantUnlocked(offer.Name))
+			{
+				options.AddChild(CreatePlantButton(offer, overview));
+			}
 		}
 
 		Button cancelButton = new Button { Text = "Cancel" };
@@ -146,6 +163,7 @@ public partial class PlantSelectionMenu : CanvasLayer
 		menuRoot = null;
 		pendingPlanterBox = null;
 		seedStock = null;
+		isPlantUnlocked = null;
 		tryConsumeSeed = null;
 		Hide();
 	}
@@ -165,17 +183,18 @@ public partial class PlantSelectionMenu : CanvasLayer
 
 	private void SelectPlant(SeedOffer offer)
 	{
-		if (!seedStock.TryGetValue(offer.Name, out int count) || count <= 0)
+		if (!isPlantUnlocked(offer.Name) ||
+			!seedStock.TryGetValue(offer.Name, out int count) ||
+			count <= 0)
 		{
 			return;
 		}
 
-		PlantData plantData = LoadPlantData(offer);
 		Plant plant = LoadPlant(offer);
-		if (!pendingPlanterBox.TryPlant(plant, pendingPlotIdx, plantData))
+		if (!pendingPlanterBox.TryPlant(plant, pendingPlotIdx))
 		{
 			plant.Free();
-			GD.PushWarning($"{plantData.DisplayName} cannot be planted in this location.");
+			GD.PushWarning($"{plant.Data.DisplayName} cannot be planted in this location.");
 			return;
 		}
 

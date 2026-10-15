@@ -4,6 +4,10 @@ using System.Collections.Generic;
 
 public partial class Inventory : CanvasLayer
 {
+	private const int MIN_ROW_SIZE = 48;
+	private const int OFFSET_X = 240;
+	private const int OFFSET_Y = 200;
+
 	private readonly List<InventoryItem> items = new();
 	private readonly List<Label> priceLabels = new();
 	private readonly Dictionary<InventoryItem, HBoxContainer> itemRows = new();
@@ -40,10 +44,10 @@ public partial class Inventory : CanvasLayer
 			AnchorTop = 0.5f,
 			AnchorRight = 0.5f,
 			AnchorBottom = 0.5f,
-			OffsetLeft = -240,
-			OffsetTop = -200,
-			OffsetRight = 240,
-			OffsetBottom = 200,
+			OffsetLeft = -OFFSET_X,
+			OffsetTop = -OFFSET_Y,
+			OffsetRight = OFFSET_X,
+			OffsetBottom = OFFSET_Y,
 			MouseFilter = Control.MouseFilterEnum.Stop
 		};
 		AddChild(panel);
@@ -130,7 +134,7 @@ public partial class Inventory : CanvasLayer
 		TextureRect icon = new TextureRect
 		{
 			Texture = item.texture,
-			CustomMinimumSize = new Vector2(48, 48),
+			CustomMinimumSize = new Vector2(MIN_ROW_SIZE, MIN_ROW_SIZE),
 			ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
 			StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered
 		};
@@ -154,20 +158,43 @@ public partial class Inventory : CanvasLayer
 		itemRows.Add(item, row);
 	}
 
+	// TODO: Find a better way than having RemoveItem call RemoveItems
 	public bool RemoveItem(InventoryItem item)
 	{
-		int itemIndex = items.IndexOf(item);
-		if (itemIndex < 0)
+		ArgumentNullException.ThrowIfNull(item);
+		return RemoveItems(new[] { item });
+	}
+
+	public bool RemoveItems(IReadOnlyList<InventoryItem> itemsToRemove)
+	{
+		ArgumentNullException.ThrowIfNull(itemsToRemove);
+		HashSet<InventoryItem> selectedItems = new(ReferenceEqualityComparer.Instance);
+		foreach (InventoryItem item in itemsToRemove)
 		{
-			return false;
+			if (item is null ||
+				!selectedItems.Add(item) ||
+				!items.Exists(existingItem => ReferenceEquals(existingItem, item)))
+			{
+				return false;
+			}
 		}
 
-		items.RemoveAt(itemIndex);
-		priceLabels.RemoveAt(itemIndex);
-		HBoxContainer row = itemRows[item];
-		itemRows.Remove(item);
-		itemList.RemoveChild(row);
-		row.QueueFree();
+		for (int index = items.Count - 1; index >= 0; index--)
+		{
+			if (!selectedItems.Contains(items[index]))
+			{
+				continue;
+			}
+
+			InventoryItem item = items[index];
+			items.RemoveAt(index);
+			priceLabels.RemoveAt(index);
+			HBoxContainer row = itemRows[item];
+			itemRows.Remove(item);
+			itemList.RemoveChild(row);
+			row.QueueFree();
+		}
+
 		emptyMessage.Visible = items.Count == 0;
 		ItemsChanged?.Invoke();
 		return true;

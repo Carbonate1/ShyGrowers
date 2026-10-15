@@ -84,4 +84,8 @@ billboard = 1
 modulate = Color(1, 0.97, 0.9, 1)
 outline_modulate = Color(0.3, 0.18, 0.12, 1)
 font = ExtResource("3_font")
-font_size = 44
+font_size = 35
+
+[node name="StatusSprite" type="Sprite3D" parent="." unique_id=206851222]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.55, 0)
+visible = false

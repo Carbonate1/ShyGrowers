@@ -20,12 +20,13 @@
 [ext_resource type="Resource" path="res://resources/plants/marigold.tres" id="18_marigold"]
 [ext_resource type="Resource" path="res://resources/plants/rose.tres" id="19_rose"]
 [ext_resource type="Resource" path="res://resources/plants/frostbloom.tres" id="20_frostbloom"]
+[ext_resource type="Resource" path="res://resources/plants/tulip.tres" id="21_tulip"]
 [ext_resource type="PackedScene" uid="uid://b11q3catg01hu" path="res://scenes/Canvases/inventory.tscn" id="22_inventory"]
 [ext_resource type="Script" uid="uid://op2c8xg86hvs" path="res://scripts/Canvases/ShopController.cs" id="23_shop_controller"]
 [ext_resource type="PackedScene" uid="uid://v0ysbnsbn1m0" path="res://scenes/Canvases/shop.tscn" id="24_shop"]
 [ext_resource type="PackedScene" uid="uid://bu7yiauwokddk" path="res://scenes/Canvases/plant_selection_menu.tscn" id="25_plant_selection_menu"]
-[ext_resource type="Resource" path="res://resources/plants/tulip.tres" id="26_tulip"]
-[ext_resource type="PackedScene" path="res://scenes/Items/trowel.tscn" id="27_trowel"]
+[ext_resource type="PackedScene" path="res://scenes/Items/trowel.tscn" id="26_trowel"]
+[ext_resource type="Script" path="res://scripts/Garden/UnlockProgress.cs" id="27_unlocks"]
 
 [sub_resource type="QuadMesh" id="QuadMesh_ink"]
 material = ExtResource("4_ink")
@@ -34,6 +35,9 @@ size = Vector2(2, 2)
 [node name="Garden" type="Node3D" unique_id=1927130434]
 
 [node name="Room" parent="." unique_id=198172292 instance=ExtResource("1_room")]
+
+[node name="Unlocks" type="Node" parent="."]
+script = ExtResource("27_unlocks")
 
 [node name="Planters" type="Node3D" parent="." unique_id=819566316]
 
@@ -70,11 +74,12 @@ transform = Transform3D(-1, 6.696973e-08, -5.619428e-08, 0, 0.64278764, 0.766044
 [node name="Summer" type="Marker3D" parent="Viewpoints" unique_id=1906037110]
 transform = Transform3D(-1, 5.5960165e-08, -6.716548e-08, 0, 0.76828355, 0.64010966, 8.742278e-08, 0.64010966, -0.76828355, -1.2, 1.5, 0.85)
 
-[node name="Camera" type="Camera3D" parent="." unique_id=208845271 node_paths=PackedStringArray("Viewpoints")]
+[node name="Camera" type="Camera3D" parent="." unique_id=208845271 node_paths=PackedStringArray("Viewpoints", "Unlocks")]
 fov = 55.0
 near = 0.03
 script = ExtResource("3_camera")
 Viewpoints = NodePath("../Viewpoints")
+Unlocks = NodePath("../Unlocks")
 
 [node name="InkOutline" type="MeshInstance3D" parent="Camera" unique_id=6603966]
 cast_shadow = 0
@@ -102,7 +107,7 @@ Item = ExtResource("7_watering_can")
 [node name="Fertilizer" parent="Items" unique_id=176497549 instance=ExtResource("15_fertilizer")]
 transform = Transform3D(0.94, 0, -0.342, 0, 1, 0, 0.342, 0, 0.94, 0.2, 0.01, -2.02)
 
-[node name="Trowel" parent="Items" unique_id=1559023774 instance=ExtResource("27_trowel")]
+[node name="Trowel" parent="Items" unique_id=1559023774 instance=ExtResource("26_trowel")]
 transform = Transform3D(0.906, 0, 0.423, 0, 1, 0, -0.423, 0, 0.906, 2.6, 0.53, 0.4)
 
 [node name="Hands" type="Node" parent="." unique_id=659539949 node_paths=PackedStringArray("LeftHand", "RightHand")]
@@ -113,10 +118,7 @@ RightHand = NodePath("../Camera/RightHand")
 [node name="Seeds" type="Node" parent="." unique_id=1800102387]
 script = ExtResource("16_seed_stock")
 Seeds = Dictionary[ExtResource("17_plant_data"), int]({
-ExtResource("18_marigold"): 3,
-ExtResource("26_tulip"): 3,
-ExtResource("19_rose"): 3,
-ExtResource("20_frostbloom"): 3
+ExtResource("18_marigold"): 3
 })
 
 [node name="Inventory" parent="." unique_id=1868681270 instance=ExtResource("22_inventory")]
@@ -125,18 +127,21 @@ ExtResource("20_frostbloom"): 3
 
 [node name="PlantSelectionMenu" parent="." unique_id=578623365 instance=ExtResource("25_plant_selection_menu")]
 
-[node name="Gardener" type="Node" parent="." unique_id=1418172855 node_paths=PackedStringArray("Hands", "Seeds", "Inventory", "PlantSelectionMenu")]
+[node name="Gardener" type="Node" parent="." unique_id=1418172855 node_paths=PackedStringArray("Hands", "Seeds", "Inventory", "PlantSelectionMenu", "Unlocks", "ShopController")]
 script = ExtResource("8_gardener")
 Hands = NodePath("../Hands")
 Seeds = NodePath("../Seeds")
 Inventory = NodePath("../Inventory")
 PlantSelectionMenu = NodePath("../PlantSelectionMenu")
+Unlocks = NodePath("../Unlocks")
+ShopController = NodePath("../ShopController")
 
-[node name="ShopController" type="Node" parent="." unique_id=41825661 node_paths=PackedStringArray("Shop", "Inventory", "Seeds")]
+[node name="ShopController" type="Node" parent="." unique_id=41825661 node_paths=PackedStringArray("Shop", "Inventory", "Seeds", "Unlocks")]
 script = ExtResource("23_shop_controller")
 Shop = NodePath("../Shop")
 Inventory = NodePath("../Inventory")
 Seeds = NodePath("../Seeds")
+Unlocks = NodePath("../Unlocks")
 
 [node name="Hud" parent="." unique_id=1341577662 node_paths=PackedStringArray("Hands", "Drawer", "Camera", "Gardener", "Seeds") instance=ExtResource("9_hud")]
 Hands = NodePath("../Hands")

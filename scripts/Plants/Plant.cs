@@ -16,8 +16,11 @@ public partial class Plant : Node3D
 	private const float WRONG_CARE_PUNISHMENT = 0.3f;
 	private const float QUICK_CARE_BONUS = 0.5f;
 	private const float TIME_FOR_QUICK_CARE_BONUS = 5f;
-	private const int NUM_SPRITE_FRAMES = 6;
 
+	private const string WATERING_ICON_PATH = "res://assets/icons/PlantStatus/Size1Watering.png";
+	private const string WEEDING_ICON_PATH = "res://assets/icons/PlantStatus/Size1Weeding.png";
+	private const string FERTILIZING_ICON_PATH = "res://assets/icons/PlantStatus/Size1Fertilizing.png";
+	private const string HARVESTING_ICON_PATH = "res://assets/icons/PlantStatus/Size1Harvesting.png";
 	
 	public enum Stage
 	{
@@ -32,11 +35,12 @@ public partial class Plant : Node3D
 	[Signal] public delegate void StageChangedEventHandler(Plant plant);
 
 	[Export] public PlantData Data { get; set; }
-	[Export] public Vector2I SeedYield { get; set; } = new(1, 2);
+	[Export] public Vector2I SeedYield { get; set; } = new(0, 2);
 
 	[ExportGroup("Nodes")]
 	[Export] public Node3D Stages { get; set; }
 	[Export] public Label3D NeedLabel { get; set; }
+	[Export] public Sprite3D StatusSprite;
 
 	public Stage CurrentStage { get; private set; }
 	public Care CareNeeded { get; private set; }
@@ -64,6 +68,7 @@ public partial class Plant : Node3D
 		saleValue = Data.OptimalSaleValue;
 		CareNeeded = Care.Watering;
 		waitingForCare.Start();
+		StatusSprite = GetNodeOrNull<Sprite3D>(nameof(StatusSprite));
 		
 		ShowStage();
 	}
@@ -79,7 +84,7 @@ public partial class Plant : Node3D
 				if (CurrentStage is Stage.Planted or Stage.Growing1 or Stage.Growing2)
 				{
 					CareNeeded = SelectCare();
-					UpdateLabel();
+					UpdateVisuals();
 				}
 				else
 				{
@@ -89,7 +94,7 @@ public partial class Plant : Node3D
 		}
 
 		UpdateSaleValue(delta * TimeScale);
-		UpdateLabel();
+		UpdateVisuals();
 	}
 
 	private Care SelectCare()
@@ -214,7 +219,13 @@ public partial class Plant : Node3D
 			}
 		}
 
+		UpdateVisuals();
+	}
+
+	private void UpdateVisuals()
+	{
 		UpdateLabel();
+		UpdateSprite();
 	}
 
 	private void UpdateLabel()
@@ -236,8 +247,32 @@ public partial class Plant : Node3D
 				Stage.Dead => "gone",
 				_ => ""
 			}
-		}  	+ $"\nGrowing time: {Math.Round(timeElapsed, 1)}/{StageDuration}"
-			+ $"\nSale Value: {Math.Round(saleValue, 2)}";
+		}  	+ $"\nGrowth: {Math.Round(timeElapsed, 0)}/{StageDuration}"
+			+ $"\nValue: {Math.Round(saleValue, 2)}";
+	}
+
+	private void UpdateSprite()
+	{
+		if (StatusSprite is null)
+		{
+			return;
+		}
+
+		string texturePath = CurrentStage switch
+		{
+			Stage.Harvestable or Stage.Decaying => HARVESTING_ICON_PATH,
+			_ => CareNeeded switch
+			{
+				Care.Watering => WATERING_ICON_PATH,
+				Care.Fertilizing => FERTILIZING_ICON_PATH,
+				Care.Weeding => WEEDING_ICON_PATH,
+				_ => "",
+			}
+		};
+
+		if (StatusSprite.Visible = !string.IsNullOrEmpty(texturePath)) {
+			StatusSprite.Texture = GD.Load<Texture2D>(texturePath);
+		}
 	}
 
 	public Texture2D GetHarvestableTexture()
@@ -245,7 +280,7 @@ public partial class Plant : Node3D
 		Sprite3D sprite = Stages?.GetNodeOrNull<Sprite3D>(nameof(Stage.Harvestable));
 		if (sprite?.Texture is not Texture2D texture)
 		{
-			return null;
+			throw new TypeAccessException($"Unable to retrieve {Data.DisplayName}'s harvestable sprite");
 		}
 
 		int columns = Math.Max(sprite.Hframes, 1);

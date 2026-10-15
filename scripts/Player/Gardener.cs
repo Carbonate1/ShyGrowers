@@ -7,6 +7,8 @@ public partial class Gardener : Node
 {
 	private const float MAX_LOOK_AWAY_SPEED = 3f;
 	private const float LOOK_AWAY_SPEED_CHANGE_PER_BOX = 1.5f/8;
+	private const float INITIAL_COIN_THRESHOLD = 10f;
+	public const int TIME_TO_MEET_THRESHOLD = 120;
 
 	[Signal] public delegate void PlantHarvestedEventHandler(int total);
 	[Signal] public delegate void GardenEmptyEventHandler(int total);
@@ -15,9 +17,14 @@ public partial class Gardener : Node
 	[Export] public SeedStock Seeds { get; set; }
 	[Export] public Inventory Inventory { get; set; }
 	[Export] public PlantSelectionMenu PlantSelectionMenu { get; set; }
+	[Export] public UnlockProgress Unlocks { get; set; }
+	[Export] public ShopController ShopController { get; set; }
 
 	public int HarvestCount { get; private set; }
+	public float CoinThreshold;
+	public float CurrentCoins => ShopController.CurrentCoins;
 
+	public readonly Timer endlessTimer = new();
 	private readonly List<PlanterBox> planterBoxes = new();
 	private readonly Dictionary<string, PlantData> plantDataByName = new();
 	private bool gameOver;
@@ -26,7 +33,9 @@ public partial class Gardener : Node
 	{
 		ArgumentNullException.ThrowIfNull(Seeds);
 		ArgumentNullException.ThrowIfNull(PlantSelectionMenu);
-		gameOver = false;
+		ArgumentNullException.ThrowIfNull(Unlocks);
+		ArgumentNullException.ThrowIfNull(ShopController);
+
 		foreach (SeedOffer offer in SeedCatalog.Offers)
 		{
 			plantDataByName.Add(
@@ -34,7 +43,6 @@ public partial class Gardener : Node
 				GD.Load<PlantData>(offer.PlantDataPath)
 					?? throw new InvalidOperationException($"Could not load plant data for offer '{offer.Name}'."));
 		}
-		PlantSelectionMenu.PlantPlanted += OnPlantPlanted;
 		
 		foreach (Node node in GetTree().GetNodesInGroup("planter_boxes"))
 		{
@@ -44,6 +52,15 @@ public partial class Gardener : Node
 				planterBox.PlotClicked += OnPlotClicked;
 			}
 		}
+
+		CoinThreshold = INITIAL_COIN_THRESHOLD;
+		gameOver = false;
+
+		AddChild(endlessTimer);
+		endlessTimer.WaitTime = TIME_TO_MEET_THRESHOLD;
+		endlessTimer.OneShot = true;
+		endlessTimer.Start();
+		endlessTimer.Timeout += CheckIfGameOver;
 	}
 
     public override void _Process(double delta)
@@ -52,12 +69,12 @@ public partial class Gardener : Node
 		float lookAwaySpeed = Math.Clamp(
 			MAX_LOOK_AWAY_SPEED - LOOK_AWAY_SPEED_CHANGE_PER_BOX * (numUsedPlanterBoxes - 1),
 			1,
-			3
+			MAX_LOOK_AWAY_SPEED
 		);
 
 		foreach (PlanterBox planterBox in planterBoxes)
 		{
-			planterBox.UpdateLookAwaySpeed(MAX_LOOK_AWAY_SPEED - LOOK_AWAY_SPEED_CHANGE_PER_BOX * numUsedPlanterBoxes);
+			planterBox.UpdateLookAwaySpeed(lookAwaySpeed);
 		}
     }
 
@@ -67,14 +84,15 @@ public partial class Gardener : Node
 		{
 			planterBox.PlotClicked -= OnPlotClicked;
 		}
-		if (PlantSelectionMenu is not null)
-		{
-			PlantSelectionMenu.PlantPlanted -= OnPlantPlanted;
-		}
 	}
 
 	private void OnPlotClicked(PlanterBox planterBox, int plotIndex, MouseButton button)
 	{
+		if (!Unlocks.IsPlanterUnlocked(planterBox.GrowingBiome))
+		{
+			return;
+		}
+
 		Hand hand = Hands.GetHand(button);
 		ItemData held = hand.Item;
 		Plant plant = planterBox.GetPlantAtPlot(plotIndex);
@@ -145,23 +163,25 @@ public partial class Gardener : Node
 		Dictionary<string, int> seedCounts = plantDataByName.ToDictionary(
 			entry => entry.Key,
 			entry => Seeds.Count(entry.Value));
-		PlantSelectionMenu.Open(planterBox, plotIndex, seedCounts, TryConsumeSeed);
+		PlantSelectionMenu.Open(
+			planterBox,
+			plotIndex,
+			seedCounts,
+			Unlocks.IsPlantUnlocked,
+			TryConsumeSeed);
 	}
 
 	private bool TryConsumeSeed(string offerName)
 	{
-		if (!plantDataByName.TryGetValue(offerName, out PlantData plantData) || Seeds.Count(plantData) <= 0)
+		if (!Unlocks.IsPlantUnlocked(offerName) ||
+			!plantDataByName.TryGetValue(offerName, out PlantData plantData) ||
+			Seeds.Count(plantData) <= 0)
 		{
 			return false;
 		}
 
 		Seeds.Use(plantData);
 		return true;
-	}
-
-	private void OnPlantPlanted(Plant plant)
-	{
-		plant.StageChanged += _ => CheckIfGameOver();
 	}
 
 	private void AttemptHarvest(Plant plant, PlanterBox planterBox, int plotIndex)
@@ -186,7 +206,6 @@ public partial class Gardener : Node
 		HarvestCount++;
 		EmitSignal(SignalName.PlantHarvested, HarvestCount);
 		Seeds.Add(sown, seedYield);
-		CheckIfGameOver();
 	}
 
 	private void AttemptRemovePlant(Plant plant, PlanterBox planterBox)
@@ -195,20 +214,19 @@ public partial class Gardener : Node
 		{
 			plant.QueueFree();
 		}
-		CheckIfGameOver();
 	}
 
 	private void CheckIfGameOver()
 	{
-		if (gameOver || Seeds.Total > 0 || planterBoxes.Any(box =>
-			Enumerable.Range(0, PlanterBox.PLOT_COUNT)
-				.Any(index => box.GetPlantAtPlot(index) is { IsAlive: true })))
+		if (!gameOver && CurrentCoins < CoinThreshold)
 		{
-			return;
+			gameOver = true;
+			EmitSignal(SignalName.GardenEmpty, HarvestCount);
 		}
-
-		gameOver = true;
-		EmitSignal(SignalName.GardenEmpty, HarvestCount);
+		else
+		{
+			IncreaseCoinThreshold();
+		}
 	}
 
 	private int GetNumUsedPlanterBoxes()
@@ -223,5 +241,11 @@ public partial class Gardener : Node
 		}
 
 		return numUsedPlanterBoxes;
+	}
+
+	private void IncreaseCoinThreshold()
+	{
+		CoinThreshold = CoinThreshold * 1.1f + INITIAL_COIN_THRESHOLD;
+		endlessTimer.Start();
 	}
 }

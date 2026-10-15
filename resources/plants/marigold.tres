@@ -15,3 +15,4 @@ HarvestableTime = 9.0
 DecayRate = 0.05
 InventoryDecayRate = 0.05
 GrowingBiomes = Array[int]([3])
+Unlocked = true

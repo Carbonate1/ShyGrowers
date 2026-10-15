@@ -3,7 +3,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-public sealed record SeedOffer(string Name, string PlantDataPath, string ScenePath, int Price);
+public sealed record SeedOffer(
+	string Name,
+	string PlantDataPath,
+	string ScenePath,
+	string SeedPath,
+	int Price
+);
+
 public static class SeedCatalog
 {
 	public static IReadOnlyList<SeedOffer> Offers { get; } = Array.AsReadOnly(new[]
@@ -12,55 +19,100 @@ public static class SeedCatalog
 			"Marigold",
 			"res://resources/plants/marigold.tres",
 			"res://scenes/Plants/marigold.tscn",
+			"res://assets/plants/marigold/Seed.png",
 			1),
 		new SeedOffer(
 			"Tulip",
 			"res://resources/plants/tulip.tres",
 			"res://scenes/Plants/tulip.tscn",
-			1),
+			"res://assets/plants/tulip/Seed.png",
+			2),
 		new SeedOffer(
 			"Rose",
 			"res://resources/plants/rose.tres",
 			"res://scenes/Plants/rose.tscn",
-			1),
+			"res://assets/plants/rose/Seed.png",
+			2),
 		new SeedOffer(
 			"Frostbloom",
 			"res://resources/plants/frostbloom.tres",
 			"res://scenes/Plants/frostbloom.tscn",
-			1),
+			"res://assets/plants/frostbloom/Seed.png",
+			3),
 		new SeedOffer(
 			"Ambi Rose",
 			"res://resources/plants/ambi_rose.tres",
 			"res://scenes/Plants/ambi_rose.tscn",
-			1),
+			"res://assets/plants/ambirose/Seed.png",
+			4),
 		new SeedOffer(
 			"Azure Queen",
 			"res://resources/plants/azure_queen.tres",
 			"res://scenes/Plants/azure_queen.tscn",
-			1),
+			"res://assets/plants/azure_queen/Seed.png",
+			6),
 		new SeedOffer(
 			"Neighbouring Root",
 			"res://resources/plants/neighbouring_root.tres",
 			"res://scenes/Plants/neighbouring_root.tscn",
-			1),
+			"res://assets/plants/neighbouring_root/Seed.png",
+			4),
 	});
 };
 
+public enum UnlockType
+{
+	Plant,
+	Planter
+}
+
+public sealed record UnlockOffer(
+	string Name,
+	int Price,
+	UnlockType Type,
+	Biome PlanterBiome = Biome.None,
+	string AssociatedPlantToUnlock = "None"
+);
+
+public static class UnlockCatalog
+{
+	public static IReadOnlyList<UnlockOffer> Offers { get; } = Array.AsReadOnly(new[]
+	{
+		new UnlockOffer("Spring Planter + Tulip", 8, UnlockType.Planter, Biome.Spring, "Tulip"),
+		new UnlockOffer("Summer Planter + Rose", 10, UnlockType.Planter, Biome.Summer, "Rose"),
+		new UnlockOffer("Winter Planter + Frostbloom", 12, UnlockType.Planter, Biome.Winter, "Frostbloom"),
+		new UnlockOffer("Ambi Rose", 15, UnlockType.Plant),
+		new UnlockOffer("Azure Queen", 20, UnlockType.Plant),
+		new UnlockOffer("Neighbouring Root", 25, UnlockType.Plant)
+	});
+}
+
 public partial class Shop : CanvasLayer
 {
+	private const int OFFSET_X = 450;
+	private const int OFFSET_Y = 260;
+
 	private Label coinLabel;
-	private VBoxContainer buyingItems;
-	private VBoxContainer sellingItems;
+	private TabContainer shopTabs;
+	private VBoxContainer buyingItemsTab;
+	private VBoxContainer sellingItemsTab;
+	private VBoxContainer unlockablesTab;
+	private VBoxContainer specialOrdersTab;
 	private readonly Dictionary<string, Label> marketValueLabels = new();
 	private readonly Dictionary<InventoryItem, Button> sellButtons = new();
+	private readonly Dictionary<InventoryItem, Label> sellValueLabels = new();
 	private IReadOnlyDictionary<string, int> seedStock = new Dictionary<string, int>();
 	private IReadOnlyDictionary<string, float> marketValue = new Dictionary<string, float>();
 	private IReadOnlyList<InventoryItem> inventoryItems = Array.Empty<InventoryItem>();
+	private IReadOnlyList<SpecialOrder> specialOrders = Array.Empty<SpecialOrder>();
+	private UnlockProgress unlocks;
 	private float coins;
 
 	public event Action CloseRequested;
 	public event Action<string> BuySeedRequested;
 	public event Action<InventoryItem> SellPlantRequested;
+	public event Action<string> UnlockRequested;
+	public event Action<SpecialOrder> RedeemSpecialOrderRequested;
 
 	public override void _Ready()
 	{
@@ -90,10 +142,10 @@ public partial class Shop : CanvasLayer
 			AnchorTop = 0.5f,
 			AnchorRight = 0.5f,
 			AnchorBottom = 0.5f,
-			OffsetLeft = -450,
-			OffsetTop = -260,
-			OffsetRight = 450,
-			OffsetBottom = 260,
+			OffsetLeft = -OFFSET_X,
+			OffsetTop = -OFFSET_Y,
+			OffsetRight = OFFSET_X,
+			OffsetBottom = OFFSET_Y,
 			MouseFilter = Control.MouseFilterEnum.Stop
 		};
 		AddChild(panel);
@@ -123,24 +175,17 @@ public partial class Shop : CanvasLayer
 
 	private void CreateSections(VBoxContainer content)
 	{
-		HBoxContainer sections = new HBoxContainer
+		shopTabs = new TabContainer
 		{
+			SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
 			SizeFlagsVertical = Control.SizeFlags.ExpandFill
 		};
-		content.AddChild(sections);
+		content.AddChild(shopTabs);
 
-		VBoxContainer buySection = CreateSection("Buy seeds");
-		buyingItems = new VBoxContainer();
-		buySection.AddChild(buyingItems);
-		sections.AddChild(buySection);
-
-		VBoxContainer sellSection = CreateSection("Sell plants");
-		sellingItems = new VBoxContainer();
-		sellSection.AddChild(sellingItems);
-		sections.AddChild(sellSection);
-
-		VBoxContainer ordersSection = CreateSection("Special orders");
-		sections.AddChild(ordersSection);
+		buyingItemsTab = CreateTab("Buy seeds");
+		sellingItemsTab = CreateTab("Sell plants");
+		unlockablesTab = CreateTab("Unlocks");
+		specialOrdersTab = CreateTab("Special orders");
 	}
 
 	private void CreateMarketValueDisplay(VBoxContainer content)
@@ -168,7 +213,11 @@ public partial class Shop : CanvasLayer
 	{
 		foreach (KeyValuePair<InventoryItem, Button> entry in sellButtons)
 		{
-			entry.Value.Text = $"Sell - {entry.Key.currentSellingPrice:0.00}";
+			InventoryItem item = entry.Key;
+			float multiplier = GetMarketMultiplier(item.name);
+			sellValueLabels[item].Text =
+				$"Current value: {item.currentSellingPrice:0.00} ({multiplier:0.00}x)";
+			entry.Value.Text = $"Sell - {item.currentSellingPrice * multiplier:0.00}";
 		}
 	}
 
@@ -187,76 +236,140 @@ public partial class Shop : CanvasLayer
 		float currentCoins,
 		IReadOnlyDictionary<string, int> currentSeedStock,
 		IReadOnlyList<InventoryItem> currentInventoryItems,
-		IReadOnlyDictionary<string, float> currentMarketValues)
+		IReadOnlyDictionary<string, float> currentMarketValues,
+		UnlockProgress currentUnlocks,
+		IReadOnlyList<SpecialOrder> currentSpecialOrders)
 	{
+		ArgumentNullException.ThrowIfNull(currentUnlocks);
+		ArgumentNullException.ThrowIfNull(currentSpecialOrders);
+		
 		coins = currentCoins;
 		seedStock = currentSeedStock;
 		inventoryItems = currentInventoryItems;
 		marketValue = currentMarketValues;
+		unlocks = currentUnlocks;
+		specialOrders = currentSpecialOrders;
 		UpdateMarketValueLabels();
 		Refresh();
 	}
 
-	private static VBoxContainer CreateSection(string title)
+	private VBoxContainer CreateTab(string title)
 	{
-		VBoxContainer section = new VBoxContainer
+		VBoxContainer page = new VBoxContainer
 		{
 			SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
 			SizeFlagsVertical = Control.SizeFlags.ExpandFill
 		};
-		section.AddChild(new Label
-		{
-			Text = title,
-			HorizontalAlignment = HorizontalAlignment.Center
-		});
-		section.AddChild(new HSeparator());
-		return section;
+		shopTabs.AddChild(page);
+		shopTabs.SetTabTitle(shopTabs.GetTabCount() - 1, title);
+		return page;
+	}
+
+	private float GetMarketMultiplier(string offerName)
+	{
+		return marketValue.TryGetValue(offerName, out float value) ? value : 1f;
 	}
 
 	private void Refresh()
 	{
-		if (coinLabel is null)
+		if (coinLabel is null || unlocks is null)
 		{
 			return;
 		}
 
 		coinLabel.Text = $"Coins: {coins:0.00}";
-		ClearChildren(buyingItems);
-		ClearChildren(sellingItems);
+		ClearChildren(buyingItemsTab);
+		ClearChildren(sellingItemsTab);
+		ClearChildren(unlockablesTab);
+		ClearChildren(specialOrdersTab);
 		sellButtons.Clear();
+		sellValueLabels.Clear();
 
-		foreach (SeedOffer offer in SeedCatalog.Offers)
-		{
-			seedStock.TryGetValue(offer.Name, out int count);
-			HBoxContainer row = new HBoxContainer();
-			buyingItems.AddChild(row);
-			row.AddChild(new Label
-			{
-				Text = $"{offer.Name} Seeds ({count})",
-				SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
-				VerticalAlignment = VerticalAlignment.Center
-			});
-
-			Button buyButton = new Button { Text = $"Buy - {offer.Price} coin" };
-			buyButton.Disabled = coins < offer.Price;
-			buyButton.Pressed += () => BuySeedRequested?.Invoke(offer.Name);
-			row.AddChild(buyButton);
-		}
+		RefreshSeedOffers();
+		RefreshUnlockOffers();
+		RefreshSpecialOrders();
 
 		if (inventoryItems.Count == 0)
 		{
-			sellingItems.AddChild(new Label
+			sellingItemsTab.AddChild(new Label
 			{
 				Text = "No plants to sell.",
 				HorizontalAlignment = HorizontalAlignment.Center
 			});
 			return;
 		}
+		RefreshSellingItems();
+	}
 
+	private void RefreshSeedOffers()
+	{
+		foreach (SeedOffer offer in SeedCatalog.Offers)
+		{
+			seedStock.TryGetValue(offer.Name, out int count);
+			float buyPrice = offer.Price * GetMarketMultiplier(offer.Name);
+			HBoxContainer row = new HBoxContainer();
+			buyingItemsTab.AddChild(row);
+			Texture2D seedTexture = GD.Load<Texture2D>(offer.SeedPath)
+				?? throw new InvalidOperationException($"Could not load seed icon at '{offer.SeedPath}'.");
+			row.AddChild(new TextureRect
+			{
+				Texture = seedTexture,
+				CustomMinimumSize = new Vector2(48, 48),
+				ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
+				StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
+				MouseFilter = Control.MouseFilterEnum.Ignore
+			});
+			row.AddChild(new Label
+			{
+				Text = unlocks.IsPlantUnlocked(offer.Name)
+					? $"{offer.Name} Seeds ({count})"
+					: $"{offer.Name} Seeds (locked)",
+				SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
+				VerticalAlignment = VerticalAlignment.Center
+			});
+
+			Button buyButton = new Button
+			{
+				Text = unlocks.IsPlantUnlocked(offer.Name)
+					? $"Buy - {buyPrice:0.00} coin"
+					: "Locked"
+			};
+			buyButton.Disabled = !unlocks.IsPlantUnlocked(offer.Name) || coins < buyPrice;
+			buyButton.Pressed += () => BuySeedRequested?.Invoke(offer.Name);
+			row.AddChild(buyButton);
+		}
+	}
+
+	private void RefreshUnlockOffers()
+	{
+		foreach (UnlockOffer offer in UnlockCatalog.Offers)
+		{
+			HBoxContainer row = new HBoxContainer();
+			unlockablesTab.AddChild(row);
+			row.AddChild(new Label
+			{
+				Text = offer.Name,
+				SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
+				VerticalAlignment = VerticalAlignment.Center
+			});
+
+			bool isUnlocked = IsUnlocked(offer);
+			Button unlockButton = new Button
+			{
+				Text = isUnlocked ? "Unlocked" : $"Unlock - {offer.Price} coins",
+				Disabled = isUnlocked || coins < offer.Price
+			};
+			unlockButton.Pressed += () => UnlockRequested?.Invoke(offer.Name);
+			row.AddChild(unlockButton);
+		}
+	}
+
+	private void RefreshSellingItems()
+	{
 		foreach (InventoryItem item in inventoryItems.ToArray())
 		{
 			HBoxContainer row = new HBoxContainer();
-			sellingItems.AddChild(row);
+			sellingItemsTab.AddChild(row);
 			row.AddChild(new Label
 			{
 				Text = item.name,
@@ -264,11 +377,68 @@ public partial class Shop : CanvasLayer
 				VerticalAlignment = VerticalAlignment.Center
 			});
 
-			Button sellButton = new Button { Text = $"Sell - {item.currentSellingPrice:0.00}" };
+			float multiplier = GetMarketMultiplier(item.name);
+			Label valueLabel = new Label
+			{
+				Text = $"Current value: {item.currentSellingPrice:0.00} ({multiplier:0.00}x)",
+				VerticalAlignment = VerticalAlignment.Center
+			};
+			row.AddChild(valueLabel);
+
+			Button sellButton = new Button
+			{
+				Text = $"Sell - {item.currentSellingPrice * multiplier:0.00}"
+			};
 			sellButton.Pressed += () => SellPlantRequested?.Invoke(item);
 			sellButtons.Add(item, sellButton);
+			sellValueLabels.Add(item, valueLabel);
 			row.AddChild(sellButton);
 		}
+	}
+
+	private void RefreshSpecialOrders()
+	{
+		if (specialOrders.Count == 0)
+		{
+			specialOrdersTab.AddChild(new Label
+			{
+				Text = "No special orders available.",
+				HorizontalAlignment = HorizontalAlignment.Center
+			});
+			return;
+		}
+
+		foreach (SpecialOrder order in specialOrders)
+		{
+			HBoxContainer row = new HBoxContainer();
+			specialOrdersTab.AddChild(row);
+			row.AddChild(new Label
+			{
+				Text = string.Join(", ", order.PlantNames
+					.GroupBy(name => name)
+					.Select(group => group.Count() == 1
+						? group.Key
+						: $"{group.Key} x{group.Count()}")),
+				SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
+				VerticalAlignment = VerticalAlignment.Center
+			});
+
+			bool canRedeem = order.TryGetItems(inventoryItems, out _);
+			Button redeemButton = new Button
+			{
+				Text = $"Redeem for {order.Reward:0.00} coins",
+				Disabled = !canRedeem
+			};
+			redeemButton.Pressed += () => RedeemSpecialOrderRequested?.Invoke(order);
+			row.AddChild(redeemButton);
+		}
+	}
+
+	private bool IsUnlocked(UnlockOffer offer)
+	{
+		return offer.Type == UnlockType.Plant
+			? unlocks.IsPlantUnlocked(offer.Name)
+			: unlocks.IsPlanterUnlocked(offer.PlanterBiome);
 	}
 
 	private static void ClearChildren(Node parent)

@@ -6,6 +6,7 @@ public partial class PlantOverview : CanvasLayer
 {
 	private const float MAX_GROWTH_TIME = 15;
 	private const float MAX_DECAY_RATE = 0.2f;
+	private const int LAYER = 11;
 
 	private static readonly IReadOnlyDictionary<Biome, string> BiomeNodeNames =
 		new Dictionary<Biome, string>
@@ -31,7 +32,7 @@ public partial class PlantOverview : CanvasLayer
 
 	public override void _Ready()
 	{
-		Layer = 11;
+		Layer = LAYER;
 		biomeIcons = GetRequiredNode<Node2D>("BiomeIcons");
 		decayBar = GetRequiredNode<Node2D>("DecayBar");
 		growthBar = GetRequiredNode<Node2D>("GrowthBar");

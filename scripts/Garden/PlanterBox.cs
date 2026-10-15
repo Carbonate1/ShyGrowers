@@ -22,7 +22,7 @@ public partial class PlanterBox : Node3D
 {
 	[Signal] public delegate void PlotClickedEventHandler(PlanterBox planterBox, int plotIndex, MouseButton button);
 
-	private sealed record PlantPlacement(Plant Plant, PlantData Seeds, int FirstPlot, int PlotCount);
+	private sealed record PlantPlacement(Plant Plant, int FirstPlot, int PlotCount);
 	public const int PLOT_COUNT = 6;
 
 	[Export] public float LookAwaySpeed { get; set; } = 3f;
@@ -90,7 +90,7 @@ public partial class PlanterBox : Node3D
 	public PlantData GetSeedsAtPlot(int plotIndex)
 	{
 		ValidatePlotIndex(plotIndex);
-		return FindPlacementAtPlot(plotIndex)?.Seeds;
+		return FindPlacementAtPlot(plotIndex)?.Plant.Data;
 	}
 
 	public Vector3 GetPlotGlobalPosition(int plotIndex)
@@ -139,7 +139,7 @@ public partial class PlanterBox : Node3D
 		return false;
 	}
 
-	public bool TryPlant(Plant plant, int firstPlot, PlantData seeds = null)
+	public bool TryPlant(Plant plant, int firstPlot)
 	{
 		ArgumentNullException.ThrowIfNull(plant);
 		if (plant.GetParent() is not null ||
@@ -152,7 +152,7 @@ public partial class PlanterBox : Node3D
 		int plotCount = plant.Data.PlantSize;
 		AddChild(plant);
 		plant.Position = GetPlantPosition(firstPlot, plotCount);
-		placements.Add(new PlantPlacement(plant, seeds, firstPlot, plotCount));
+		placements.Add(new PlantPlacement(plant, firstPlot, plotCount));
 
 		return true;
 	}
