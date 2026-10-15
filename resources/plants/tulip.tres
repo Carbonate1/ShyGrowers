@@ -9,6 +9,7 @@ script = ExtResource("1_qn7qb")
 [resource]
 script = ExtResource("1_plant_data")
 DisplayName = "Tulip"
-DecayRate = 0.05
-InventoryDecayRate = 0.05
+OptimalSaleValue = 7
+DecayRate = 0.03
+InventoryDecayRate = 0.005
 GrowingBiomes = Array[int]([1])
