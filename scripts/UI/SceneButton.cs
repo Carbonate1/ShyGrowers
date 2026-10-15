@@ -13,6 +13,7 @@ public partial class SceneButton : Button
 		}
 		else
 		{
+			GetTree().Paused = false;
 			GetTree().ChangeSceneToFile(Scene);
 		}
 	}
