@@ -230,7 +230,7 @@ theme_override_constants/separation = 18
 [node name="Title" type="Label" parent="Screen/EndScreen/Center/Panel/Layout"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 60
-text = "out of seeds..."
+text = "You couldn't meet the next coin threshold."
 horizontal_alignment = 1
 
 [node name="Score" type="Label" parent="Screen/EndScreen/Center/Panel/Layout"]

@@ -23,11 +23,13 @@ public partial class Gardener : Node
 	public int HarvestCount { get; private set; }
 	public float CoinThreshold;
 	public float CurrentCoins => ShopController.CurrentCoins;
+	public uint ThresholdsCompleted => thresholdsCompleted;
 
 	public readonly Timer endlessTimer = new();
 	private readonly List<PlanterBox> planterBoxes = new();
 	private readonly Dictionary<string, PlantData> plantDataByName = new();
 	private bool gameOver;
+	private uint thresholdsCompleted;
 
 	public override void _Ready()
 	{
@@ -61,6 +63,7 @@ public partial class Gardener : Node
 		endlessTimer.OneShot = true;
 		endlessTimer.Start();
 		endlessTimer.Timeout += CheckIfGameOver;
+		thresholdsCompleted = 0;
 	}
 
     public override void _Process(double delta)
@@ -245,6 +248,7 @@ public partial class Gardener : Node
 
 	private void IncreaseCoinThreshold()
 	{
+		thresholdsCompleted++;
 		CoinThreshold = CoinThreshold * 1.1f + INITIAL_COIN_THRESHOLD;
 		endlessTimer.Start();
 	}

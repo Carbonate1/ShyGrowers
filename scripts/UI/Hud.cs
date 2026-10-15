@@ -21,6 +21,7 @@ public partial class Hud : CanvasLayer
 	[Export] public Container SeedCounters { get; set; }
 	[Export] public Control EndScreen { get; set; }
 	[Export] public Label EndScore { get; set; }
+	[Export] public Label Title { get; set; }
 
 	private List<ItemSlot> drawerSlots;
 
@@ -48,6 +49,8 @@ public partial class Hud : CanvasLayer
 		ShowSeeds();
 		ShowHarvested(0);
 		ViewName.Text = Camera.CurrentView.Name;
+
+		Title = GetNode<Label>("Screen/EndScreen/Center/Panel/Layout/Title");
 	}
 
     public override void _Process(double delta)
@@ -113,6 +116,7 @@ public partial class Hud : CanvasLayer
 	private void OnGardenEmpty(int total)
 	{
 		Drawer.Close();
+		Title.Text += $"\nThresholds Completed: {Gardener.ThresholdsCompleted}";
 		EndScore.Text = total == 1 ? "you grew 1 flower" : $"you grew {total} flowers";
 		EndScreen.Show();
 	}
