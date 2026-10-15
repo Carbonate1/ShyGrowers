@@ -1,0 +1,88 @@
+[gd_scene format=3 uid="uid://br5jhcv8rcon4"]
+
+[ext_resource type="Script" uid="uid://bbmxa51m08fql" path="res://scripts/Plants/Plant.cs" id="1_8ydng"]
+[ext_resource type="Resource" path="res://resources/plants/frostbloom.tres" id="2_7y1u1"]
+[ext_resource type="Texture2D" uid="uid://wuojdxkpqbel" path="res://assets/plants/nocturnal/NocturnalPlantV1.png" id="3_f0aib"]
+[ext_resource type="FontFile" uid="uid://dd35x1qab7atj" path="res://assets/fonts/KiwiSoda.ttf" id="4_byl8v"]
+
+[node name="Nocturnal" type="Node3D" unique_id=833167039 node_paths=PackedStringArray("Stages", "NeedLabel")]
+script = ExtResource("1_8ydng")
+Data = ExtResource("2_7y1u1")
+Stages = NodePath("Stages")
+NeedLabel = NodePath("NeedLabel")
+
+[node name="Stages" type="Node3D" parent="." unique_id=707625461]
+
+[node name="Planted" type="Sprite3D" parent="Stages" unique_id=1506055049]
+visible = false
+offset = Vector2(0, 32)
+pixel_size = 0.0055
+shaded = true
+alpha_cut = 1
+texture_filter = 0
+texture = ExtResource("3_f0aib")
+hframes = 6
+
+[node name="Growing1" type="Sprite3D" parent="Stages" unique_id=1659361331]
+visible = false
+offset = Vector2(0, 32)
+pixel_size = 0.0055
+shaded = true
+alpha_cut = 1
+texture_filter = 0
+texture = ExtResource("3_f0aib")
+hframes = 6
+frame = 1
+
+[node name="Growing2" type="Sprite3D" parent="Stages" unique_id=313347368]
+visible = false
+offset = Vector2(0, 32)
+pixel_size = 0.0055
+shaded = true
+alpha_cut = 1
+texture_filter = 0
+texture = ExtResource("3_f0aib")
+hframes = 6
+frame = 2
+
+[node name="Harvestable" type="Sprite3D" parent="Stages" unique_id=637440330]
+visible = false
+offset = Vector2(0, 32)
+pixel_size = 0.0055
+shaded = true
+alpha_cut = 1
+texture_filter = 0
+texture = ExtResource("3_f0aib")
+hframes = 6
+frame = 3
+
+[node name="Decaying" type="Sprite3D" parent="Stages" unique_id=1359722308]
+visible = false
+offset = Vector2(0, 32)
+pixel_size = 0.0055
+shaded = true
+alpha_cut = 1
+texture_filter = 0
+texture = ExtResource("3_f0aib")
+hframes = 6
+frame = 4
+
+[node name="Dead" type="Sprite3D" parent="Stages" unique_id=1312129991]
+visible = false
+offset = Vector2(0, 32)
+pixel_size = 0.0055
+shaded = true
+alpha_cut = 1
+texture_filter = 0
+texture = ExtResource("3_f0aib")
+hframes = 6
+frame = 5
+
+[node name="NeedLabel" type="Label3D" parent="." unique_id=1148308545]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.42, 0.02)
+pixel_size = 0.0009
+billboard = 1
+modulate = Color(1, 0.97, 0.9, 1)
+outline_modulate = Color(0.3, 0.18, 0.12, 1)
+font = ExtResource("4_byl8v")
+font_size = 44

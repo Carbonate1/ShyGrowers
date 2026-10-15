@@ -4,9 +4,7 @@
 [ext_resource type="PackedScene" path="res://assets/models/table.glb" id="2_model"]
 [ext_resource type="Script" path="res://scripts/Items/ItemData.cs" id="3_item"]
 [ext_resource type="Resource" path="res://resources/items/hoe.tres" id="4_hoe"]
-[ext_resource type="Resource" path="res://resources/items/trowel.tres" id="6_trowel"]
-[ext_resource type="Resource" path="res://resources/items/marigold_seeds.tres" id="7_marigold_seeds"]
-[ext_resource type="Resource" path="res://resources/items/rose_seeds.tres" id="8_rose_seeds"]
+[ext_resource type="Resource" path="res://resources/items/harvesting_bag.tres" id="6_bag"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_handle"]
 size = Vector3(0.56, 0.12, 0.065)
@@ -25,7 +23,7 @@ script = ExtResource("1_drawer")
 Animator = NodePath("Model/AnimationPlayer")
 Slots = NodePath("Model/Cube_025/Slots")
 SlotSize = Vector3(0.1, 0.09, 0.19)
-Items = Array[ExtResource("3_item")]([ExtResource("4_hoe"), ExtResource("6_trowel"), ExtResource("7_marigold_seeds"), ExtResource("8_rose_seeds")])
+Items = Array[ExtResource("3_item")]([ExtResource("4_hoe"), ExtResource("6_bag")])
 
 [node name="Model" parent="." instance=ExtResource("2_model")]
 

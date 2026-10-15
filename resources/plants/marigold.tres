@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="PlantData" format=3 uid="uid://4e4etabrjex5"]
+
+[ext_resource type="Script" uid="uid://crbi4mw4l72u1" path="res://scripts/Plants/PlantData.cs" id="1_plant_data"]
+[ext_resource type="Script" uid="uid://q74ck1mhukdx" path="res://scripts/Plants/AdjacencyBonus.cs" id="1_wpek1"]
+
+[sub_resource type="Resource" id="Resource_p2kll"]
+script = ExtResource("1_wpek1")
+
+[resource]
+script = ExtResource("1_plant_data")
+DisplayName = "Marigold"
+OptimalSaleValue = 5
+GrowthTime = 8.0
+HarvestableTime = 9.0
+DecayRate = 0.05
+InventoryDecayRate = 0.05
+GrowingBiomes = Array[int]([3])

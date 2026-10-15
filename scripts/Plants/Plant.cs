@@ -1,16 +1,24 @@
 using Godot;
+using System;
 
 public enum Care
 {
 	None,
-	Water,
-	Fertilizer,
-	Weed
+	Watering,
+	Fertilizing,
+	Weeding
 }
 
 [GlobalClass]
 public partial class Plant : Node3D
 {
+	private const float MINIMUM_SALE_VALUE = 1f;
+	private const float WRONG_CARE_PUNISHMENT = 0.3f;
+	private const float QUICK_CARE_BONUS = 0.5f;
+	private const float TIME_FOR_QUICK_CARE_BONUS = 5f;
+	private const int NUM_SPRITE_FRAMES = 6;
+
+	
 	public enum Stage
 	{
 		Planted,
@@ -23,12 +31,8 @@ public partial class Plant : Node3D
 
 	[Signal] public delegate void StageChangedEventHandler(Plant plant);
 
-	[Export] public float GrowthTime { get; set; } = 10f;
-	[Export] public float HarvestableTime { get; set; } = 10f;
-	[Export] public float DecayTime { get; set; } = 5f;
-	[Export] public ItemData Produce { get; set; }
+	[Export] public PlantData Data { get; set; }
 	[Export] public Vector2I SeedYield { get; set; } = new(1, 2);
-	[Export] public Care FirstNeed { get; set; } = Care.Water;
 
 	[ExportGroup("Nodes")]
 	[Export] public Node3D Stages { get; set; }
@@ -36,81 +40,177 @@ public partial class Plant : Node3D
 
 	public Stage CurrentStage { get; private set; }
 	public Care CareNeeded { get; private set; }
-	public float TimeScale { get; set; } = 1f;
-	public bool IsHarvestable => CurrentStage == Stage.Harvestable;
-	public bool IsAlive => CurrentStage < Stage.Decaying;
+	public float TimeScale { get; internal set; } = 1f;
+	public bool IsHarvestable => CurrentStage is Stage.Harvestable or Stage.Decaying;
+	public bool IsGrowing => CurrentStage <= Stage.Harvestable;
+	public bool IsAlive => IsGrowing || CurrentStage == Stage.Decaying;
+	public float GetSaleValue => saleValue;
 
-	private float stageTime;
-
-	private float StageLength => CurrentStage switch
-	{
-		Stage.Harvestable => HarvestableTime,
-		Stage.Decaying => DecayTime,
-		_ => GrowthTime
-	};
+	private double timeElapsed;
+	private float saleValue;
+	private bool decayingSaleValueApplied;
+	private readonly Random random = new();
+	private readonly Timer waitingForCare = new(); // If care is given before the timer stops, the plant's sale value incrases
+												   // Start timer when care is selected
 
 	public override void _Ready()
 	{
-		CareNeeded = FirstNeed;
+		ValidateConfiguration();
+
+		AddChild(waitingForCare);
+		waitingForCare.OneShot = true;
+		waitingForCare.WaitTime = TIME_FOR_QUICK_CARE_BONUS;
+
+		saleValue = Data.OptimalSaleValue;
+		CareNeeded = Care.Watering;
+		waitingForCare.Start();
+		
 		ShowStage();
 	}
 
 	public override void _Process(double delta)
 	{
-		if (CareNeeded != Care.None || CurrentStage == Stage.Dead)
+		if (CurrentStage != Stage.Dead && CareNeeded == Care.None)
 		{
-			return;
+			timeElapsed += delta * TimeScale;
+			if (timeElapsed >= StageDuration)
+			{
+				timeElapsed = 0;
+				if (CurrentStage is Stage.Planted or Stage.Growing1 or Stage.Growing2)
+				{
+					CareNeeded = SelectCare();
+					UpdateLabel();
+				}
+				else
+				{
+					Advance();
+				}
+			}
 		}
 
-		stageTime += (float)delta * TimeScale;
-		if (stageTime < StageLength)
-		{
-			return;
-		}
-
-		if (CurrentStage < Stage.Harvestable)
-		{
-			CareNeeded = (Care)GD.RandRange(1, 3);
-			UpdateLabel();
-		}
-		else
-		{
-			Advance();
-		}
+		UpdateSaleValue(delta * TimeScale);
+		UpdateLabel();
 	}
 
-	public bool GiveCare(Care care)
+	private Care SelectCare()
 	{
-		if (care == Care.None || care != CareNeeded)
+		waitingForCare.Start();
+		return (Care)random.Next((int)Care.Watering, (int)Care.Weeding + 1);
+	}
+	public bool CompleteCare(Care completedCare)
+	{
+		if (completedCare == Care.None ||
+			CurrentStage is not (Stage.Planted or Stage.Growing1 or Stage.Growing2))
 		{
 			return false;
 		}
 
+		if (completedCare != CareNeeded)
+		{
+			saleValue -= WRONG_CARE_PUNISHMENT;
+			return false;
+		}
+
 		CareNeeded = Care.None;
+		timeElapsed = 0;
+		
+		if (!waitingForCare.IsStopped())
+		{
+			saleValue += QUICK_CARE_BONUS;
+		}
 		Advance();
 		return true;
 	}
 
-	public int RollSeeds()
+	public int GetSeedYield()
 	{
 		return GD.RandRange(SeedYield.X, SeedYield.Y);
 	}
 
+	private double StageDuration => CurrentStage switch
+	{
+		Stage.Harvestable => Data.HarvestableTime,
+		Stage.Decaying => Data.DecayTime,
+		_ => Data.GrowthTime
+	};
+
+	private void ValidateConfiguration()
+	{
+		ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(Data.GrowthTime, 0);
+		ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(Data.HarvestableTime, 0);
+		ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(Data.DecayRate, 0);
+		ArgumentNullException.ThrowIfNull(Data);
+		ArgumentException.ThrowIfNullOrWhiteSpace(Data.DisplayName);
+		ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(Data.OptimalSaleValue, 0);
+		ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(Data.InventoryDecayRate, 0);
+		ArgumentOutOfRangeException.ThrowIfLessThan(Data.PlantSize, 1);
+		ArgumentOutOfRangeException.ThrowIfGreaterThan(Data.PlantSize, PlanterBox.PLOT_COUNT);
+		ArgumentNullException.ThrowIfNull(Data.Adjacency);
+	}
+
+	private void UpdateSaleValue(double delta)
+	{
+		if (CurrentStage == Stage.Dead)
+		{
+			return;
+		}
+
+		if (CareNeeded != Care.None || CurrentStage == Stage.Decaying)
+		{
+			saleValue -= Data.DecayRate * (float)delta;
+		}
+
+		if (CurrentStage == Stage.Decaying && !decayingSaleValueApplied)
+		{
+			saleValue -= 1f;
+			decayingSaleValueApplied = true;
+		}
+
+		if (saleValue <= MINIMUM_SALE_VALUE)
+		{
+			saleValue = MINIMUM_SALE_VALUE;
+			SetStage(Stage.Dead); // TODO: This doesn't update the visual state
+		}
+	}
+
 	private void Advance()
 	{
-		CurrentStage++;
-		stageTime = 0f;
+		Stage nextStage = CurrentStage switch
+		{
+			Stage.Planted => Stage.Growing1,
+			Stage.Growing1 => Stage.Growing2,
+			Stage.Growing2 => Stage.Harvestable,
+			Stage.Harvestable => Stage.Decaying,
+			Stage.Decaying => Stage.Dead,
+			_ => Stage.Dead
+		};
+
+		SetStage(nextStage);
+	}
+
+	private void SetStage(Stage stage)
+	{
+		if (CurrentStage == stage)
+		{
+			return;
+		}
+
+		CurrentStage = stage;
+		timeElapsed = 0;
 		ShowStage();
 		EmitSignal(SignalName.StageChanged, this);
 	}
 
 	private void ShowStage()
 	{
-		foreach (Node child in Stages.GetChildren())
+		if (Stages is not null)
 		{
-			if (child is Node3D stage)
+			foreach (Node child in Stages.GetChildren())
 			{
-				stage.Visible = stage.Name.ToString() == CurrentStage.ToString();
+				if (child is Node3D stage)
+				{
+					stage.Visible = stage.Name == CurrentStage.ToString();
+				}
 			}
 		}
 
@@ -126,9 +226,9 @@ public partial class Plant : Node3D
 
 		NeedLabel.Text = CareNeeded switch
 		{
-			Care.Water => "thirsty",
-			Care.Fertilizer => "hungry",
-			Care.Weed => "weedy",
+			Care.Watering => "thirsty",
+			Care.Fertilizing => "hungry",
+			Care.Weeding => "weedy",
 			_ => CurrentStage switch
 			{
 				Stage.Harvestable => "ready!",
@@ -136,6 +236,31 @@ public partial class Plant : Node3D
 				Stage.Dead => "gone",
 				_ => ""
 			}
+		}  	+ $"\nGrowing time: {Math.Round(timeElapsed, 1)}/{StageDuration}"
+			+ $"\nSale Value: {Math.Round(saleValue, 2)}";
+	}
+
+	public Texture2D GetHarvestableTexture()
+	{
+		Sprite3D sprite = Stages?.GetNodeOrNull<Sprite3D>(nameof(Stage.Harvestable));
+		if (sprite?.Texture is not Texture2D texture)
+		{
+			return null;
+		}
+
+		int columns = Math.Max(sprite.Hframes, 1);
+		Vector2 textureSize = texture.GetSize();
+		Vector2 frameSize = new(
+			textureSize.X / columns,
+			textureSize.Y);
+		Vector2 framePosition = new(
+			sprite.Frame % columns * frameSize.X,
+			sprite.Frame / columns * frameSize.Y);
+
+		return new AtlasTexture
+		{
+			Atlas = texture,
+			Region = new Rect2(framePosition, frameSize)
 		};
 	}
 }

@@ -1,22 +1,19 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://kd3o171p0wls"]
 
-[ext_resource type="Script" path="res://scripts/Plants/Plant.cs" id="1_plant"]
-[ext_resource type="Resource" path="res://resources/items/marigold.tres" id="2_produce"]
-[ext_resource type="FontFile" path="res://assets/fonts/KiwiSoda.ttf" id="3_font"]
-[ext_resource type="Texture2D" path="res://assets/plants/marigold/AutumnPlantStages_V1.png" id="4_stages"]
+[ext_resource type="Script" uid="uid://bbmxa51m08fql" path="res://scripts/Plants/Plant.cs" id="1_plant"]
+[ext_resource type="Resource" path="res://resources/plants/marigold.tres" id="2_plant_data"]
+[ext_resource type="FontFile" uid="uid://dd35x1qab7atj" path="res://assets/fonts/KiwiSoda.ttf" id="3_font"]
+[ext_resource type="Texture2D" uid="uid://wf1oj5b7uj4" path="res://assets/plants/marigold/AutumnPlantStages_V1.png" id="4_stages"]
 
-[node name="Marigold" type="Node3D" node_paths=PackedStringArray("Stages", "NeedLabel")]
+[node name="Marigold" type="Node3D" unique_id=1007460490 node_paths=PackedStringArray("Stages", "NeedLabel")]
 script = ExtResource("1_plant")
-GrowthTime = 8.0
-HarvestableTime = 9.0
-DecayTime = 5.0
-Produce = ExtResource("2_produce")
+Data = ExtResource("2_plant_data")
 Stages = NodePath("Stages")
 NeedLabel = NodePath("NeedLabel")
 
-[node name="Stages" type="Node3D" parent="."]
+[node name="Stages" type="Node3D" parent="." unique_id=1422295238]
 
-[node name="Planted" type="Sprite3D" parent="Stages"]
+[node name="Planted" type="Sprite3D" parent="Stages" unique_id=253568543]
 offset = Vector2(0, 32)
 pixel_size = 0.0055
 shaded = true
@@ -25,7 +22,7 @@ texture_filter = 0
 texture = ExtResource("4_stages")
 hframes = 6
 
-[node name="Growing1" type="Sprite3D" parent="Stages"]
+[node name="Growing1" type="Sprite3D" parent="Stages" unique_id=878731650]
 visible = false
 offset = Vector2(0, 32)
 pixel_size = 0.0055
@@ -36,7 +33,7 @@ texture = ExtResource("4_stages")
 hframes = 6
 frame = 1
 
-[node name="Growing2" type="Sprite3D" parent="Stages"]
+[node name="Growing2" type="Sprite3D" parent="Stages" unique_id=1513149965]
 visible = false
 offset = Vector2(0, 32)
 pixel_size = 0.0055
@@ -47,7 +44,7 @@ texture = ExtResource("4_stages")
 hframes = 6
 frame = 2
 
-[node name="Harvestable" type="Sprite3D" parent="Stages"]
+[node name="Harvestable" type="Sprite3D" parent="Stages" unique_id=1673265048]
 visible = false
 offset = Vector2(0, 32)
 pixel_size = 0.0055
@@ -58,7 +55,7 @@ texture = ExtResource("4_stages")
 hframes = 6
 frame = 3
 
-[node name="Decaying" type="Sprite3D" parent="Stages"]
+[node name="Decaying" type="Sprite3D" parent="Stages" unique_id=918919583]
 visible = false
 offset = Vector2(0, 32)
 pixel_size = 0.0055
@@ -69,7 +66,7 @@ texture = ExtResource("4_stages")
 hframes = 6
 frame = 4
 
-[node name="Dead" type="Sprite3D" parent="Stages"]
+[node name="Dead" type="Sprite3D" parent="Stages" unique_id=694822397]
 visible = false
 offset = Vector2(0, 32)
 pixel_size = 0.0055
@@ -80,12 +77,11 @@ texture = ExtResource("4_stages")
 hframes = 6
 frame = 5
 
-[node name="NeedLabel" type="Label3D" parent="."]
-position = Vector3(0, 0.42, 0.02)
+[node name="NeedLabel" type="Label3D" parent="." unique_id=1849265958]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.42, 0.02)
 pixel_size = 0.0009
 billboard = 1
 modulate = Color(1, 0.97, 0.9, 1)
 outline_modulate = Color(0.3, 0.18, 0.12, 1)
 font = ExtResource("3_font")
 font_size = 44
-outline_size = 12

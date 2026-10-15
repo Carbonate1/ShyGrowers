@@ -3,7 +3,7 @@ using Godot;
 [GlobalClass]
 public partial class SeedCounter : Label
 {
-	[Export] public ItemData Seeds { get; set; }
+	[Export] public PlantData Seeds { get; set; }
 
 	public void ShowCount(int count)
 	{

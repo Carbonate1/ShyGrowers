@@ -1,16 +1,13 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/Plants/Plant.cs" id="1_plant"]
-[ext_resource type="Resource" path="res://resources/items/rose.tres" id="2_produce"]
+[ext_resource type="Resource" path="res://resources/plants/rose.tres" id="2_plant_data"]
 [ext_resource type="FontFile" path="res://assets/fonts/KiwiSoda.ttf" id="3_font"]
 [ext_resource type="Texture2D" path="res://assets/plants/rose/SummerPlantStages_V1.png" id="4_stages"]
 
 [node name="Rose" type="Node3D" node_paths=PackedStringArray("Stages", "NeedLabel")]
 script = ExtResource("1_plant")
-GrowthTime = 12.0
-HarvestableTime = 10.0
-DecayTime = 5.0
-Produce = ExtResource("2_produce")
+Data = ExtResource("2_plant_data")
 Stages = NodePath("Stages")
 NeedLabel = NodePath("NeedLabel")
 

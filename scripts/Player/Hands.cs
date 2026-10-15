@@ -1,29 +1,54 @@
 using Godot;
+using System;
 
 [GlobalClass]
 public partial class Hands : Node
 {
 	[Signal] public delegate void ChangedEventHandler();
 
-	[Export] public ItemData Left { get; set; }
-	[Export] public ItemData Right { get; set; }
+	[Export] public Hand LeftHand { get; set; }
+	[Export] public Hand RightHand { get; set; }
 
-	public ItemData Get(MouseButton button)
+	public override void _Ready()
 	{
-		return button == MouseButton.Right ? Right : Left;
+		ArgumentNullException.ThrowIfNull(LeftHand);
+		ArgumentNullException.ThrowIfNull(RightHand);
+		if (LeftHand == RightHand)
+		{
+			throw new InvalidOperationException("Hands must reference different Hand nodes.");
+		}
+
+		LeftHand.ItemChanged += OnHandItemChanged;
+		RightHand.ItemChanged += OnHandItemChanged;
 	}
 
-	public void Set(MouseButton button, ItemData item)
+	public override void _ExitTree()
 	{
-		if (button == MouseButton.Right)
+		if (LeftHand is not null)
 		{
-			Right = item;
+			LeftHand.ItemChanged -= OnHandItemChanged;
+		}
+
+		if (RightHand is not null)
+		{
+			RightHand.ItemChanged -= OnHandItemChanged;
+		}
+	}
+
+	public Hand GetHand(MouseButton button)
+	{
+		if (button == MouseButton.Left)
+		{
+			return LeftHand;
 		}
 		else
 		{
-			Left = item;
+			return RightHand;
 		}
+	}
 
+	private void OnHandItemChanged()
+	{
 		EmitSignal(SignalName.Changed);
 	}
 }

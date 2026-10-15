@@ -1,21 +1,13 @@
 [gd_scene format=3 uid="uid://hu6oo0rp7kjb"]
 
 [ext_resource type="Script" path="res://scripts/Plants/Plant.cs" id="1_plant"]
-[ext_resource type="Resource" path="res://resources/items/tulip.tres" id="2_produce"]
+[ext_resource type="Resource" path="res://resources/plants/tulip.tres" id="2_plant_data"]
 [ext_resource type="FontFile" path="res://assets/fonts/KiwiSoda.ttf" id="3_font"]
-[ext_resource type="Texture2D" path="res://assets/plants/tulip/tulipPlanted.png" id="4_planted"]
-[ext_resource type="Texture2D" path="res://assets/plants/tulip/tulipGrowing1.png" id="5_growing1"]
-[ext_resource type="Texture2D" path="res://assets/plants/tulip/tulipGrowing2.png" id="6_growing2"]
-[ext_resource type="Texture2D" path="res://assets/plants/tulip/tulipHarvestable.png" id="7_harvestable"]
-[ext_resource type="Texture2D" path="res://assets/plants/tulip/tulipDecaying.png" id="8_decaying"]
-[ext_resource type="Texture2D" path="res://assets/plants/tulip/tulipDead.png" id="9_dead"]
+[ext_resource type="Texture2D" path="res://assets/plants/tulip/SpringPlantStages_V1.png" id="4_stages"]
 
 [node name="Tulip" type="Node3D" node_paths=PackedStringArray("Stages", "NeedLabel")]
 script = ExtResource("1_plant")
-GrowthTime = 10.0
-HarvestableTime = 10.0
-DecayTime = 5.0
-Produce = ExtResource("2_produce")
+Data = ExtResource("2_plant_data")
 Stages = NodePath("Stages")
 NeedLabel = NodePath("NeedLabel")
 
@@ -27,7 +19,8 @@ pixel_size = 0.0055
 shaded = true
 alpha_cut = 1
 texture_filter = 0
-texture = ExtResource("4_planted")
+texture = ExtResource("4_stages")
+hframes = 6
 
 [node name="Growing1" type="Sprite3D" parent="Stages"]
 visible = false
@@ -36,7 +29,9 @@ pixel_size = 0.0055
 shaded = true
 alpha_cut = 1
 texture_filter = 0
-texture = ExtResource("5_growing1")
+texture = ExtResource("4_stages")
+hframes = 6
+frame = 1
 
 [node name="Growing2" type="Sprite3D" parent="Stages"]
 visible = false
@@ -45,7 +40,9 @@ pixel_size = 0.0055
 shaded = true
 alpha_cut = 1
 texture_filter = 0
-texture = ExtResource("6_growing2")
+texture = ExtResource("4_stages")
+hframes = 6
+frame = 2
 
 [node name="Harvestable" type="Sprite3D" parent="Stages"]
 visible = false
@@ -54,7 +51,9 @@ pixel_size = 0.0055
 shaded = true
 alpha_cut = 1
 texture_filter = 0
-texture = ExtResource("7_harvestable")
+texture = ExtResource("4_stages")
+hframes = 6
+frame = 3
 
 [node name="Decaying" type="Sprite3D" parent="Stages"]
 visible = false
@@ -63,7 +62,9 @@ pixel_size = 0.0055
 shaded = true
 alpha_cut = 1
 texture_filter = 0
-texture = ExtResource("8_decaying")
+texture = ExtResource("4_stages")
+hframes = 6
+frame = 4
 
 [node name="Dead" type="Sprite3D" parent="Stages"]
 visible = false
@@ -72,7 +73,9 @@ pixel_size = 0.0055
 shaded = true
 alpha_cut = 1
 texture_filter = 0
-texture = ExtResource("9_dead")
+texture = ExtResource("4_stages")
+hframes = 6
+frame = 5
 
 [node name="NeedLabel" type="Label3D" parent="."]
 position = Vector3(0, 0.42, 0.02)

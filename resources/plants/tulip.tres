@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="PlantData" format=3 uid="uid://baqtalvlfeqv2"]
+
+[ext_resource type="Script" uid="uid://crbi4mw4l72u1" path="res://scripts/Plants/PlantData.cs" id="1_plant_data"]
+[ext_resource type="Script" uid="uid://q74ck1mhukdx" path="res://scripts/Plants/AdjacencyBonus.cs" id="1_qn7qb"]
+
+[sub_resource type="Resource" id="Resource_p2kll"]
+script = ExtResource("1_qn7qb")
+
+[resource]
+script = ExtResource("1_plant_data")
+DisplayName = "Tulip"
+DecayRate = 0.05
+InventoryDecayRate = 0.05
+GrowingBiomes = Array[int]([1])
