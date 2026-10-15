@@ -17,10 +17,7 @@
 [ext_resource type="PackedScene" path="res://scenes/Items/fertilizer.tscn" id="15_fertilizer"]
 [ext_resource type="Script" uid="uid://cgq3lem6bsqjb" path="res://scripts/Garden/SeedStock.cs" id="16_seed_stock"]
 [ext_resource type="Script" uid="uid://crbi4mw4l72u1" path="res://scripts/Plants/PlantData.cs" id="17_plant_data"]
-[ext_resource type="Resource" path="res://resources/plants/marigold.tres" id="18_marigold"]
-[ext_resource type="Resource" path="res://resources/plants/rose.tres" id="19_rose"]
-[ext_resource type="Resource" path="res://resources/plants/frostbloom.tres" id="20_frostbloom"]
-[ext_resource type="Resource" path="res://resources/plants/tulip.tres" id="21_tulip"]
+[ext_resource type="Resource" path="res://resources/plants/marigold.tres" id="18_marigold"] ; TODO: Refactor this into the seed packets, not just a marigold seed
 [ext_resource type="PackedScene" uid="uid://b11q3catg01hu" path="res://scenes/Canvases/inventory.tscn" id="22_inventory"]
 [ext_resource type="Script" uid="uid://op2c8xg86hvs" path="res://scripts/Canvases/ShopController.cs" id="23_shop_controller"]
 [ext_resource type="PackedScene" uid="uid://v0ysbnsbn1m0" path="res://scenes/Canvases/shop.tscn" id="24_shop"]
