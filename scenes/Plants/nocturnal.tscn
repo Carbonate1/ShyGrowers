@@ -90,4 +90,3 @@ font_size = 35
 [node name="StatusSprite" type="Sprite3D" parent="." unique_id=1463703913]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.55, 0)
 visible = false
-texture = ExtResource("5_7y1u1")
