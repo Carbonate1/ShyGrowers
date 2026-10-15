@@ -223,7 +223,7 @@ public partial class ShopController : Node
 			return;
 		}
 
-		if (offer.AssociatedPlantToUnlock is not null)
+		if (offer.AssociatedPlantToUnlock != "None")
 		{
 			Unlocks.UnlockPlant(offer.AssociatedPlantToUnlock);
 		}

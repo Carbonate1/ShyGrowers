@@ -63,7 +63,7 @@ public sealed record UnlockOffer(
 	int Price,
 	UnlockType Type,
 	Biome PlanterBiome = Biome.None,
-	string AssociatedPlantToUnlock = null
+	string AssociatedPlantToUnlock = "None"
 );
 
 public static class UnlockCatalog

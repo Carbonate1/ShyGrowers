@@ -245,7 +245,7 @@ public partial class Plant : Node3D
 		Sprite3D sprite = Stages?.GetNodeOrNull<Sprite3D>(nameof(Stage.Harvestable));
 		if (sprite?.Texture is not Texture2D texture)
 		{
-			return null;
+			throw new TypeAccessException($"Unable to retrieve {Data.DisplayName}'s harvestable sprite");
 		}
 
 		int columns = Math.Max(sprite.Hframes, 1);
