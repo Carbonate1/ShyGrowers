@@ -3,6 +3,10 @@
 [ext_resource type="Script" path="res://scripts/Garden/PlanterBox.cs" id="1_box"]
 [ext_resource type="Script" path="res://scripts/Garden/Plot.cs" id="2_plot"]
 [ext_resource type="PackedScene" path="res://assets/models/planter_box.glb" id="3_model"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/seeds.ogg" id="4_seeds"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/needs_care.ogg" id="5_needs_care"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/ready_sparkle.ogg" id="6_ready_sparkle"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/mistake.ogg" id="7_mistake"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_plot"]
 size = Vector3(0.17, 0.42, 0.3)
@@ -10,9 +14,13 @@ size = Vector3(0.17, 0.42, 0.3)
 [sub_resource type="BoxShape3D" id="BoxShape3D_box"]
 size = Vector3(1.16, 0.21, 0.35)
 
-[node name="PlanterBox" type="Node3D" groups=["planter_boxes"] node_paths=PackedStringArray("Watcher")]
+[node name="PlanterBox" type="Node3D" groups=["planter_boxes"] node_paths=PackedStringArray("Watcher", "PlantedSound", "NeedsCareSound", "ReadySound", "MistakeSound")]
 script = ExtResource("1_box")
 Watcher = NodePath("Watcher")
+PlantedSound = NodePath("PlantedSound")
+NeedsCareSound = NodePath("NeedsCareSound")
+ReadySound = NodePath("ReadySound")
+MistakeSound = NodePath("MistakeSound")
 
 [node name="Model" parent="." instance=ExtResource("3_model")]
 position = Vector3(0, 0.135, 0)
@@ -83,3 +91,22 @@ script = ExtResource("2_plot")
 [node name="Shape" type="CollisionShape3D" parent="Plots/Plot6"]
 position = Vector3(0, 0.2, 0)
 shape = SubResource("BoxShape3D_plot")
+
+[node name="PlantedSound" type="AudioStreamPlayer3D" parent="."]
+position = Vector3(0, 0.3, 0)
+stream = ExtResource("4_seeds")
+
+[node name="NeedsCareSound" type="AudioStreamPlayer3D" parent="."]
+position = Vector3(0, 0.3, 0)
+stream = ExtResource("5_needs_care")
+volume_db = -2.0
+
+[node name="ReadySound" type="AudioStreamPlayer3D" parent="."]
+position = Vector3(0, 0.3, 0)
+stream = ExtResource("6_ready_sparkle")
+volume_db = -6.0
+
+[node name="MistakeSound" type="AudioStreamPlayer3D" parent="."]
+position = Vector3(0, 0.3, 0)
+stream = ExtResource("7_mistake")
+volume_db = -6.0

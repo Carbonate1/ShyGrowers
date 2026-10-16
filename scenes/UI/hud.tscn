@@ -10,8 +10,9 @@
 [ext_resource type="Script" path="res://scripts/UI/SceneButton.cs" id="8_scene_button"]
 [ext_resource type="Resource" path="res://resources/plants/ocean.tres" id="9_ocean"]
 [ext_resource type="Resource" path="res://resources/plants/nocturnal.tres" id="10_nocturnal"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/game_over.ogg" id="11_game_over"]
 
-[node name="Hud" type="CanvasLayer" unique_id=1122126769 node_paths=PackedStringArray("LeftHand", "RightHand", "ViewName", "DrawerPanel", "DrawerSlots", "Harvested", "SeedCounters", "EndScreen", "EndScore")]
+[node name="Hud" type="CanvasLayer" unique_id=1122126769 node_paths=PackedStringArray("LeftHand", "RightHand", "ViewName", "DrawerPanel", "DrawerSlots", "Harvested", "SeedCounters", "EndScreen", "EndScore", "GameOverSound")]
 script = ExtResource("1_hud")
 LeftHand = NodePath("Screen/Hands/Left/Slot")
 RightHand = NodePath("Screen/Hands/Right/Slot")
@@ -22,6 +23,7 @@ Harvested = NodePath("Screen/Tally/Harvested")
 SeedCounters = NodePath("Screen/Tally/Seeds")
 EndScreen = NodePath("Screen/EndScreen")
 EndScore = NodePath("Screen/EndScreen/Center/Panel/Layout/Score")
+GameOverSound = NodePath("GameOver")
 
 [node name="Screen" type="Control" parent="." unique_id=352424036]
 layout_mode = 3
@@ -260,3 +262,7 @@ theme_override_font_sizes/font_size = 36
 text = "Title"
 script = ExtResource("8_scene_button")
 Scene = "res://scenes/title_screen.tscn"
+
+[node name="GameOver" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("11_game_over")
+volume_db = -4.0

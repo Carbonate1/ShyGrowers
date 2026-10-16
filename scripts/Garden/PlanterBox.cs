@@ -29,6 +29,12 @@ public partial class PlanterBox : Node3D
 	[Export] public VisibleOnScreenNotifier3D Watcher { get; set; }
 	[Export] public Biome GrowingBiome { get; set; } = Biome.Any;
 
+	[ExportGroup("Sounds")]
+	[Export] public AudioStreamPlayer3D PlantedSound { get; set; }
+	[Export] public AudioStreamPlayer3D NeedsCareSound { get; set; }
+	[Export] public AudioStreamPlayer3D ReadySound { get; set; }
+	[Export] public AudioStreamPlayer3D MistakeSound { get; set; }
+
 	public bool IsWatched => Watcher is null || Watcher.IsOnScreen();
 	public float TimeScale => IsWatched ? 1f : LookAwaySpeed;
 
@@ -154,6 +160,11 @@ public partial class PlanterBox : Node3D
 		plant.Position = GetPlantPosition(firstPlot, plotCount);
 		placements.Add(new PlantPlacement(plant, seeds, firstPlot, plotCount));
 
+		plant.CareRequested += _ => NeedsCareSound?.Play();
+		plant.WrongCareGiven += _ => MistakeSound?.Play();
+		plant.StageChanged += OnPlantStageChanged;
+		PlantedSound?.Play();
+
 		return true;
 	}
 
@@ -246,6 +257,14 @@ public partial class PlanterBox : Node3D
 		return placements.Find(placement =>
 			plotIndex >= placement.FirstPlot &&
 			plotIndex < placement.FirstPlot + placement.PlotCount);
+	}
+
+	private void OnPlantStageChanged(Plant plant)
+	{
+		if (plant.CurrentStage == Plant.Stage.Harvestable)
+		{
+			ReadySound?.Play();
+		}
 	}
 
 	private bool SameBed(int left, int right)

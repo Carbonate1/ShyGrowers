@@ -30,6 +30,8 @@ public partial class Plant : Node3D
 	}
 
 	[Signal] public delegate void StageChangedEventHandler(Plant plant);
+	[Signal] public delegate void CareRequestedEventHandler(Plant plant);
+	[Signal] public delegate void WrongCareGivenEventHandler(Plant plant);
 
 	[Export] public PlantData Data { get; set; }
 	[Export] public Vector2I SeedYield { get; set; } = new(1, 2);
@@ -41,7 +43,7 @@ public partial class Plant : Node3D
 	public Stage CurrentStage { get; private set; }
 	public Care CareNeeded { get; private set; }
 	public float TimeScale { get; internal set; } = 1f;
-	public bool IsHarvestable => CurrentStage is Stage.Harvestable or Stage.Decaying;
+	public bool IsHarvestable => CurrentStage is Stage.Harvestable or Stage.Decaying or Stage.Dead;
 	public bool IsGrowing => CurrentStage <= Stage.Harvestable;
 	public bool IsAlive => IsGrowing || CurrentStage == Stage.Decaying;
 	public float GetSaleValue => saleValue;
@@ -79,6 +81,7 @@ public partial class Plant : Node3D
 				if (CurrentStage is Stage.Planted or Stage.Growing1 or Stage.Growing2)
 				{
 					CareNeeded = SelectCare();
+					EmitSignal(SignalName.CareRequested, this);
 					UpdateLabel();
 				}
 				else
@@ -108,6 +111,7 @@ public partial class Plant : Node3D
 		if (completedCare != CareNeeded)
 		{
 			saleValue -= WRONG_CARE_PUNISHMENT;
+			EmitSignal(SignalName.WrongCareGiven, this);
 			return false;
 		}
 
@@ -242,7 +246,7 @@ public partial class Plant : Node3D
 
 	public Texture2D GetHarvestableTexture()
 	{
-		Sprite3D sprite = Stages?.GetNodeOrNull<Sprite3D>(nameof(Stage.Harvestable));
+		Sprite3D sprite = Stages?.GetNodeOrNull<Sprite3D>(CurrentStage == Stage.Dead ? nameof(Stage.Dead) : nameof(Stage.Harvestable));
 		if (sprite?.Texture is not Texture2D texture)
 		{
 			return null;

@@ -35,6 +35,13 @@
 [ext_resource type="Environment" path="res://assets/environment/night_room_environment.tres" id="34_night_environment"]
 [ext_resource type="Shader" path="res://assets/shaders/underwater.gdshader" id="35_underwater"]
 [ext_resource type="Texture2D" path="res://assets/textures/sea_foam_noise.png" id="36_sea_foam"]
+[ext_resource type="Script" path="res://scripts/Audio/Soundtrack.cs" id="37_soundtrack"]
+[ext_resource type="AudioStream" path="res://assets/audio/garden_theme.mp3" id="38_garden_theme"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/whoosh.ogg" id="39_whoosh"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/grab.ogg" id="40_grab"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/coin.ogg" id="41_coin"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/ocean_hum.ogg" id="42_ocean_hum"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/night_crickets.ogg" id="43_night_crickets"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_underwater"]
 shader = ExtResource("35_underwater")
@@ -93,48 +100,61 @@ transform = Transform3D(-1, 6.696973e-08, -5.619428e-08, 0, 0.64278764, 0.766044
 [node name="Summer" type="Marker3D" parent="Viewpoints/LivingRoom" unique_id=1906037110]
 transform = Transform3D(-1, 5.5960165e-08, -6.716548e-08, 0, 0.76828355, 0.64010966, 8.742278e-08, 0.64010966, -0.76828355, -1.2, 1.5, 0.85)
 
-[node name="OceanRoom" type="Node3D" parent="Viewpoints" unique_id=1137760524 node_paths=PackedStringArray("Lights", "Overlay")]
+[node name="OceanRoom" type="Node3D" parent="Viewpoints" unique_id=1137760524 node_paths=PackedStringArray("Lights", "Overlay", "Ambience")]
 script = ExtResource("32_storey")
 Environment = ExtResource("33_ocean_environment")
 Lights = [NodePath("../../OceanRoom/Lighting")]
 Overlay = NodePath("../../Underwater/Waves")
+Ambience = NodePath("Ambience")
+
+[node name="Ambience" type="AudioStreamPlayer" parent="Viewpoints/OceanRoom" unique_id=1572039486]
+stream = ExtResource("42_ocean_hum")
+volume_db = -18.0
 
 [node name="Ocean" type="Marker3D" parent="Viewpoints/OceanRoom" unique_id=2093315867]
 transform = Transform3D(0.7746612, -0.2404171, 0.5848928, 0, 0.9249124, 0.3801803, -0.6323765, -0.294511, 0.7164937, 1.6, 4.8, 1.7)
 
-[node name="NightRoom" type="Node3D" parent="Viewpoints" unique_id=730584419 node_paths=PackedStringArray("Lights")]
+[node name="NightRoom" type="Node3D" parent="Viewpoints" unique_id=730584419 node_paths=PackedStringArray("Lights", "Ambience")]
 script = ExtResource("32_storey")
 Environment = ExtResource("34_night_environment")
 Lights = [NodePath("../../NightRoom/Lighting")]
+Ambience = NodePath("Ambience")
+
+[node name="Ambience" type="AudioStreamPlayer" parent="Viewpoints/NightRoom" unique_id=2017364855]
+stream = ExtResource("43_night_crickets")
+volume_db = 4.0
 
 [node name="Nocturnal" type="Marker3D" parent="Viewpoints/NightRoom" unique_id=1946022881]
 transform = Transform3D(1, 0, 0, 0, 0.76828355, 0.64010966, 0, -0.64010966, 0.76828355, -0.5, 7.985, -0.85)
 
-[node name="Camera" type="Camera3D" parent="." unique_id=208845271 node_paths=PackedStringArray("Viewpoints")]
+[node name="Camera" type="Camera3D" parent="." unique_id=208845271 node_paths=PackedStringArray("Viewpoints", "ClimbSound")]
 fov = 55.0
 near = 0.03
 script = ExtResource("3_camera")
 Viewpoints = NodePath("../Viewpoints")
+ClimbSound = NodePath("Whoosh")
 
 [node name="InkOutline" type="MeshInstance3D" parent="Camera" unique_id=6603966]
 cast_shadow = 0
 extra_cull_margin = 16384.0
 mesh = SubResource("QuadMesh_ink")
 
-[node name="LeftHand" type="Node3D" parent="Camera" unique_id=2080585147 node_paths=PackedStringArray("World", "Drawer")]
+[node name="LeftHand" type="Node3D" parent="Camera" unique_id=2080585147 node_paths=PackedStringArray("World", "Drawer", "GrabSound")]
 transform = Transform3D(0.9396926, -0.088521324, -0.33036608, 0, 0.9659258, -0.25881904, 0.34202012, 0.24321035, 0.90767336, -0.36, -0.27, -0.72)
 script = ExtResource("14_hand")
 World = NodePath("../../Items")
 Drawer = NodePath("../../Room/Table")
+GrabSound = NodePath("../Grab")
 Item = ExtResource("6_seed_packet")
 ReachYaw = -90.0
 
-[node name="RightHand" type="Node3D" parent="Camera" unique_id=362158483 node_paths=PackedStringArray("World", "Drawer")]
+[node name="RightHand" type="Node3D" parent="Camera" unique_id=362158483 node_paths=PackedStringArray("World", "Drawer", "GrabSound")]
 transform = Transform3D(0.9396926, 0.088521324, 0.33036608, 0, 0.9659258, -0.25881904, -0.34202012, 0.24321035, 0.90767336, 0.36, -0.27, -0.72)
 script = ExtResource("14_hand")
 Button = 2
 World = NodePath("../../Items")
 Drawer = NodePath("../../Room/Table")
+GrabSound = NodePath("../Grab")
 Item = ExtResource("7_watering_can")
 
 [node name="Items" type="Node3D" parent="." unique_id=1088273955]
@@ -174,11 +194,12 @@ Seeds = NodePath("../Seeds")
 Inventory = NodePath("../Inventory")
 PlantSelectionMenu = NodePath("../PlantSelectionMenu")
 
-[node name="ShopController" type="Node" parent="." unique_id=41825661 node_paths=PackedStringArray("Shop", "Inventory", "Seeds")]
+[node name="ShopController" type="Node" parent="." unique_id=41825661 node_paths=PackedStringArray("Shop", "Inventory", "Seeds", "CoinSound")]
 script = ExtResource("23_shop_controller")
 Shop = NodePath("../Shop")
 Inventory = NodePath("../Inventory")
 Seeds = NodePath("../Seeds")
+CoinSound = NodePath("Coin")
 
 [node name="Underwater" type="CanvasLayer" parent="." unique_id=618273904]
 
@@ -205,3 +226,19 @@ script = ExtResource("10_toon")
 Surface = ExtResource("11_surface")
 DoubleSidedSurface = ExtResource("12_double_sided")
 Sprite = ExtResource("13_sprite")
+
+[node name="Soundtrack" type="Node" parent="." unique_id=905173362]
+script = ExtResource("37_soundtrack")
+Track = ExtResource("38_garden_theme")
+
+[node name="Whoosh" type="AudioStreamPlayer" parent="Camera" unique_id=1188640257]
+stream = ExtResource("39_whoosh")
+volume_db = -10.0
+
+[node name="Grab" type="AudioStreamPlayer" parent="Camera" unique_id=467915302]
+stream = ExtResource("40_grab")
+volume_db = -8.0
+
+[node name="Coin" type="AudioStreamPlayer" parent="ShopController" unique_id=1934502168]
+stream = ExtResource("41_coin")
+volume_db = -4.0

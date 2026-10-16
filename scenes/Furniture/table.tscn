@@ -5,6 +5,7 @@
 [ext_resource type="Script" path="res://scripts/Items/ItemData.cs" id="3_item"]
 [ext_resource type="Resource" path="res://resources/items/hoe.tres" id="4_hoe"]
 [ext_resource type="Resource" path="res://resources/items/harvesting_bag.tres" id="6_bag"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/drawer.ogg" id="7_drawer"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_handle"]
 size = Vector3(0.56, 0.12, 0.065)
@@ -18,12 +19,13 @@ size = Vector3(1.2, 0.04, 0.6)
 [sub_resource type="BoxShape3D" id="BoxShape3D_leg"]
 size = Vector3(0.06, 0.71, 0.06)
 
-[node name="Table" type="Node3D" node_paths=PackedStringArray("Animator", "Slots")]
+[node name="Table" type="Node3D" node_paths=PackedStringArray("Animator", "Slots", "SlideSound")]
 script = ExtResource("1_drawer")
 Animator = NodePath("Model/AnimationPlayer")
 Slots = NodePath("Model/Cube_025/Slots")
 SlotSize = Vector3(0.1, 0.09, 0.19)
 Items = Array[ExtResource("3_item")]([ExtResource("4_hoe"), ExtResource("6_bag")])
+SlideSound = NodePath("SlideSound")
 
 [node name="Model" parent="." instance=ExtResource("2_model")]
 
@@ -86,6 +88,10 @@ shape = SubResource("BoxShape3D_leg")
 [node name="Leg4" type="CollisionShape3D" parent="Collision"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.55, 0.355, 0.25)
 shape = SubResource("BoxShape3D_leg")
+
+[node name="SlideSound" type="AudioStreamPlayer3D" parent="."]
+position = Vector3(0, 0.68, 0.27)
+stream = ExtResource("7_drawer")
 
 [connection signal="input_event" from="Model/Cube_025/Handle" to="." method="OnHandleInputEvent"]
 

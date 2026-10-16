@@ -10,6 +10,7 @@ public partial class ShopController : Node
 	[Export] public Inventory Inventory { get; set; }
 	[Export] public SeedStock Seeds { get; set; }
 	[Export] public float StartingCoins { get; set; } = 3;
+	[Export] public AudioStreamPlayer CoinSound { get; set; }
 
 	private PauseMenu pauseMenu;
 	private readonly Dictionary<string, PlantData> plantDataByName = new();
@@ -135,6 +136,7 @@ public partial class ShopController : Node
 
 		coins -= offer.Price;
 		Seeds.Add(plantData, 1);
+		CoinSound?.Play();
 		RefreshShop();
 	}
 
@@ -148,6 +150,7 @@ public partial class ShopController : Node
 		}
 
 		coins += salePrice * marketValues[item.name];
+		CoinSound?.Play();
 		RefreshShop();
 	}
 

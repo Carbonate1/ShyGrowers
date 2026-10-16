@@ -47,6 +47,11 @@ public partial class Hands : Node
 		}
 	}
 
+	public Hand OtherHand(Hand hand)
+	{
+		return hand == LeftHand ? RightHand : LeftHand;
+	}
+
 	private void OnHandItemChanged()
 	{
 		EmitSignal(SignalName.Changed);

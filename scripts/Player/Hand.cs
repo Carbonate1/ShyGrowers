@@ -6,6 +6,7 @@ public partial class Hand : Node3D
 	[Export] public MouseButton Button { get; set; } = MouseButton.Left;
 	[Export] public Node3D World { get; set; }
 	[Export] public Drawer Drawer { get; set; }
+	[Export] public AudioStreamPlayer GrabSound { get; set; }
 	[Export] public ItemData Item
 	{
 		get => item;
@@ -169,6 +170,7 @@ public partial class Hand : Node3D
 			swapped.LinearVelocity = Vector3.Up * 1.2f;
 		}
 
+		GrabSound?.Play();
 		incoming = pickup.GlobalTransform;
 		pickup.QueueFree();
 		Item = pickup.Item;
@@ -176,7 +178,7 @@ public partial class Hand : Node3D
 
 	private void OnDrawerSlotClicked(int slot, MouseButton button)
 	{
-		if (button != Button || IsBusy || Drawer.Items[slot] is null)
+		if (button != Button || IsBusy || (Item is null && Drawer.Items[slot] is null))
 		{
 			return;
 		}
@@ -184,6 +186,7 @@ public partial class Hand : Node3D
 		Transform3D from = model?.GlobalTransform ?? GlobalTransform;
 		ItemData taken = Drawer.Swap(slot, Item, from, out Transform3D takenFrom);
 
+		GrabSound?.Play();
 		incoming = takenFrom;
 		Item = taken;
 	}

@@ -11,6 +11,7 @@ public partial class RoomCamera : Camera3D
 	[Export] public float TurnDuration { get; set; } = 0.8f;
 	[Export] public float ClimbDuration { get; set; } = 1.4f;
 	[Export(PropertyHint.Range, "0,10,0.1,suffix:°")] public float MouseSway { get; set; } = 2.5f;
+	[Export] public AudioStreamPlayer ClimbSound { get; set; }
 
 	public Node3D CurrentView { get; private set; }
 
@@ -27,7 +28,7 @@ public partial class RoomCamera : Camera3D
 		floorIndex = StartingFloor;
 		viewIndices = new int[Viewpoints.GetChildCount()];
 		viewIndices[floorIndex] = StartingView;
-		CurrentView = Floor.GetChild<Node3D>(StartingView);
+		CurrentView = Floor.Views[StartingView];
 		anchor = CurrentView.GlobalTransform;
 		GlobalTransform = anchor;
 		Arrive();
@@ -51,13 +52,14 @@ public partial class RoomCamera : Camera3D
 
 	public void Turn(int direction)
 	{
-		viewIndices[floorIndex] = Mathf.PosMod(viewIndices[floorIndex] + direction, Floor.GetChildCount());
+		viewIndices[floorIndex] = Mathf.PosMod(viewIndices[floorIndex] + direction, Floor.Views.Count);
 		MoveTo(TurnDuration);
 	}
 
 	public void Climb(int direction)
 	{
 		floorIndex = Mathf.PosMod(floorIndex + direction, Viewpoints.GetChildCount());
+		ClimbSound?.Play();
 		MoveTo(ClimbDuration);
 	}
 
@@ -74,7 +76,7 @@ public partial class RoomCamera : Camera3D
 
 	private void MoveTo(float duration)
 	{
-		CurrentView = Floor.GetChild<Node3D>(viewIndices[floorIndex]);
+		CurrentView = Floor.Views[viewIndices[floorIndex]];
 
 		Transform3D from = anchor;
 		Transform3D to = CurrentView.GlobalTransform;
