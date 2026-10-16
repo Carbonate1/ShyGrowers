@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://br5jhcv8rcon4"]
 
 [ext_resource type="Script" uid="uid://bbmxa51m08fql" path="res://scripts/Plants/Plant.cs" id="1_8ydng"]
-[ext_resource type="Resource" path="res://resources/plants/frostbloom.tres" id="2_7y1u1"]
+[ext_resource type="Resource" path="res://resources/plants/nocturnal.tres" id="2_7y1u1"]
 [ext_resource type="Texture2D" uid="uid://wuojdxkpqbel" path="res://assets/plants/nocturnal/NocturnalPlantV1.png" id="3_f0aib"]
 [ext_resource type="FontFile" uid="uid://dd35x1qab7atj" path="res://assets/fonts/KiwiSoda.ttf" id="4_byl8v"]
 

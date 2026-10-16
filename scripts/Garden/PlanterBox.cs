@@ -43,7 +43,7 @@ public partial class PlanterBox : Node3D
 		Node plotsNode = GetNodeOrNull<Node>("Plots")
 			?? throw new InvalidOperationException("PlanterBox scene is missing its 'Plots' node.");
 
-		foreach (Node child in plotsNode.GetChildren())
+		foreach (Node child in plotsNode.FindChildren("*", nameof(Area3D)))
 		{
 			if (child is Plot plot)
 			{
@@ -51,7 +51,7 @@ public partial class PlanterBox : Node3D
 			}
 		}
 
-		plots.Sort((left, right) => left.Position.X.CompareTo(right.Position.X));
+		plots.Sort((left, right) => ToLocal(left.GlobalPosition).X.CompareTo(ToLocal(right.GlobalPosition).X));
 		if (plots.Count != PLOT_COUNT)
 		{
 			throw new InvalidOperationException(
@@ -111,7 +111,7 @@ public partial class PlanterBox : Node3D
 
 		for (int index = firstPlot; index < firstPlot + plant.Data.PlantSize; index++)
 		{
-			if (GetPlantAtPlot(index) is not null)
+			if (GetPlantAtPlot(index) is not null || !SameBed(firstPlot, index))
 			{
 				return false;
 			}
@@ -189,12 +189,12 @@ public partial class PlanterBox : Node3D
 		int leftIndex = firstPlot - 1;
 		int rightIndex = firstPlot + plotCount;
 
-		if (leftIndex >= 0 && GetPlantAtPlot(leftIndex) is { } leftPlant)
+		if (leftIndex >= 0 && SameBed(leftIndex, firstPlot) && GetPlantAtPlot(leftIndex) is { } leftPlant)
 		{
 			adjacentPlants.Add(leftPlant);
 		}
 
-		if (rightIndex < PLOT_COUNT && GetPlantAtPlot(rightIndex) is { } rightPlant)
+		if (rightIndex < PLOT_COUNT && SameBed(rightIndex, rightIndex - 1) && GetPlantAtPlot(rightIndex) is { } rightPlant)
 		{
 			adjacentPlants.Add(rightPlant);
 		}
@@ -246,6 +246,11 @@ public partial class PlanterBox : Node3D
 		return placements.Find(placement =>
 			plotIndex >= placement.FirstPlot &&
 			plotIndex < placement.FirstPlot + placement.PlotCount);
+	}
+
+	private bool SameBed(int left, int right)
+	{
+		return plots[left].GetParent() == plots[right].GetParent();
 	}
 
 	private void OnPlotClicked(int plotIndex, MouseButton button)

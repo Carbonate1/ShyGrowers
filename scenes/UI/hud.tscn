@@ -8,6 +8,8 @@
 [ext_resource type="Resource" path="res://resources/plants/rose.tres" id="6_rose"]
 [ext_resource type="Resource" path="res://resources/plants/frostbloom.tres" id="7_frostbloom"]
 [ext_resource type="Script" path="res://scripts/UI/SceneButton.cs" id="8_scene_button"]
+[ext_resource type="Resource" path="res://resources/plants/ocean.tres" id="9_ocean"]
+[ext_resource type="Resource" path="res://resources/plants/nocturnal.tres" id="10_nocturnal"]
 
 [node name="Hud" type="CanvasLayer" unique_id=1122126769 node_paths=PackedStringArray("LeftHand", "RightHand", "ViewName", "DrawerPanel", "DrawerSlots", "Harvested", "SeedCounters", "EndScreen", "EndScore")]
 script = ExtResource("1_hud")
@@ -182,6 +184,18 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 28
 script = ExtResource("3_seed_counter")
 Seeds = ExtResource("7_frostbloom")
+
+[node name="Ocean" type="Label" parent="Screen/Tally/Seeds"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+script = ExtResource("3_seed_counter")
+Seeds = ExtResource("9_ocean")
+
+[node name="Nocturnal" type="Label" parent="Screen/Tally/Seeds"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+script = ExtResource("3_seed_counter")
+Seeds = ExtResource("10_nocturnal")
 
 [node name="EndScreen" type="Control" parent="Screen"]
 visible = false

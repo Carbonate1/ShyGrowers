@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://d0opwokc5n3iw"]
 
 [ext_resource type="Script" uid="uid://bbmxa51m08fql" path="res://scripts/Plants/Plant.cs" id="1_xwiva"]
-[ext_resource type="Resource" path="res://resources/plants/frostbloom.tres" id="2_225ns"]
+[ext_resource type="Resource" path="res://resources/plants/ocean.tres" id="2_225ns"]
 [ext_resource type="Texture2D" uid="uid://c61lajdgk3ux3" path="res://assets/plants/ocean/OceanPlantV1.png" id="3_tgsrn"]
 [ext_resource type="FontFile" uid="uid://dd35x1qab7atj" path="res://assets/fonts/KiwiSoda.ttf" id="4_xd5rw"]
 
