@@ -36,6 +36,12 @@ project/assembly_name="ShyGrowers"
 
 theme/custom="res://assets/ui/cozy_theme.tres"
 
+[importer_defaults]
+
+texture={
+"process/size_limit": 512
+}
+
 [input]
 
 look_left={
