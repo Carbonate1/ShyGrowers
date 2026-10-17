@@ -2,6 +2,10 @@
 .godot/
 /android/
 
+# Generated static web bundle
+/Publishing/WebBuild/*
+!/Publishing/WebBuild/.gitkeep
+
 # .NET build outputs
 [Bb]in/
 [Oo]bj/
