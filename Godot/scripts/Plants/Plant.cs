@@ -20,7 +20,7 @@ public partial class Plant : Node3D
 	private const string WATERING_ICON_PATH = "res://assets/icons/PlantStatus/Size1Watering.png";
 	private const string WEEDING_ICON_PATH = "res://assets/icons/PlantStatus/Size1Weeding.png";
 	private const string FERTILIZING_ICON_PATH = "res://assets/icons/PlantStatus/Size1Fertilizing.png";
-	private const string HARVESTING_ICON_PATH = "res://assets/icons/PlantStatus/Size1Harvesting.png";
+	private const string HARVESTING_ICON_PATH = "res://assets/icons/PlantStatus/Size1HarvestingV2.png";
 	
 	public enum Stage
 	{
