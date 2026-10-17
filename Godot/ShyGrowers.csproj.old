@@ -1,0 +1,23 @@
+<Project Sdk="Godot.NET.Sdk/4.7.2">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <TargetFramework Condition=" '$(GodotTargetPlatform)' == 'android' ">net10.0</TargetFramework>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+  </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="2dog.godotsharp" Version="$(TwoDogVersion)" />
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="2dog.godotsharp.editor" Version="$(TwoDogVersion)" Condition="'$(Configuration)' == 'Debug' Or '$(Configuration)' == 'Editor'" />
+    </ItemGroup>
+    <!-- added by the 2dog tool: properties 2dog hosts need that were not already set -->
+    <PropertyGroup>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <DefineConstants>$(DefineConstants);TWODOG_WEB_BOOT</DefineConstants>
+        <DefaultItemExcludes>$(DefaultItemExcludes);ShyGrowers.web/**</DefaultItemExcludes>
+    </PropertyGroup>
+    <!-- added by the 2dog tool: compiles the web bootstrap (in the web host folder) into this game assembly -->
+    <ItemGroup>
+        <Compile Include="ShyGrowers.web/TwoDogWebBoot.cs" Condition="Exists('$(MSBuildThisFileDirectory)ShyGrowers.web/TwoDogWebBoot.cs')" />
+    </ItemGroup>
+</Project>

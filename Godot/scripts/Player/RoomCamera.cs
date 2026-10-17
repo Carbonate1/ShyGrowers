@@ -32,12 +32,12 @@ public partial class RoomCamera : Camera3D
 		floorIndex = StartingFloor;
 		viewIndices = new int[Viewpoints.GetChildCount()];
 		viewIndices[floorIndex] = StartingView;
-		CurrentView = Floor.Views[StartingView];
-
-		if (!IsViewUnlocked(Viewpoints.GetChild<Node3D>(viewIndex)))
+		if (!IsViewUnlocked(Floor.Views[viewIndices[floorIndex]]))
 		{
-			viewIndex = FindNextUnlockedView(viewIndex, 1);
+			viewIndices[floorIndex] = FindNextUnlockedView(viewIndices[floorIndex], 1);
 		}
+		CurrentView = Floor.Views[viewIndices[floorIndex]];
+
 		anchor = CurrentView.GlobalTransform;
 		GlobalTransform = anchor;
 		Arrive();
@@ -66,30 +66,56 @@ public partial class RoomCamera : Camera3D
 			return;
 		}
 
-		int nextViewIndex = FindNextUnlockedView(viewIndex, direction);
-		if (nextViewIndex == viewIndex) // No unlocked views other than this one; return
+		int currentViewIndex = viewIndices[floorIndex];
+		int nextViewIndex = FindNextUnlockedView(currentViewIndex, direction);
+		if (nextViewIndex == currentViewIndex) // No unlocked views other than this one; return
 		{
 			return;
 		}
 
-		viewIndices[floorIndex] = Mathf.PosMod(viewIndices[floorIndex] + direction, Floor.Views.Count);
+		viewIndices[floorIndex] = nextViewIndex;
 		MoveTo(TurnDuration);
 	}
 
 	public void Climb(int direction)
 	{
-		floorIndex = Mathf.PosMod(floorIndex + direction, Viewpoints.GetChildCount());
+		int nextFloorIndex = FindNextUnlockedFloor(floorIndex, direction);
+		if (nextFloorIndex == floorIndex)
+		{
+			return;
+		}
+
+		floorIndex = nextFloorIndex;
 		ClimbSound?.Play();
 		MoveTo(ClimbDuration);
 	}
 
+	private int FindNextUnlockedFloor(int fromIndex, int direction)
+	{
+		int floorCount = Viewpoints.GetChildCount();
+		for (int offset = 1; offset <= floorCount; offset++)
+		{
+			int candidateIndex = Mathf.PosMod(fromIndex + direction * offset, floorCount);
+			Storey candidateFloor = Viewpoints.GetChild<Storey>(candidateIndex);
+			foreach (Node3D view in candidateFloor.Views)
+			{
+				if (IsViewUnlocked(view))
+				{
+					return candidateIndex;
+				}
+			}
+		}
+
+		return fromIndex;
+	}
+
 	private int FindNextUnlockedView(int fromIndex, int direction)
 	{
-		int viewCount = Viewpoints.GetChildCount();
+		int viewCount = Floor.Views.Count;
 		for (int offset = 1; offset <= viewCount; offset++)
 		{
 			int candidateIndex = Mathf.PosMod(fromIndex + direction * offset, viewCount);
-			if (IsViewUnlocked(Viewpoints.GetChild<Node3D>(candidateIndex)))
+			if (IsViewUnlocked(Floor.Views[candidateIndex]))
 			{
 				return candidateIndex;
 			}
@@ -100,6 +126,12 @@ public partial class RoomCamera : Camera3D
 
 	private bool IsViewUnlocked(Node3D view)
 	{
+		// Biome name is different from the node name
+		if (string.Equals(view.Name.ToString(), "Nocturnal"))
+		{
+			return Unlocks.IsPlanterUnlocked(Biome.Night);
+		}
+
 		if (!Enum.TryParse(view.Name.ToString(), true, out Biome biome) ||
 			biome is Biome.Any or Biome.None)
 		{

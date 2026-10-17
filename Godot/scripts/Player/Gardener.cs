@@ -96,8 +96,6 @@ public partial class Gardener : Node
 			return;
 		}
 
-		Hand hand = Hands.GetHand(button);
-		ItemData held = hand.Item;
 		Plant plant = planterBox.GetPlantAtPlot(plotIndex);
 		Hand hand = Hands.GetHand(button);
 		if (!CanHelp(hand.Item, plant) && CanHelp(Hands.OtherHand(hand).Item, plant))

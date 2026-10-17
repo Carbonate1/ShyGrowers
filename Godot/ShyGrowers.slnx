@@ -1,0 +1,12 @@
+<Solution>
+  <Configurations>
+    <BuildType Name="Debug" />
+    <BuildType Name="ExportDebug" />
+    <BuildType Name="ExportRelease" />
+  </Configurations>
+  <Project Path="ShyGrowers.csproj" />
+  <Project Path="ShyGrowers.web/ShyGrowers.web.csproj">
+    <BuildType Project="Debug" />
+    <Build Project="false" />
+  </Project>
+</Solution>

@@ -61,11 +61,13 @@ public static class SeedCatalog
 			"Ocean",
 			"res://resources/plants/ocean.tres",
 			"res://scenes/Plants/ocean.tscn",
+			"res://assets/plants/ocean/Seed.png",
 			1),
 		new SeedOffer(
 			"Nocturnal",
 			"res://resources/plants/nocturnal.tres",
 			"res://scenes/Plants/nocturnal.tscn",
+			"res://assets/plants/nocturnal/Seed.png",
 			1),
 	});
 };
@@ -91,9 +93,11 @@ public static class UnlockCatalog
 		new UnlockOffer("Spring Planter + Tulip", 8, UnlockType.Planter, Biome.Spring, "Tulip"),
 		new UnlockOffer("Summer Planter + Rose", 10, UnlockType.Planter, Biome.Summer, "Rose"),
 		new UnlockOffer("Winter Planter + Frostbloom", 12, UnlockType.Planter, Biome.Winter, "Frostbloom"),
+		new UnlockOffer("Ocean Planter + Ocean plant", 20, UnlockType.Planter, Biome.Ocean, "Ocean"),
+		new UnlockOffer("Nocturnal Planter + Nocturnal plant", 25, UnlockType.Planter, Biome.Night, "Nocturnal"),
 		new UnlockOffer("Ambi Rose", 15, UnlockType.Plant),
 		new UnlockOffer("Azure Queen", 20, UnlockType.Plant),
-		new UnlockOffer("Neighbouring Root", 25, UnlockType.Plant)
+		new UnlockOffer("Neighbouring Root", 25, UnlockType.Plant),
 	});
 }
 
@@ -152,6 +156,8 @@ public partial class Shop : CanvasLayer
 			AnchorTop = 0.5f,
 			AnchorRight = 0.5f,
 			AnchorBottom = 0.5f,
+			GrowHorizontal = Control.GrowDirection.Both,
+			GrowVertical = Control.GrowDirection.Both,
 			OffsetLeft = -OFFSET_X,
 			OffsetTop = -OFFSET_Y,
 			OffsetRight = OFFSET_X,
