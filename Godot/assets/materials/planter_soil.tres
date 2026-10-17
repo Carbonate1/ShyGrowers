@@ -1,0 +1,13 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/models/ocean_room_Dirt_Ground_basecolor.jpg" id="1_albedo"]
+[ext_resource type="Texture2D" path="res://assets/models/ocean_room_Dirt_Ground_normal.jpg" id="2_normal"]
+[ext_resource type="Texture2D" path="res://assets/models/ocean_room_Dirt_Ground_roughness.jpg" id="3_roughness"]
+
+[resource]
+resource_name = "Planter Soil"
+albedo_texture = ExtResource("1_albedo")
+roughness_texture = ExtResource("3_roughness")
+normal_enabled = true
+normal_texture = ExtResource("2_normal")
+uv1_scale = Vector3(2, 2, 1)
