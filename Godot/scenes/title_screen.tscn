@@ -8,8 +8,8 @@
 [ext_resource type="Shader" uid="uid://d0wxi54p7jjrr" path="res://assets/shaders/cozy_toon.gdshader" id="6_surface"]
 [ext_resource type="Shader" uid="uid://cmpnkg3cwdc52" path="res://assets/shaders/cozy_toon_double_sided.gdshader" id="7_double_sided"]
 [ext_resource type="Shader" uid="uid://dmt5sfwpum53j" path="res://assets/shaders/cozy_toon_sprite.gdshader" id="8_sprite"]
-[ext_resource type="Script" path="res://scripts/Audio/Soundtrack.cs" id="9_soundtrack"]
-[ext_resource type="AudioStream" path="res://assets/audio/shygrowers.wav" id="10_theme"]
+[ext_resource type="Script" uid="uid://djosuw5o1ybco" path="res://scripts/Audio/Soundtrack.cs" id="9_soundtrack"]
+[ext_resource type="AudioStream" uid="uid://dmwqskc24km6x" path="res://assets/audio/shygrowers.wav" id="10_theme"]
 
 [sub_resource type="QuadMesh" id="QuadMesh_ink"]
 material = ExtResource("2_ink")

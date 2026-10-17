@@ -7,6 +7,7 @@
 [ext_resource type="AudioStream" path="res://assets/audio/sfx/needs_care.ogg" id="5_needs_care"]
 [ext_resource type="AudioStream" path="res://assets/audio/sfx/ready_sparkle.ogg" id="6_ready_sparkle"]
 [ext_resource type="AudioStream" path="res://assets/audio/sfx/mistake.ogg" id="7_mistake"]
+[ext_resource type="Material" path="res://assets/materials/planter_soil.tres" id="8_soil"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_plot"]
 size = Vector3(0.17, 0.42, 0.3)
@@ -26,6 +27,9 @@ MistakeSound = NodePath("MistakeSound")
 position = Vector3(0, 0.135, 0)
 rotation_degrees = Vector3(0, 90, 0)
 scale = Vector3(0.09, 0.09, 0.09)
+
+[node name="Cube_001" parent="Model"]
+surface_material_override/0 = ExtResource("8_soil")
 
 [node name="Collision" type="StaticBody3D" parent="."]
 input_ray_pickable = false
@@ -110,3 +114,5 @@ volume_db = -6.0
 position = Vector3(0, 0.3, 0)
 stream = ExtResource("7_mistake")
 volume_db = -6.0
+
+[editable path="Model"]

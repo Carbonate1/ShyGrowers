@@ -64,16 +64,20 @@ public partial class ItemPickup : RigidBody3D
 
 		UseEffect.Restart();
 
-		if (UseEffect.GetNodeOrNull<GpuParticles3D>(UseEffect.SubEmitter) is { Emitting: false } subEmitter)
+		GpuParticles3D splash = UseEffect.GetNodeOrNull<GpuParticles3D>(UseEffect.SubEmitter);
+		if (splash is null || RenderingServer.GetRenderingDevice() is null)
 		{
-			GetTree().CreateTimer(0.05).Timeout += () =>
-			{
-				if (IsInstanceValid(subEmitter))
-				{
-					subEmitter.Emitting = true;
-				}
-			};
+			return;
 		}
+
+		GetTree().CreateTimer(0.05).Timeout += () =>
+		{
+			if (IsInstanceValid(splash))
+			{
+				splash.Emitting = true;
+			}
+		};
+		UseEffect.Connect(GpuParticles3D.SignalName.Finished, Callable.From(() => splash.Emitting = false), (uint)ConnectFlags.OneShot);
 	}
 
 	public Transform3D FitInside(Vector3 size)
