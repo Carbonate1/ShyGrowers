@@ -14,6 +14,8 @@ public partial class Drawer : Node3D
 	[Export] public Vector2 OpenSection { get; set; } = new(1.25f, 2.92f);
 	[Export] public Vector2 CloseSection { get; set; } = new(4.08f, 5.83f);
 
+	[Export] public AudioStreamPlayer3D SlideSound { get; set; }
+
 	[ExportGroup("Storage")]
 	[Export] public Node3D Slots { get; set; }
 	[Export] public Vector3 SlotSize { get; set; } = new(0.1f, 0.09f, 0.19f);
@@ -112,6 +114,7 @@ public partial class Drawer : Node3D
 		}
 
 		IsOpen = open;
+		SlideSound?.Play();
 		Vector2 section = open ? OpenSection : CloseSection;
 		Vector2 interrupted = open ? CloseSection : OpenSection;
 

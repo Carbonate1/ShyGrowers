@@ -12,6 +12,7 @@ Stages = NodePath("Stages")
 NeedLabel = NodePath("NeedLabel")
 
 [node name="Stages" type="Node3D" parent="." unique_id=707625461]
+visible = false
 
 [node name="Planted" type="Sprite3D" parent="Stages" unique_id=1506055049]
 visible = false
@@ -68,7 +69,6 @@ hframes = 6
 frame = 4
 
 [node name="Dead" type="Sprite3D" parent="Stages" unique_id=1312129991]
-visible = false
 offset = Vector2(0, 32)
 pixel_size = 0.0055
 shaded = true

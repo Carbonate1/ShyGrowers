@@ -22,6 +22,7 @@ public partial class Hud : CanvasLayer
 	[Export] public Control EndScreen { get; set; }
 	[Export] public Label EndScore { get; set; }
 	[Export] public Label Title { get; set; }
+	[Export] public AudioStreamPlayer GameOverSound { get; set; }
 
 	private List<ItemSlot> drawerSlots;
 
@@ -119,5 +120,6 @@ public partial class Hud : CanvasLayer
 		Title.Text += $"\nThresholds Completed: {Gardener.ThresholdsCompleted}";
 		EndScore.Text = total == 1 ? "you grew 1 flower" : $"you grew {total} flowers";
 		EndScreen.Show();
+		GameOverSound?.Play();
 	}
 }

@@ -1,0 +1,10 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/models/living_room_VenetianPlaster-JPG.jpg" id="1_albedo"]
+[ext_resource type="Texture2D" path="res://assets/models/living_room_VenetianPlaster-Roughness.png" id="2_roughness"]
+
+[resource]
+resource_name = "Ocean Plaster"
+albedo_color = Color(0.78, 0.86, 0.9, 1)
+albedo_texture = ExtResource("1_albedo")
+roughness_texture = ExtResource("2_roughness")

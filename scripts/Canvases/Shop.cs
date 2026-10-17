@@ -57,6 +57,16 @@ public static class SeedCatalog
 			"res://scenes/Plants/neighbouring_root.tscn",
 			"res://assets/plants/neighbouring_root/Seed.png",
 			4),
+		new SeedOffer(
+			"Ocean",
+			"res://resources/plants/ocean.tres",
+			"res://scenes/Plants/ocean.tscn",
+			1),
+		new SeedOffer(
+			"Nocturnal",
+			"res://resources/plants/nocturnal.tres",
+			"res://scenes/Plants/nocturnal.tscn",
+			1),
 	});
 };
 

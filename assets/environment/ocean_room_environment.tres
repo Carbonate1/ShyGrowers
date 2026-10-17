@@ -1,0 +1,29 @@
+[gd_resource type="Environment" format=3]
+
+[resource]
+background_mode = 1
+background_color = Color(0.02, 0.08, 0.13, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.3, 0.52, 0.66, 1)
+ambient_light_energy = 0.6
+reflected_light_source = 1
+tonemap_mode = 2
+tonemap_white = 6.0
+ssao_enabled = true
+ssao_radius = 0.8
+ssao_intensity = 1.8
+ssao_light_affect = 0.2
+ssil_enabled = true
+ssil_intensity = 0.6
+glow_enabled = true
+glow_intensity = 0.6
+glow_bloom = 0.06
+volumetric_fog_enabled = true
+volumetric_fog_density = 0.035
+volumetric_fog_albedo = Color(0.55, 0.78, 0.9, 1)
+volumetric_fog_emission = Color(0.02, 0.07, 0.11, 1)
+volumetric_fog_anisotropy = 0.6
+volumetric_fog_length = 8.0
+adjustment_enabled = true
+adjustment_contrast = 1.08
+adjustment_saturation = 1.1

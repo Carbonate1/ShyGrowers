@@ -1,0 +1,12 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/models/living_room_Knitted_Fabric_Normal.jpg" id="1_normal"]
+[ext_resource type="Texture2D" path="res://assets/models/living_room_Knitted_Fabric_Roughness.png" id="2_roughness"]
+
+[resource]
+resource_name = "Ocean Rug"
+albedo_color = Color(0.13, 0.27, 0.46, 1)
+roughness_texture = ExtResource("2_roughness")
+normal_enabled = true
+normal_texture = ExtResource("1_normal")
+uv1_scale = Vector3(3, 3, 1)

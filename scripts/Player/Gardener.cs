@@ -99,6 +99,13 @@ public partial class Gardener : Node
 		Hand hand = Hands.GetHand(button);
 		ItemData held = hand.Item;
 		Plant plant = planterBox.GetPlantAtPlot(plotIndex);
+		Hand hand = Hands.GetHand(button);
+		if (!CanHelp(hand.Item, plant) && CanHelp(Hands.OtherHand(hand).Item, plant))
+		{
+			hand = Hands.OtherHand(hand);
+		}
+
+		ItemData held = hand.Item;
 
 		if (hand.IsBusy)
 		{
@@ -136,7 +143,7 @@ public partial class Gardener : Node
 
 		if (held.DigsUpPlants)
 		{
-			AttemptRemovePlant(plant, planterBox);
+			hand.UseOn(planterBox.GetPlotGlobalPosition(plotIndex), () => AttemptRemovePlant(plant, planterBox));
 			return;
 		}
 
@@ -187,6 +194,31 @@ public partial class Gardener : Node
 		return true;
 	}
 
+	private static bool CanHelp(ItemData item, Plant plant)
+	{
+		if (item is null)
+		{
+			return false;
+		}
+
+		if (plant is null)
+		{
+			return item.OpensPlantSelection;
+		}
+
+		if (item.Harvests)
+		{
+			return plant.IsHarvestable;
+		}
+
+		return item.Care != Care.None && item.Care == plant.CareNeeded;
+	}
+
+	private void OnPlantPlanted(Plant plant)
+	{
+		plant.StageChanged += _ => CheckIfGameOver();
+	}
+
 	private void AttemptHarvest(Plant plant, PlanterBox planterBox, int plotIndex)
 	{
 		if (!plant.IsHarvestable)
@@ -197,7 +229,8 @@ public partial class Gardener : Node
 		PlantData sown = planterBox.GetSeedsAtPlot(plotIndex);
 		float saleMultiplier = planterBox.GetAdjacentPlantSaleBonuses(plant);
 		InventoryItem harvestedItem = new InventoryItem(plant, saleMultiplier);
-		int seedYield = plant.GetSeedYield();
+		bool grown = plant.IsAlive;
+		int seedYield = grown ? plant.GetSeedYield() : 0;
 		if (!planterBox.RemovePlant(plant))
 		{
 			return;
@@ -206,8 +239,11 @@ public partial class Gardener : Node
 		plant.QueueFree();
 		Inventory.AddItem(harvestedItem);
 
-		HarvestCount++;
-		EmitSignal(SignalName.PlantHarvested, HarvestCount);
+		if (grown)
+		{
+			HarvestCount++;
+			EmitSignal(SignalName.PlantHarvested, HarvestCount);
+		}
 		Seeds.Add(sown, seedYield);
 	}
 

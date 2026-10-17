@@ -14,6 +14,7 @@ public partial class ShopController : Node
 	[Export] public Inventory Inventory { get; set; }
 	[Export] public SeedStock Seeds { get; set; }
 	[Export] public UnlockProgress Unlocks { get; set; }
+	[Export] public AudioStreamPlayer CoinSound { get; set; }
 
 	public float CurrentCoins => coins;
 
@@ -199,6 +200,7 @@ public partial class ShopController : Node
 
 		coins -= buyPrice;
 		Seeds.Add(plantData, 1);
+		CoinSound?.Play();
 		RefreshShop();
 	}
 
@@ -294,6 +296,7 @@ public partial class ShopController : Node
 		}
 
 		coins += salePrice * marketValues[item.name];
+		CoinSound?.Play();
 		RefreshShop();
 	}
 

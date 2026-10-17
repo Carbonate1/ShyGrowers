@@ -1,8 +1,15 @@
 [gd_scene format=3]
 
-[ext_resource type="AudioStream" path="res://assets/audio/shygrowers.wav" id="1_song"]
+[ext_resource type="Script" path="res://scripts/Audio/Jukebox.cs" id="1_jukebox"]
+[ext_resource type="Script" path="res://scripts/Audio/ButtonClicks.cs" id="2_clicks"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/click.ogg" id="3_click"]
 
 [node name="Music" type="AudioStreamPlayer"]
-stream = ExtResource("1_song")
 volume_db = -8.0
-autoplay = true
+script = ExtResource("1_jukebox")
+
+[node name="Clicks" type="AudioStreamPlayer" parent="."]
+process_mode = 3
+stream = ExtResource("3_click")
+volume_db = -12.0
+script = ExtResource("2_clicks")

@@ -6,6 +6,8 @@
 [ext_resource type="PackedScene" path="res://assets/models/items/harvesting_bag.glb" id="4_model"]
 [ext_resource type="Script" path="res://scripts/Items/BagContents.cs" id="5_contents"]
 [ext_resource type="PackedScene" path="res://scenes/Items/bagged_flower.tscn" id="6_flower"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/harvest.ogg" id="7_harvest"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/drop_thunk.ogg" id="8_drop_thunk"]
 
 [sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_body"]
 points = PackedVector3Array(-0.06, 0, -0.103, 0.06, 0, -0.103, -0.06, 0, 0.103, 0.06, 0, 0.103, -0.06, 0.296, -0.039, 0.06, 0.296, -0.039, -0.06, 0.296, 0.039, 0.06, 0.296, 0.039)
@@ -25,7 +27,7 @@ size = Vector3(0.2, 0.303, 0.05)
 [sub_resource type="BoxShape3D" id="BoxShape3D_lid"]
 size = Vector3(0.2, 0.05, 0.2)
 
-[node name="HarvestingBag" type="RigidBody3D" node_paths=PackedStringArray("Grip", "Stow", "Aim") groups=["pickups"]]
+[node name="HarvestingBag" type="RigidBody3D" node_paths=PackedStringArray("Grip", "Stow", "Aim", "UseSound", "LandSound") groups=["pickups"]]
 collision_layer = 2
 collision_mask = 3
 mass = 0.3
@@ -36,6 +38,8 @@ Item = ExtResource("2_item")
 Grip = NodePath("Grip")
 Stow = NodePath("Stow")
 Aim = NodePath("Aim")
+UseSound = NodePath("UseSound")
+LandSound = NodePath("LandSound")
 
 [node name="Model" parent="." instance=ExtResource("4_model")]
 transform = Transform3D(19, 0, 0, 0, 19, 0, 0, 0, 19, 0, 0, 0)
@@ -110,3 +114,10 @@ shape = SubResource("BoxShape3D_lid")
 position = Vector3(0, 0.27, 0)
 
 [node name="Bodies" type="Node3D" parent="Contents/Simulation"]
+
+[node name="UseSound" type="AudioStreamPlayer3D" parent="."]
+stream = ExtResource("7_harvest")
+
+[node name="LandSound" type="AudioStreamPlayer3D" parent="."]
+stream = ExtResource("8_drop_thunk")
+volume_db = -6.0

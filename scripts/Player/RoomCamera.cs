@@ -8,30 +8,39 @@ public partial class RoomCamera : Camera3D
 
 	[Export] public Node3D Viewpoints { get; set; }
 	[Export] public UnlockProgress Unlocks { get; set; }
+	[Export] public int StartingFloor { get; set; }
 	[Export] public int StartingView { get; set; }
 	[Export] public float TurnDuration { get; set; } = 0.8f;
+	[Export] public float ClimbDuration { get; set; } = 1.4f;
 	[Export(PropertyHint.Range, "0,10,0.1,suffix:°")] public float MouseSway { get; set; } = 2.5f;
+	[Export] public AudioStreamPlayer ClimbSound { get; set; }
 
 	public Node3D CurrentView { get; private set; }
 
-	private int viewIndex;
+	private int floorIndex;
+	private int[] viewIndices;
 	private Transform3D anchor;
 	private Vector2 sway;
 	private Tween turnTween;
+
+	private Storey Floor => Viewpoints.GetChild<Storey>(floorIndex);
 
 	public override void _Ready()
 	{
 		ArgumentNullException.ThrowIfNull(Unlocks);
 
-		viewIndex = StartingView;
+		floorIndex = StartingFloor;
+		viewIndices = new int[Viewpoints.GetChildCount()];
+		viewIndices[floorIndex] = StartingView;
+		CurrentView = Floor.Views[StartingView];
+
 		if (!IsViewUnlocked(Viewpoints.GetChild<Node3D>(viewIndex)))
 		{
 			viewIndex = FindNextUnlockedView(viewIndex, 1);
 		}
-
-		CurrentView = Viewpoints.GetChild<Node3D>(viewIndex);
 		anchor = CurrentView.GlobalTransform;
 		GlobalTransform = anchor;
+		Arrive();
 	}
 
 	public override void _UnhandledInput(InputEvent @event)
@@ -43,6 +52,10 @@ public partial class RoomCamera : Camera3D
 		else if (@event.IsActionPressed("look_right"))
 		{
 			Turn(1);
+		}
+		else if (@event.IsActionPressed("switch_floor"))
+		{
+			Climb(1);
 		}
 	}
 
@@ -59,19 +72,15 @@ public partial class RoomCamera : Camera3D
 			return;
 		}
 
-		viewIndex = nextViewIndex;
-		CurrentView = Viewpoints.GetChild<Node3D>(viewIndex);
+		viewIndices[floorIndex] = Mathf.PosMod(viewIndices[floorIndex] + direction, Floor.Views.Count);
+		MoveTo(TurnDuration);
+	}
 
-		Transform3D from = anchor;
-		Transform3D to = CurrentView.GlobalTransform;
-
-		turnTween?.Kill();
-		turnTween = CreateTween()
-			.SetTrans(Tween.TransitionType.Sine)
-			.SetEase(Tween.EaseType.InOut);
-		turnTween.TweenMethod(Callable.From<float>(t => anchor = from.InterpolateWith(to, t)), 0f, 1f, TurnDuration);
-
-		EmitSignal(SignalName.ViewChanged, CurrentView);
+	public void Climb(int direction)
+	{
+		floorIndex = Mathf.PosMod(floorIndex + direction, Viewpoints.GetChildCount());
+		ClimbSound?.Play();
+		MoveTo(ClimbDuration);
 	}
 
 	private int FindNextUnlockedView(int fromIndex, int direction)
@@ -109,5 +118,32 @@ public partial class RoomCamera : Camera3D
 		sway = sway.Lerp(mouse, 1f - Mathf.Exp(-3f * (float)delta));
 		Vector3 tilt = new Vector3(-sway.Y, -sway.X, 0f) * Mathf.DegToRad(MouseSway);
 		GlobalTransform = anchor * new Transform3D(Basis.FromEuler(tilt), Vector3.Zero);
+	}
+
+	private void MoveTo(float duration)
+	{
+		CurrentView = Floor.Views[viewIndices[floorIndex]];
+
+		Transform3D from = anchor;
+		Transform3D to = CurrentView.GlobalTransform;
+
+		turnTween?.Kill();
+		turnTween = CreateTween()
+			.SetTrans(Tween.TransitionType.Sine)
+			.SetEase(Tween.EaseType.InOut);
+		turnTween.TweenMethod(Callable.From<float>(t => anchor = from.InterpolateWith(to, t)), 0f, 1f, duration);
+		turnTween.Parallel().TweenCallback(Callable.From(Arrive)).SetDelay(duration * 0.5f);
+
+		EmitSignal(SignalName.ViewChanged, CurrentView);
+	}
+
+	private void Arrive()
+	{
+		foreach (Storey storey in Viewpoints.GetChildren())
+		{
+			storey.SetActive(storey == Floor);
+		}
+
+		Environment = Floor.Environment;
 	}
 }

@@ -11,7 +11,24 @@ public partial class ItemPickup : RigidBody3D
 	[Export] public Marker3D Aim { get; set; }
 	[Export] public GpuParticles3D UseEffect { get; set; }
 
+	[ExportGroup("Sounds")]
+	[Export] public AudioStreamPlayer3D UseSound { get; set; }
+	[Export] public AudioStreamPlayer3D LandSound { get; set; }
+	[Export] public float LandSpeed { get; set; } = 0.6f;
+
 	public Transform3D GripTransform => Grip?.Transform ?? Transform3D.Identity;
+
+	public override void _Ready()
+	{
+		if (LandSound is null)
+		{
+			return;
+		}
+
+		ContactMonitor = true;
+		MaxContactsReported = 1;
+		BodyEntered += OnBodyEntered;
+	}
 
 	public void Hold()
 	{
@@ -29,10 +46,17 @@ public partial class ItemPickup : RigidBody3D
 		{
 			node.ProcessMode = ProcessModeEnum.Always;
 		}
+
+		foreach (Node node in FindChildren("*", "AudioStreamPlayer3D", true, false))
+		{
+			node.ProcessMode = ProcessModeEnum.Always;
+		}
 	}
 
 	public void Use()
 	{
+		UseSound?.Play();
+
 		if (UseEffect is null)
 		{
 			return;
@@ -70,6 +94,14 @@ public partial class ItemPickup : RigidBody3D
 			click.ButtonIndex is MouseButton.Left or MouseButton.Right)
 		{
 			EmitSignal(SignalName.Clicked, this, (int)click.ButtonIndex);
+		}
+	}
+
+	private void OnBodyEntered(Node body)
+	{
+		if (LinearVelocity.Length() > LandSpeed)
+		{
+			LandSound.Play();
 		}
 	}
 
